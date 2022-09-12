@@ -238,6 +238,99 @@ rule mask_subject_t1w:
         "fslmaths {input.t1} -mas {input.mask} {output}"
 
 
+rule greedy_affine_init:
+    input:
+        flo=bids(
+            root="work",
+            datatype="anat",
+            **config["subj_wildcards"],
+            suffix="T1w.nii.gz",
+            from_="atropos3seg",
+            desc="masked"
+        ),
+        ref=bids(
+            root="work",
+            datatype="anat",
+            prefix="tpl-{template}/tpl-{template}",
+            desc="masked",
+            suffix="T1w.nii.gz",
+        ),
+        init_xfm=bids(
+            root="work",
+            datatype="anat",
+            **config["subj_wildcards"],
+            suffix="xfm.txt",
+            from_="subject",
+            to="{template}",
+            desc="affine",
+            type_="itk"
+        ),
+    params:    
+        input_fixed_moving = lambda wildcards, input: [f'-i {fixed} {moving}' for fixed,moving in zip(input.ref, input.flo) ],
+        input_moving_warped = lambda wildcards, input, output: [f'-rm {moving} {warped}' for moving,warped in zip(input.flo,output.warped) ],
+    output:
+        warp=bids(
+            root="work",
+            datatype="anat",
+            suffix="warp.nii.gz",
+            from_="subject",
+            to="{template}",
+            **config["subj_wildcards"]
+        ),
+        invwarp=bids(
+            root="work",
+            datatype="anat",
+            suffix="invwarp.nii.gz",
+            from_="subject",
+            to="{template}",
+            **config["subj_wildcards"]
+        ),
+        warped_flo=bids(
+            root="work",
+            datatype="anat",
+            suffix="T1w.nii.gz",
+            space="{template}",
+            desc="greedy",
+            **config["subj_wildcards"]
+        ),
+        affine=bids(
+            root="work",
+            datatype="anat",
+            suffix="affine.txt",
+            from_="subject",
+            to="{template}",
+            desc="itk",
+            **config["subj_wildcards"]
+        ),
+        affine_xfm_ras=bids(
+            root="work",
+            datatype="anat",
+            suffix="affine.txt",
+            from_="subject",
+            to="{template}",
+            desc="ras",
+            **config["subj_wildcards"]
+        ),
+    threads: 8
+    resources:
+        mem_mb=16000,  # right now these are on the high-end -- could implement benchmark rules to do this at some point..
+        time=60,  # 1 hrs
+    container:
+        config["singularity"]["prepdwi"]
+    group:
+        "subj"
+    shell:
+       #affine first
+        'greedy -d 3 -threads {threads} -a -m NCC 2x2x2 {params.input_fixed_moving} -o {output.affine_xfm_ras} -ia-image-centers -n 100x50x10 &> {log} && '
+        #then deformable:
+        'greedy -d 3 -threads {threads} -m NCC 2x2x2 {params.input_fixed_moving} -it {output.affine_xfm_ras} -o {output.warp} -oinv {output.invwarp} -n 100x50x10 &>> {log} && '
+        #then convert affine to itk format that ants uses
+        'c3d_affine_tool {output.affine_xfm_ras} -oitk {output.affine} &>> {log} && '
+        #and finally warp the moving image
+        'greedy -d 3 -threads {threads} -rf {input.ref} {params.input_fixed_moving} -r {output.warp} {output.affine_xfm_ras} &>> {log}'
+
+
+"""
 rule ants_syn_affine_init:
     input:
         flo=bids(
@@ -339,6 +432,7 @@ rule ants_syn_affine_init:
         "{params.init_transform} "
         "{params.deform_model} {params.deform_metric} {params.deform_multires} "
         "-o [{params.out_prefix},{output.warped_flo}]"
+"""
 
 
 rule warp_dseg_from_template:
