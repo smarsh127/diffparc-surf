@@ -10,9 +10,7 @@ rule affine_to_template:
             datatype="anat",
             **config["subj_wildcards"]
         ),
-        ref=lambda wildcards: workflow.source_path(
-            os.path.join("..", "..", config["template_t1w"])
-        ).format(**wildcards),
+        ref=os.path.join(workflow.basedir,'..',config['template_t1w'])
     output:
         warped_subj=bids(
             root="work",
@@ -73,9 +71,7 @@ rule convert_template_xfm_ras2itk:
 
 rule warp_brainmask_from_template_affine:
     input:
-        mask=lambda wildcards: workflow.source_path(
-            os.path.join("..", "..", config["template_mask"])
-        ).format(**wildcards),
+        mask=os.path.join(workflow.basedir,'..',config['template_mask']),
         ref=bids(
             root="work",
             datatype="anat",
@@ -113,9 +109,7 @@ rule warp_brainmask_from_template_affine:
 
 rule warp_tissue_probseg_from_template_affine:
     input:
-        probseg=lambda wildcards: workflow.source_path(
-            os.path.join("..", "..", config["template_tissue_probseg"])
-        ).format(**wildcards),
+        probseg=os.path.join(workflow.basedir,'..', config["template_tissue_probseg"]),
         ref=bids(
             root="work",
             datatype="anat",
@@ -192,12 +186,8 @@ rule n4biasfield:
 
 rule mask_template_t1w:
     input:
-        t1=lambda wildcards: workflow.source_path(
-            os.path.join("..", "..", config["template_t1w"])
-        ).format(**wildcards),
-        mask=lambda wildcards: workflow.source_path(
-            os.path.join("..", "..", config["template_mask"])
-        ).format(**wildcards),
+        t1=os.path.join(workflow.basedir,'..',config["template_t1w"]),
+        mask=os.path.join(workflow.basedir,'..',config["template_mask"]),
     output:
         t1=bids(
             root="work",
@@ -224,7 +214,8 @@ rule mask_subject_t1w:
             suffix="T1w.nii.gz"
         ),
         mask=bids(
-            root="work/seg_t1_brain_tissue",
+            root="work",
+            datatype="anat",
             **config["subj_wildcards"],
             suffix="mask.nii.gz",
             from_="atropos3seg",

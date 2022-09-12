@@ -175,11 +175,11 @@ masking:
     #'0015': 'bet_from-b0_frac-4'
     '0015': 'b0SyN_from-MNI152NLin2009cSym'
 
-template: MNI152NLin2009cSym
+template: MNI152NLin2009cAsym
 
 
-template_t1w: resources/tpl-{template}/tpl-{template}_res-1_T1w.nii.gz
-template_mask: resources/tpl-{template}/tpl-{template}_res-1_desc-brain_mask.nii.gz 
+template_t1w: resources/tpl-{template}/tpl-{template}_res-01_T1w.nii.gz
+template_mask: resources/tpl-{template}/tpl-{template}_res-01_desc-brain_mask.nii.gz 
 
         
 #avg bshell images are used for registration for brainmasking dwi
@@ -188,7 +188,7 @@ template_b0: resources/tpl-{template}/tpl-{template}_res-dwi_desc-fromhcp_b0.nii
 template_atlas_dseg_nii: resources/tpl-{template}/tpl-{template}_res-1_atlas-{atlas}_dseg.nii.gz
 template_atlas_dseg_tsv: resources/tpl-{template}/tpl-{template}_atlas-{atlas}_dseg.tsv
 
-template_tissue_probseg: resources/tpl-{template}/tpl-{template}_res-1_label-{tissue}_probseg.nii.gz
+template_tissue_probseg: resources/tpl-{template}/tpl-{template}_res-01_label-{tissue}_probseg.nii.gz
 
 #number of times to dilate  (each time 3x3x3 mode dilation)
 n_atlas_dilate: 3
@@ -249,6 +249,25 @@ eddy:
   without_s2v:
     ol_type: 'sw'  #can be sw, gw, or both (use sw if no multi-band)
 
+
+#diffparc
+template_probseg:
+  striatum: resources/tpl-{template}/CIT168_prob/striatum_prob.nii.gz
+
+template_dseg:
+  striatum: resources/tpl-{template}/CIT168/striatum_LR.nii.gz
+
+
+template_use_dseg: False
+
+seeds:
+  striatum:
+    template_probseg: resources/tpl-{template}/CIT168_prob/striatum_prob.nii.gz
+    template_dseg: resources/tpl-{template}/CIT168/striatum_LR.nii.gz
+    probseg_threshold: 0.5
+    dseg_labels:
+      - 302
+      - 402
 
 #for test data
 participant_label: 
