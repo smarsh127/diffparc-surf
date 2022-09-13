@@ -251,14 +251,20 @@ eddy:
 
 
 #diffparc
-template_probseg:
-  striatum: resources/tpl-{template}/CIT168_prob/striatum_prob.nii.gz
-
-template_dseg:
-  striatum: resources/tpl-{template}/CIT168/striatum_LR.nii.gz
-
 
 template_use_dseg: False
+
+targets:
+  harvardoxford7:
+    template_dseg: resources/tpl-{template}/HarvardOxford/CorticalTargets.striatum_withRostralMotor.nii.gz
+    labels:
+      - limbic
+      - executive
+      - rostralmotor
+      - caudalmotor
+      - parietal
+      - occipital
+      - temporal
 
 seeds:
   striatum:
@@ -266,8 +272,23 @@ seeds:
     template_dseg: resources/tpl-{template}/CIT168/striatum_LR.nii.gz
     probseg_threshold: 0.5
     dseg_labels:
+      - 301
       - 302
+      - 303
+      - 401
       - 402
+      - 403
+
+#tractography parameters
+probtrack:
+    seed_resolution: 1.0
+    res_name: dwi # bids deriv filename will have res-{res_name}
+
+    nsamples: 10000
+    opts: '--loopcheck --onewaycondition --cthr=0.2 --nsteps=2000 --steplength=0.5  --fibthresh=0.01 --distthresh=0.0 --sampvox=0.0 --forcedir --opd --os2t --randfib=2' 
+
+
+
 
 #for test data
 participant_label: 
@@ -275,4 +296,6 @@ exclude_participant_label:
 masking_method: b0_BET
 b0_bet_frac: 0.5
 slspec_txt: False
+
+
 
