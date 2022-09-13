@@ -1,37 +1,15 @@
-#added some hints for eventual bids-derivatives naming (e.g. space, label, type(dseg, mask, probseg)..)
 
-
-
-"""
-#space-T1w (native), dseg
-rule combine_lr_hcp:
-    input:
-        lh = bids(root='results/hcp_mmp',subject='{subject}',hemi='L',label='hcpmmp',space='native',suffix='dseg.nii.gz'),
-        rh = bids(root='results/hcp_mmp',subject='{subject}',hemi='R',label='hcpmmp',space='native',suffix='dseg.nii.gz'),
-    output:
-        lh_rh = bids(root='results',subject='{subject}',space='individual',label=config['targets_atlas_name'],suffix='dseg.nii.gz')
-    container: config['singularity']['prepdwi']
-    log: 'logs/combine_lr_hcp/{subject}.log'
-    group: 'participant1'
-    shell: 'fslmaths {input.lh} -max {input.rh} {output.lh_rh} &> {log}'
-"""
-
-
-
-
-       
-
-
-#transform probabilistic seed to subject
-#space-T1w,  probseg
 rule transform_seed_to_subject:
     input: 
-        seed = lambda wildcards: config['seeds'][wildcards.seed]['template_dseg'],
-        ref=bids(
-            root="work",
-            datatype="anat",
-            **config["subj_wildcards"],
-            suffix="T1w.nii.gz"
+        seed = lambda wildcards: config['seeds'][wildcards.seed]['template_probseg'],
+        ref= bids(
+            root="results",
+            suffix="mask.nii.gz",
+            desc="brain",
+            space="T1w",
+            res=config["resample_dwi"]["resample_scheme"],
+            datatype="dwi",
+            **config["subj_wildcards"]
         ),
         inv_warp=bids(
             root="work",
@@ -50,9 +28,6 @@ rule transform_seed_to_subject:
             desc="itk",
             **config["subj_wildcards"]
         ),
-
-
-
     output: 
         seed = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_='{template}',suffix='probseg.nii.gz'),
     envmodules: 'ants'
@@ -63,18 +38,18 @@ rule transform_seed_to_subject:
     shell:
         'antsApplyTransforms -d 3 --interpolation Linear -i {input.seed} -o {output} -r {input.ref} -t [{input.affine_xfm_itk},1] {input.inv_warp}  &> {log}'
 
-#transform cortical targets to subject
-        
-print(bids(root='results',subject='{subject}',space='individual',desc='{targets}',from_='{template}',suffix='dseg.nii.gz'))
 
 rule transform_targets_to_subject:
     input: 
         targets = lambda wildcards: config['targets'][wildcards.targets]['template_dseg'],
-        ref=bids(
-            root="work",
-            datatype="anat",
-            **config["subj_wildcards"],
-            suffix="T1w.nii.gz"
+        ref= bids(
+            root="results",
+            suffix="mask.nii.gz",
+            desc="brain",
+            space="T1w",
+            res=config["resample_dwi"]["resample_scheme"],
+            datatype="dwi",
+            **config["subj_wildcards"]
         ),
         inv_warp=bids(
             root="work",
@@ -106,78 +81,25 @@ rule transform_targets_to_subject:
 
 
 
-
-#resample target segs to the match resampled dwi mask
-#space-T1w res-? dseg
-rule resample_targets:
-    input: 
-        mask_res = bids(
-            root="results",
-            suffix="mask.nii.gz",
-            desc="brain",
-            space="T1w",
-            res=config["resample_dwi"]["resample_scheme"],
-            datatype="dwi",
-            **config["subj_wildcards"]
-        ),
-
-        targets = bids(root='results',subject='{subject}',space='individual',desc='{targets}',from_='{template}',suffix='dseg.nii.gz'),
-    output:
-        targets_res = bids(root='results',subject='{subject}',space='individual',desc='{targets}',res='dwi',from_='{template}',suffix='dseg.nii.gz'),
-    container: config['singularity']['prepdwi']
-    log: 'logs/resample_targets/sub-{subject}_{targets}_{template}.log'
-    group: 'participant1'
-    shell:
-        'reg_resample -flo {input.targets} -res {output.targets_res} -ref {input.mask_res} -NN 0  &> {log}'
-
-
-
-#resamples seed seg to match resampled dwi mask
-#space-T1w res=? probseg
-rule resample_seed:
-    input: 
-        mask_res = bids(
-            root="results",
-            suffix="mask.nii.gz",
-            desc="brain",
-            space="T1w",
-            res=config["resample_dwi"]["resample_scheme"],
-            datatype="dwi",
-            **config["subj_wildcards"]
-        ),
-        seed = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_='{template}',suffix='probseg.nii.gz')
-    output:
-        seed_res = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_='{template}',res='dwi',suffix='probseg.nii.gz')
-    container: config['singularity']['prepdwi']
-    log: 'logs/resample_seed/{template}_sub-{subject}_{seed}.log'
-    group: 'participant1'
-    shell:
-        #linear interp here now, since probabilistic seg
-        'reg_resample -flo {input.seed} -res {output.seed_res} -ref {input.mask_res}  &> {log}'
-
-
-# space-T1w mask
 rule binarize_subject_seed:
     input: 
-        seed_res = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_='{template}',res='dwi',suffix='probseg.nii.gz')
+        seed_res = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_='{template}',suffix='probseg.nii.gz')
     params:
         threshold = lambda wildcards: config['seeds'][wildcards.seed]['probseg_threshold']
     output: 
-        seed_thr = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_='{template}',res='dwi',suffix='mask.nii.gz')
+        seed_thr = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_='{template}',suffix='mask.nii.gz')
     container: config['singularity']['prepdwi']
     log: 'logs/binarize_subject_seed/{template}_sub-{subject}_{seed}.log'
     container: config['singularity']['prepdwi']
     group: 'participant1'
     shell:
-        'fslmaths {input} -thr {params.threshold} {output} &> {log}'
+        'c3d {input.seed_res} -threshold 0.5 inf 1 0 -o {output} &> {log}'
         
 
 
-print(bids(root='results',subject='{subject}',desc='{targets}',suffix='targets'))
-#space-T1w, mask 
 rule split_targets:
     input: 
-        targets = bids(root='results',subject='{subject}',space='individual',desc='{targets}',res='dwi',from_='{template}',suffix='dseg.nii.gz'),
+        targets = bids(root='results',subject='{subject}',space='individual',desc='{targets}',from_='{template}',suffix='dseg.nii.gz'),
     params:
         target_nums = lambda wildcards: [str(i+1) for i in range(len(config['targets'][wildcards.targets]['labels']))],
         target_seg = lambda wildcards, output: expand('{target_seg_dir}/sub-{subject}_label-{target}_mask.nii.gz',target_seg_dir=output.target_seg_dir,subject=wildcards.subject,target=config['targets'][wildcards.targets]['labels'])
@@ -191,7 +113,6 @@ rule split_targets:
         'mkdir -p {output} && parallel  --jobs {threads} fslmaths {input.targets} -thr {{1}} -uthr {{1}} -bin {{2}} &> {log} ::: {params.target_nums} :::+ {params.target_seg}'
 
 
-#txt
 rule gen_targets_txt:
     input:
         target_seg_dir = directory(bids(root='results',subject='{subject}',desc='{targets}',from_='{template}',suffix='targets'))
@@ -208,11 +129,9 @@ rule gen_targets_txt:
             f.write(f'{s}\n')
         f.close()
 
-#probtrack dir out
-print(bids(root='results',subject='{subject}',label='{seed}',from_='{template}',desc='{targets}',suffix='probtrack'))
 rule run_probtrack:
     input:
-        seed = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_='{template}',res='dwi',suffix='mask.nii.gz'),
+        seed = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_='{template}',suffix='mask.nii.gz'),
         target_txt = rules.gen_targets_txt.output,
         mask = bids(
             root="results",
@@ -251,7 +170,6 @@ rule run_probtrack:
         time = 30, #30 mins
         gpus = 1 #1 gpu
     log: 'logs/run_probtrack/sub-{subject}_{seed}_{template}_{targets}.log'
-    #TODO: add container here -- currently running binary deployed on graham.. 
     group: 'participant1'
     shell:
         #'mkdir -p {output.probtrack_dir} && singularity exec -e --nv {params.container} probtrackx2_gpu --samples={params.bedpost_merged}  --mask={input.mask} --seed={input.seed} ' 
@@ -260,9 +178,81 @@ rule run_probtrack:
         '--dir={output.probtrack_dir} {params.probtrack_opts} -V 2  &> {log}'
 
 
+print(bids(
+            root="results",
+            datatype='tractography',
+            desc='iFOD2',
+            label='{seed}',
+            suffix='tractography.tck',
+            **config['subj_wildcards'],
+        ))
+
+rule track_from_seed:
+    # Tournier, J.-D.; Calamante, F. & Connelly, A. Improved probabilistic streamlines tractography by 2nd order integration over fibre orientation distributions. Proceedings of the International Society for Magnetic Resonance in Medicine, 2010, 1670
+    input:
+        wm_fod=bids(
+            root="results",
+            datatype='response',
+            desc='normalized',
+            suffix='wm_fod.mif',
+            **config['subj_wildcards'],
+        ),
+        dwi=bids(
+            root="results",
+            datatype='dwi',
+            suffix='dwi.mif',
+            **config['subj_wildcards'],
+        ),
+        mask=bids(
+            root="results",
+            datatype='dwi',
+            suffix='mask.mif',
+            **config['subj_wildcards'],
+        ),
+        seed = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_=config['template'],suffix='mask.nii.gz'),
+    params:
+        streamlines="",
+#        seed_strategy=lambda wildcards,input: f'-seed_image {input.seed}'
+        seed_strategy=lambda wildcards,input: f'-seed_random_per_voxel {input.seed} 50'
+
+    output:
+        tck=bids(
+            root="results",
+            datatype='tractography',
+            desc='iFOD2',
+            label='{seed}',
+            suffix='tractography.tck',
+            **config['subj_wildcards'],
+        ),
+        seed_locs=bids(
+            root="results",
+            datatype='tractography',
+            desc='iFOD2',
+            label='{seed}',
+            suffix='seedlocs.txt',
+            **config['subj_wildcards'],
+        )
+
+    threads: 32
+    resources:
+        mem_mb=128000,
+	time=1440
+    group: "subj2"
+    container:
+        config['singularity']['mrtrix']
+    shell:
+        'tckgen -nthreads {threads} -algorithm iFOD2 -mask {input.mask} '
+        ' {input.wm_fod} {output.tck} '
+#        ' -seed_random_per_voxel {input.seed} 1 '
+        ' -seed_grid_per_voxel {input.seed} 1 '
+        ' -output_seeds {output.seed_locs} '
+
+
+
+
+
+
 """
-#check bids-deriv dwi draft (not in main bids yet)
-#space-{template}
 rule transform_conn_to_template:
     input:
         probtrack_dir = bids(root='results',subject='{subject}',label='{seed}',from_='{template}',suffix='probtrack'),
