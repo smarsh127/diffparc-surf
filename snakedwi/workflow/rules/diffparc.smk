@@ -236,11 +236,13 @@ rule run_probtrack:
             )
         ),
     params:
-        bedpost_merged = lambda wildcards, input: os.path.join(input.bedpost_dir,'{subject}/T1w/Diffusion.bedpostX/merged'),
+        bedpost_merged = lambda wildcards, input: os.path.join(input.bedpost_dir,'merged'),
         probtrack_opts = config['probtrack']['opts'],
         out_target_seg = lambda wildcards, output: expand(bids(root=output.probtrack_dir,include_subject_dir=False,prefix='seeds_to',label='{target}',suffix='mask.nii.gz'), target=config['targets'][wildcards.targets]['labels']),
         nsamples = config['probtrack']['nsamples'],
-        container = config['singularity']['fsl_603']
+#        container = config['singularity']['fsl_603']
+        
+    container: config['singularity']['fsl_603']
     output:
         probtrack_dir = directory(bids(root='results',subject='{subject}',label='{seed}',from_='{template}',desc='{targets}',suffix='probtrack'))
     threads: 8
@@ -252,7 +254,8 @@ rule run_probtrack:
     #TODO: add container here -- currently running binary deployed on graham.. 
     group: 'participant1'
     shell:
-        'mkdir -p {output.probtrack_dir} && singularity exec -e --nv {params.container} probtrackx2_gpu --samples={params.bedpost_merged}  --mask={input.mask} --seed={input.seed} ' 
+        #'mkdir -p {output.probtrack_dir} && singularity exec -e --nv {params.container} probtrackx2_gpu --samples={params.bedpost_merged}  --mask={input.mask} --seed={input.seed} ' 
+        'mkdir -p {output.probtrack_dir} &&  probtrackx2 --samples={params.bedpost_merged}  --mask={input.mask} --seed={input.seed} ' 
         '--targetmasks={input.target_txt} --seedref={input.seed} --nsamples={params.nsamples} '
         '--dir={output.probtrack_dir} {params.probtrack_opts} -V 2  &> {log}'
 
