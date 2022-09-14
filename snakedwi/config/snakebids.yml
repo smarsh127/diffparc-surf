@@ -289,7 +289,7 @@ probtrack:
     nsamples: 10000
     opts: '--loopcheck --onewaycondition --cthr=0.2 --nsteps=2000 --steplength=0.5  --fibthresh=0.01 --distthresh=0.0 --sampvox=0.0 --forcedir --opd --os2t --randfib=2' 
 
-
+seeds_per_voxel: 500
 
 #for test data
 participant_label: 

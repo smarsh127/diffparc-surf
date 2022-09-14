@@ -273,7 +273,7 @@ rule track_from_voxels:
         ),
         vox_seeds_dir = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_=config['template'],suffix='voxseeds')
     params:
-        seeds_per_voxel=500,
+        seeds_per_voxel=config['seeds_per_voxel']
     output:
         tck_dir=directory(bids(
             root="results",
@@ -388,31 +388,93 @@ rule conn_csv_to_image:
 
 
 
-"""
+print(bids(
+            root="results",
+            datatype='tractography',
+            space='{template}',
+            desc='{targets}',
+            label='{seed}',
+            suffix='conn.nii.gz',
+            **config['subj_wildcards'],
+        ))
+
 rule transform_conn_to_template:
     input:
-        probtrack_dir = bids(root='results',subject='{subject}',label='{seed}',from_='{template}',suffix='probtrack'),
-        affine =  config['ants_affine_mat'],
-        warp =  config['ants_warp_nii'],
-        ref = config['ants_ref_nii']
-    params:
-        in_connmap_3d = lambda wildcards, input: expand(bids(root=input.probtrack_dir,include_subject_dir=False,subject=wildcards.subject,prefix='seeds_to',label='{target}',suffix='mask.nii.gz'), target=targets),
-        out_connmap_3d = lambda wildcards, output: expand(bids(root=output.probtrack_dir,include_subject_dir=False,subject=wildcards.subject,prefix='seeds_to',label='{target}',suffix='mask.nii.gz'), target=targets),
+        conn_nii=bids(
+            root="results",
+            datatype='tractography',
+            desc='{targets}',
+            label='{seed}',
+            suffix='conn.nii.gz',
+            **config['subj_wildcards'],
+        ),
+        warp=bids(
+            root="work",
+            datatype="anat",
+            suffix="warp.nii.gz",
+            from_="subject",
+            to="{template}",
+            **config["subj_wildcards"]
+        ),
+        affine_xfm_itk=bids(
+            root="work",
+            datatype="anat",
+            suffix="affine.txt",
+            from_="subject",
+            to="{template}",
+            desc="itk",
+            **config["subj_wildcards"]
+        ),
+        ref = config['template_t1w']
     output:
-        probtrack_dir = directory(bids(root='results',subject='{subject}',label='{seed}',space='{template}',suffix='probtrack'))
-    envmodules: 'ants'
-    container: config['singularity']['prepdwi']
-    threads: 32
+        conn_nii=bids(
+            root="results",
+            datatype='tractography',
+            space='{template}',
+            desc='{targets}',
+            label='{seed}',
+            suffix='conn.nii.gz',
+            **config['subj_wildcards'],
+        ),
+    container: config['singularity']['ants']
+    threads: 8
     resources:
-        mem_mb = 128000
-    log: 'logs/transform_conn_to_template/sub-{subject}_{seed}_{template}.log'
+        mem_mb = 8000
+    log: 'logs/transform_conn_to_template/sub-{subject}_{seed}_{template}_{targets}.log'
     group: 'participant1'
     shell:
-        'mkdir -p {output} && ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1 parallel  --jobs {threads} antsApplyTransforms -d 3 --interpolation Linear -i {{1}} -o {{2}}  -r {input.ref} -t {input.warp} -t {input.affine} &> {log} :::  {params.in_connmap_3d} :::+ {params.out_connmap_3d}' 
+        #using nearestneighbor to avoid bluring with background -- background set as -1
+        'antsApplyTransforms -d 3 -e 3  --interpolation NearestNeighbor -i {input.conn_nii}  -o {output.conn_nii}  -r {input.ref} -t {input.warp} -t {input.affine_xfm_itk} &> {log} '
 
 
-#check bids-deriv -- connectivity?
-#space-{template}
+rule maxprob_conn:
+    """ generate maxprob connectivity, adding outside striatum, and inside striatum (at a particular "streamline count" threshold) to identify unlabelled regions """
+    input:
+        conn_nii=bids(
+            root="results",
+            datatype='tractography',
+            space='{template}',
+            desc='{targets}',
+            label='{seed}',
+            suffix='conn.nii.gz',
+            **config['subj_wildcards'],
+        ),
+    output:
+        conn_nii=bids(
+            root="results",
+            datatype='tractography',
+            space='{template}',
+            desc='{targets}',
+            label='{seed}',
+            segtype='maxprob',
+            suffix='dseg.nii.gz',
+            **config['subj_wildcards'],
+        ),
+    shell:
+        'c4d {input} -slice w 0:-1 -vote -o {output} '
+
+
+"""
 rule save_connmap_template_npz:
     input:
         mask = bids(root='results',template='{template}',label='{seed}',suffix='mask.nii.gz'),
