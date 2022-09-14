@@ -146,6 +146,8 @@ singularity:
   fsl_604: '/project/6050199/akhanf/singularity/bids-apps/fsl_6.0.4_cuda9.1.sif'  #eddy seems to fail with 6.0.4
   autotop: '/project/6050199/akhanf/singularity/bids-apps/khanlab_autotop_deps_v0.4.1.sif'
   itksnap:  '/project/6050199/akhanf/singularity/pyushkevich_itksnap_latest.sif'
+  mrtrix: '/project/6050199/akhanf/singularity/bids-apps/khanlab_prepdwi_latest.sif'  #should use mrtrix3.0 container instead
+
 
 
 # Options for resampling dwi in T1w space
@@ -286,7 +288,6 @@ probtrack:
 
     nsamples: 10000
     opts: '--loopcheck --onewaycondition --cthr=0.2 --nsteps=2000 --steplength=0.5  --fibthresh=0.01 --distthresh=0.0 --sampvox=0.0 --forcedir --opd --os2t --randfib=2' 
-
 
 
 
