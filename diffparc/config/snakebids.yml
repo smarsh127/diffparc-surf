@@ -301,12 +301,7 @@ seeds:
 fod_algorithm: csd #msmt_csd
 resample_seed_res: 2x2x2mm
 seeds_per_voxel: 
- - 50
- - 100
  - 500
- - 1000
- - 2500
- - 5000
 
 
 #for test data

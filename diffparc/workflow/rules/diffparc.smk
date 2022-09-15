@@ -63,6 +63,7 @@ rule transform_seed_to_subject:
             space="individual",
             label="{seed}",
             from_="{template}",
+            datatype="anat",
             suffix="probseg.nii.gz"
         ),
     envmodules:
@@ -125,6 +126,7 @@ rule transform_targets_to_subject:
             space="individual",
             desc="{targets}",
             from_="{template}",
+            datatype="anat",
             suffix="dseg.nii.gz"
         ),
     envmodules:
@@ -154,6 +156,7 @@ rule binarize_trim_subject_seed:
             space="individual",
             label="{seed}",
             from_="{template}",
+            datatype="anat",
             suffix="probseg.nii.gz"
         ),
     params:
@@ -165,6 +168,7 @@ rule binarize_trim_subject_seed:
             space="individual",
             label="{seed}",
             from_="{template}",
+            datatype="anat",
             suffix="mask.nii.gz"
         ),
     container:
@@ -218,6 +222,7 @@ rule create_voxel_seed_images:
             space="individual",
             label="{seed}",
             from_=config["template"],
+            datatype='anat',
             suffix="mask.nii.gz"
         ),
     output:
@@ -229,6 +234,7 @@ rule create_voxel_seed_images:
                     space="individual",
                     label="{seed}",
                     from_=config["template"],
+                    datatype="dwi",
                     suffix="voxseeds"
                 )
             )
@@ -258,13 +264,14 @@ rule track_from_voxels:
             **config["subj_wildcards"],
             space="individual",
             label="{seed}",
+            datatype="dwi",
             from_=config["template"],
             suffix="voxseeds"
         ),
     params:
         seeds_per_voxel="{seedpervox}",
     output:
-        tck_dir=directory(
+        tck_dir=temp(directory(
             bids(
                 root="results",
                 datatype="dwi",
@@ -272,7 +279,7 @@ rule track_from_voxels:
                 seedpervox="{seedpervox}",
                 suffix="voxtracts",
                 **config["subj_wildcards"],
-            )
+            ))
         ),
     threads: 32
     resources:
@@ -308,6 +315,7 @@ rule connectivity_from_voxels:
             space="individual",
             desc="{targets}",
             from_=config["template"],
+            datatype="anat",
             suffix="dseg.mif"
         ),
     output:
@@ -405,6 +413,7 @@ rule conn_csv_to_image:
             space="individual",
             label="{seed}",
             from_=config["template"],
+            datatype="anat",
             suffix="mask.nii.gz"
         ),
     output:
