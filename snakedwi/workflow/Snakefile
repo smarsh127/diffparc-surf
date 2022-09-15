@@ -144,6 +144,3 @@ include: "rules/diffparc.smk"
 include: "rules/mrtrix.smk"
 
 
-# WIP:
-# include: "rules/mask_multishell.smk"
-# include: "rules/templateflow.smk"
