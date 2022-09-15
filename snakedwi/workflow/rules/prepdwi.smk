@@ -1406,33 +1406,29 @@ rule cp_to_preproc_dwi:
     """ should use config flags to decide what input to use here.
         e.g. degibbs if we are skipping topup and eddy """
     input:
-        multiext(
+        expand(
             bids(
                 root="work",
-                suffix="dwi",
+                suffix="dwi.{ext}",
                 datatype="dwi",
                 desc="degibbs",
                 **config["subj_wildcards"]
             ),
-            ".nii.gz",
-            ".bvec",
-            ".bval",
-            ".json",
+            ext=["nii.gz","bvec","bval","json"],
+            allow_missing=True
         ),
 
     output:
-        nii=multiext(
+        expand(
             bids(
                 root="results",
-                suffix="dwi",
-                desc='preproc',
+                suffix="dwi.{ext}",
                 datatype="dwi",
+                desc="preproc",
                 **config["subj_wildcards"]
             ),
-            ".nii.gz",
-            ".bval",
-            ".bvec",
-            ".json",
+            ext=["nii.gz","bvec","bval","json"],
+            allow_missing=True
         ),
     group:
         "subj"

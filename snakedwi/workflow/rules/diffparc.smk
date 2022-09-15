@@ -1,3 +1,30 @@
+rule create_upsampled_ref:
+    input:
+        ref= bids(
+            root="results",
+            suffix="mask.nii.gz",
+            desc="brain",
+            space="T1w",
+            res=config["resample_dwi"]["resample_scheme"],
+            datatype="dwi",
+            **config["subj_wildcards"]
+        ),
+    params:
+        resample_res=config['resample_seed_res']
+    output:
+        ref= bids(
+            root="results",
+            suffix="mask.nii.gz",
+            desc="brain",
+            space="T1w",
+            res='upsampled',
+            datatype="dwi",
+            **config["subj_wildcards"]
+        ),
+    shell:
+        'c3d {input} -resample-mm {params.resample_res} -o {output}'
+       
+
 
 rule transform_seed_to_subject:
     input: 

@@ -289,7 +289,8 @@ probtrack:
     nsamples: 10000
     opts: '--loopcheck --onewaycondition --cthr=0.2 --nsteps=2000 --steplength=0.5  --fibthresh=0.01 --distthresh=0.0 --sampvox=0.0 --forcedir --opd --os2t --randfib=2' 
 
-seeds_per_voxel: 500
+resample_seed_res: 1x1x1mm
+seeds_per_voxel: 100 # this is lower for efficiency, and also because we are using dwi data resampled to T1w resolution
 
 #for test data
 participant_label: 
@@ -300,3 +301,5 @@ slspec_txt: False
 eddy_no_s2v: True
 
 no_topup: True
+
+
