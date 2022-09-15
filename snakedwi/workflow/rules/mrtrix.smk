@@ -260,13 +260,6 @@ rule create_seed:
         config['singularity']['mrtrix']
     shell: 'mrthreshold {input} -abs {params.threshold} {output}'
 
-print(bids(
-            root="results",
-            datatype='tractography',
-            desc='iFOD2',
-            suffix='tractography.tck',
-            **config['subj_wildcards'],
-        ))
 
 rule tckgen:
     # Tournier, J.-D.; Calamante, F. & Connelly, A. Improved probabilistic streamlines tractography by 2nd order integration over fibre orientation distributions. Proceedings of the International Society for Magnetic Resonance in Medicine, 2010, 1670

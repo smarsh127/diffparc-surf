@@ -115,7 +115,7 @@ rule split_targets:
 
 rule gen_targets_txt:
     input:
-        target_seg_dir = directory(bids(root='results',subject='{subject}',desc='{targets}',from_='{template}',suffix='targets'))
+        target_seg_dir = bids(root='results',subject='{subject}',desc='{targets}',from_='{template}',suffix='targets')
     params:
         target_seg = lambda wildcards, input: expand('{target_seg_dir}/sub-{subject}_label-{target}_mask.nii.gz',target_seg_dir=input.target_seg_dir,subject=wildcards.subject,target=config['targets'][wildcards.targets]['labels'])
     output:
@@ -142,7 +142,7 @@ rule run_probtrack:
             datatype="dwi",
             **config["subj_wildcards"]
         ),
-        target_seg_dir = directory(bids(root='results',subject='{subject}',desc='{targets}',from_='{template}',suffix='targets')),
+        target_seg_dir = bids(root='results',subject='{subject}',desc='{targets}',from_='{template}',suffix='targets'),
         bedpost_dir=
             bids(
                 root="results",
@@ -177,13 +177,6 @@ rule run_probtrack:
         '--dir={output.probtrack_dir} {params.probtrack_opts} -V 2  &> {log}'
 
 
-print(bids(
-            root="results",
-            datatype='tractography',
-            label='{seed}',
-            suffix='tractography.tck',
-            **config['subj_wildcards'],
-        ))
 
 rule track_from_seed:
     # Tournier, J.-D.; Calamante, F. & Connelly, A. Improved probabilistic streamlines tractography by 2nd order integration over fibre orientation distributions. Proceedings of the International Society for Magnetic Resonance in Medicine, 2010, 1670
@@ -337,14 +330,14 @@ rule connectivity_from_voxels:
 rule gen_conn_csv:
     # Tournier, J.-D.; Calamante, F. & Connelly, A. Improved probabilistic streamlines tractography by 2nd order integration over fibre orientation distributions. Proceedings of the International Society for Magnetic Resonance in Medicine, 2010, 1670
     input:
-         conn_dir=directory(bids(
+         conn_dir=bids(
             root="results",
             datatype='tractography',
             desc='{targets}',
             label='{seed}',
             suffix='voxconn',
             **config['subj_wildcards'],
-        )),
+        ),
     params:
         header_line=lambda wildcards: ','.join(config['targets'][wildcards.targets]['labels'])
     output:
@@ -387,16 +380,6 @@ rule conn_csv_to_image:
     script: '../scripts/conn_csv_to_image.py'
 
 
-
-print(bids(
-            root="results",
-            datatype='tractography',
-            space='{template}',
-            desc='{targets}',
-            label='{seed}',
-            suffix='conn.nii.gz',
-            **config['subj_wildcards'],
-        ))
 
 rule transform_conn_to_template:
     input:

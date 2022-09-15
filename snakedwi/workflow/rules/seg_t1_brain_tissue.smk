@@ -9,10 +9,10 @@ def get_k_tissue_classes(wildcards):
 rule tissue_seg_kmeans_init:
     input:
         t1=bids(
-            root="work",
+            root="results",
             datatype="anat",
             **config["subj_wildcards"],
-            desc="n4",
+            desc="preproc",
             suffix="T1w.nii.gz"
         ),
         mask=bids(

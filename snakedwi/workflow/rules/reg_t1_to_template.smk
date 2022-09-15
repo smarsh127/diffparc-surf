@@ -4,9 +4,9 @@
 rule affine_to_template:
     input:
         flo=bids(
-            root="results",
+            root="work",
             suffix="T1w.nii.gz",
-            desc="preproc",
+            desc="n4",
             datatype="anat",
             **config["subj_wildcards"]
         ),
@@ -149,7 +149,7 @@ rule warp_tissue_probseg_from_template_affine:
         " -t [{input.xfm},1]"
 
 
-rule n4biasfield:
+rule n4_t1_withmask:
     input:
         t1=bids(
             root="work",
@@ -168,10 +168,10 @@ rule n4biasfield:
         ),
     output:
         t1=bids(
-            root="work",
+            root="results",
             datatype="anat",
             **config["subj_wildcards"],
-            desc="n4",
+            desc="preproc",
             suffix="T1w.nii.gz"
         ),
     threads: 8
@@ -207,10 +207,10 @@ rule mask_template_t1w:
 rule mask_subject_t1w:
     input:
         t1=bids(
-            root="work",
+            root="results",
             datatype="anat",
             **config["subj_wildcards"],
-            desc="n4",
+            desc="preproc",
             suffix="T1w.nii.gz"
         ),
         mask=bids(

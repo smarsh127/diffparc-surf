@@ -73,7 +73,31 @@ def get_bedpost_all():
         }
 
 
-rule all:
+rule all_diffparc:
+    input:
+        conn_nii = expand(expand(bids(
+            root="results",
+            datatype='tractography',
+            space='{template}',
+            desc='{targets}',
+            label='{seed}',
+            segtype='maxprob',
+            suffix='dseg.nii.gz',
+            **config['subj_wildcards'],
+        ),
+        template=config['template'],
+        targets=config['targets'].keys(),
+        seed=config['seeds'].keys(),
+        allow_missing=True),
+        zip,**config["input_zip_lists"]["dwi"])
+ 
+
+        
+        
+        
+
+
+rule all_preprocdwi:
     input:
         **get_eddy_quad_all(),
         **get_bedpost_all(),

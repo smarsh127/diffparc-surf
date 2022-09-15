@@ -29,10 +29,10 @@ rule n4_t1:
         ),
     output:
         t1=bids(
-            root="results",
+            root="work",
             datatype="anat",
             **config["subj_wildcards"],
-            desc="preproc",
+            desc="n4",
             suffix="T1w.nii.gz"
         ),
     threads: 8
