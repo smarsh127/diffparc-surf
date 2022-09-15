@@ -137,6 +137,16 @@ parse_args:
     action: 'store_true'
     default: False
 
+  --fod_algorithm:
+    help: 'Mrtrix FOD algorithm to use (default: %(default)s)'
+    nargs: '?'
+    choices: 
+      - 'csd'
+      - 'msmt_csd '
+    default: 'csd'
+
+
+
 #---- to update below this
 
 singularity:
@@ -282,13 +292,7 @@ seeds:
       - 403
 
 #tractography parameters
-probtrack:
-    seed_resolution: 1.0
-    res_name: dwi # bids deriv filename will have res-{res_name}
-
-    nsamples: 10000
-    opts: '--loopcheck --onewaycondition --cthr=0.2 --nsteps=2000 --steplength=0.5  --fibthresh=0.01 --distthresh=0.0 --sampvox=0.0 --forcedir --opd --os2t --randfib=2' 
-
+fod_algorithm: csd #msmt_csd
 resample_seed_res: 1x1x1mm
 seeds_per_voxel: 100 # this is lower for efficiency, and also because we are using dwi data resampled to T1w resolution
 
@@ -301,5 +305,4 @@ slspec_txt: False
 eddy_no_s2v: True
 
 no_topup: True
-
 

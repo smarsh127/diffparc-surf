@@ -1,4 +1,7 @@
 
+
+       
+    
 #----------- MRTRIX PREPROC BEGIN ------------#
 rule nii2mif:
     input:
@@ -62,141 +65,228 @@ rule nii2mif:
         'mrconvert {input.dwi} {output.dwi} -fslgrad {input.bvec} {input.bval} -nthreads {threads} && '
         'mrconvert {input.mask} {output.mask} -nthreads {threads}'
 
-rule dwi2response:
-    # Dhollander, T.; Mito, R.; Raffelt, D. & Connelly, A. Improved white matter response function estimation for 3-tissue constrained spherical deconvolution. Proc Intl Soc Mag Reson Med, 2019, 555
-    input:
-        dwi=rules.nii2mif.output.dwi,
-        mask=rules.nii2mif.output.mask,
-        bvec=bids(
+
+
+if config['fod_algorithm'] == 'msmt_csd':
+    rule dwi2response:
+        # Dhollander, T.; Mito, R.; Raffelt, D. & Connelly, A. Improved white matter response function estimation for 3-tissue constrained spherical deconvolution. Proc Intl Soc Mag Reson Med, 2019, 555
+        input:
+            dwi=rules.nii2mif.output.dwi,
+            mask=rules.nii2mif.output.mask,
+            bvec=bids(
+                    root="results",
+                    suffix="dwi.bvec",
+                    desc="preproc",
+                    datatype="dwi",
+                    **config["subj_wildcards"]
+                ),
+            bval=bids(
+                    root="results",
+                    suffix="dwi.bval",
+                    desc="preproc",
+                    datatype="dwi",
+                    **config["subj_wildcards"]
+                ),
+        output:
+            wm_rf=bids(
                 root="results",
-                suffix="dwi.bvec",
-                desc="preproc",
-                datatype="dwi",
-                **config["subj_wildcards"]
+                datatype='dwi',
+                desc='wm',
+                suffix='response.txt',
+                **config['subj_wildcards'],
             ),
-        bval=bids(
+            gm_rf=bids(
                 root="results",
-                suffix="dwi.bval",
-                desc="preproc",
-                datatype="dwi",
-                **config["subj_wildcards"]
+                datatype='dwi',
+                desc='gm',
+                suffix='response.txt',
+                **config['subj_wildcards'],
             ),
-#    params:
-#        shells=','.join(config['shells']),
-#        lmax=','.join(config['lmax'])
-    output:
-        wm_rf=bids(
-            root="results",
-            datatype='dwi',
-            desc='wm',
-            suffix='response.txt',
-            **config['subj_wildcards'],
-        ),
-        gm_rf=bids(
-            root="results",
-            datatype='dwi',
-            desc='gm',
-            suffix='response.txt',
-            **config['subj_wildcards'],
-        ),
-        csf_rf=bids(
-            root="results",
-            datatype='dwi',
-            desc='csf',
-            suffix='response.txt',
-            **config['subj_wildcards'],
-        )
-    threads: 8
-    resources:
-        mem_mb=32000
-    group: "subj1"
-    container:
-        config['singularity']['mrtrix']
-    shell:
-        #'dwi2response dhollander {input.dwi} {output.wm_rf} {output.gm_rf} {output.csf_rf} -fslgrad {input.bvec} {input.bval} -nthreads {threads} -shells {params.shells} -lmax {params.lmax} -mask {input.mask}'
-        'dwi2response dhollander {input.dwi} {output.wm_rf} {output.gm_rf} {output.csf_rf} -fslgrad {input.bvec} {input.bval} -nthreads {threads} -mask {input.mask}'
+            csf_rf=bids(
+                root="results",
+                datatype='dwi',
+                desc='csf',
+                suffix='response.txt',
+                **config['subj_wildcards'],
+            )
+        threads: 8
+        resources:
+            mem_mb=32000
+        group: "subj1"
+        container:
+            config['singularity']['mrtrix']
+        shell:
+            'dwi2response dhollander {input.dwi} {output.wm_rf} {output.gm_rf} {output.csf_rf} -fslgrad {input.bvec} {input.bval} -nthreads {threads} -mask {input.mask}'
 
 
-rule dwi2fod:
-    # Jeurissen, B; Tournier, J-D; Dhollander, T; Connelly, A & Sijbers, J. Multi-tissue constrained spherical deconvolution for improved analysis of multi-shell diffusion MRI data. NeuroImage, 2014, 103, 411-426
-    input:
-        dwi=rules.nii2mif.output.dwi,
-        mask=rules.nii2mif.output.mask,
-        wm_rf=rules.dwi2response.output.wm_rf,
-        gm_rf=rules.dwi2response.output.gm_rf,
-        csf_rf=rules.dwi2response.output.csf_rf,
-#    params:
-#        shells=','.join(config['shells']),
-    output:
-        wm_fod=bids(
-            root="results",
-            datatype='dwi',
-            desc='wm',
-            suffix='fod.mif',
-            **config['subj_wildcards'],
-        ),
-        gm_fod=bids(
-            root="results",
-            datatype='dwi',
-            desc='gm',
-            suffix='fod.mif',
-            **config['subj_wildcards'],
-        ),
-        csf_fod=bids(
-            root="results",
-            datatype='dwi',
-            desc='csf',
-            suffix='fod.mif',
-            **config['subj_wildcards'],
-        ),
-    threads: 8
-    resources:
-        mem_mb=32000
-    group: "subj2"
-    container:
-        config['singularity']['mrtrix']
-    shell:
-        #'dwi2fod -nthreads {threads} -mask {input.mask} -shell {params.shells} msmt_csd {input.dwi} {input.wm_rf} {output.wm_fod} {input.gm_rf} {output.gm_fod} {input.csf_rf} {output.csf_fod} '
-        'dwi2fod -nthreads {threads} -mask {input.mask}  msmt_csd {input.dwi} {input.wm_rf} {output.wm_fod} {input.gm_rf} {output.gm_fod} {input.csf_rf} {output.csf_fod} '
 
-rule mtnormalise:
-    # Raffelt, D.; Dhollander, T.; Tournier, J.-D.; Tabbara, R.; Smith, R. E.; Pierre, E. & Connelly, A. Bias Field Correction and Intensity Normalisation for Quantitative Analysis of Apparent Fibre Density. In Proc. ISMRM, 2017, 26, 3541
-    # Dhollander, T.; Tabbara, R.; Rosnarho-Tornstrand, J.; Tournier, J.-D.; Raffelt, D. & Connelly, A. Multi-tissue log-domain intensity and inhomogeneity normalisation for quantitative apparent fibre density. In Proc. ISMRM, 2021, 29, 2472
-    input:
-        wm_fod=rules.dwi2fod.output.wm_fod,
-        gm_fod=rules.dwi2fod.output.gm_fod,
-        csf_fod=rules.dwi2fod.output.csf_fod,
-        mask=rules.nii2mif.output.mask,
-    output:
-        wm_fod=bids(
-            root="results",
-            datatype='dwi',
-            desc='normalized',
-            suffix='wm_fod.mif',
-            **config['subj_wildcards'],
-        ),
-        gm_fod=bids(
-            root="results",
-            datatype='dwi',
-            desc='normalized',
-            suffix='gm_fod.mif',
-            **config['subj_wildcards'],
-        ),
-        csf_fod=bids(
-            root="results",
-            datatype='dwi',
-            desc='normalized',
-            suffix='csf_fod.mif',
-            **config['subj_wildcards'],
-        ),
-    threads: 8
-    resources:
-        mem_mb=32000
-    group: "subj2"
-    container:
-        config['singularity']['mrtrix']
-    shell:
-        'mtnormalise -nthreads {threads} -mask {input.mask} {input.wm_fod} {output.wm_fod} {input.gm_fod} {output.gm_fod} {input.csf_fod} {output.csf_fod}'
+    rule dwi2fod:
+        # Jeurissen, B; Tournier, J-D; Dhollander, T; Connelly, A & Sijbers, J. Multi-tissue constrained spherical deconvolution for improved analysis of multi-shell diffusion MRI data. NeuroImage, 2014, 103, 411-426
+        input:
+            dwi=rules.nii2mif.output.dwi,
+            mask=rules.nii2mif.output.mask,
+            wm_rf=rules.dwi2response.output.wm_rf,
+            gm_rf=rules.dwi2response.output.gm_rf,
+            csf_rf=rules.dwi2response.output.csf_rf,
+        output:
+            wm_fod=bids(
+                root="results",
+                datatype='dwi',
+                desc='wm',
+                suffix='fod.mif',
+                **config['subj_wildcards'],
+            ),
+            gm_fod=bids(
+                root="results",
+                datatype='dwi',
+                desc='gm',
+                suffix='fod.mif',
+                **config['subj_wildcards'],
+            ),
+            csf_fod=bids(
+                root="results",
+                datatype='dwi',
+                desc='csf',
+                suffix='fod.mif',
+                **config['subj_wildcards'],
+            ),
+        threads: 8
+        resources:
+            mem_mb=32000
+        group: "subj2"
+        container:
+            config['singularity']['mrtrix']
+        shell:
+            'dwi2fod -nthreads {threads} -mask {input.mask} msmt_csd {input.dwi} {input.wm_rf} {output.wm_fod} {input.gm_rf} {output.gm_fod} {input.csf_rf} {output.csf_fod} '
+
+
+    rule mtnormalise:
+        # Raffelt, D.; Dhollander, T.; Tournier, J.-D.; Tabbara, R.; Smith, R. E.; Pierre, E. & Connelly, A. Bias Field Correction and Intensity Normalisation for Quantitative Analysis of Apparent Fibre Density. In Proc. ISMRM, 2017, 26, 3541
+        # Dhollander, T.; Tabbara, R.; Rosnarho-Tornstrand, J.; Tournier, J.-D.; Raffelt, D. & Connelly, A. Multi-tissue log-domain intensity and inhomogeneity normalisation for quantitative apparent fibre density. In Proc. ISMRM, 2021, 29, 2472
+        input:
+            wm_fod=rules.dwi2fod.output.wm_fod,
+            gm_fod=rules.dwi2fod.output.gm_fod,
+            csf_fod=rules.dwi2fod.output.csf_fod,
+            mask=rules.nii2mif.output.mask,
+        output:
+            wm_fod=bids(
+                root="results",
+                datatype='dwi',
+                desc='normalized',
+                suffix='wm_fod.mif',
+                **config['subj_wildcards'],
+            ),
+            gm_fod=bids(
+                root="results",
+                datatype='dwi',
+                desc='normalized',
+                suffix='gm_fod.mif',
+                **config['subj_wildcards'],
+            ),
+            csf_fod=bids(
+                root="results",
+                datatype='dwi',
+                desc='normalized',
+                suffix='csf_fod.mif',
+                **config['subj_wildcards'],
+            ),
+        threads: 8
+        resources:
+            mem_mb=32000
+        group: "subj2"
+        container:
+            config['singularity']['mrtrix']
+        shell:
+            'mtnormalise -nthreads {threads} -mask {input.mask} {input.wm_fod} {output.wm_fod} {input.gm_fod} {output.gm_fod} {input.csf_fod} {output.csf_fod}'
+
+
+
+
+else:
+    rule dwi2response:
+        input:
+            dwi=rules.nii2mif.output.dwi,
+            mask=rules.nii2mif.output.mask,
+            bvec=bids(
+                    root="results",
+                    suffix="dwi.bvec",
+                    desc="preproc",
+                    datatype="dwi",
+                    **config["subj_wildcards"]
+                ),
+            bval=bids(
+                    root="results",
+                    suffix="dwi.bval",
+                    desc="preproc",
+                    datatype="dwi",
+                    **config["subj_wildcards"]
+                ),
+        output:
+            wm_rf=bids(
+                root="results",
+                datatype='dwi',
+                desc='wm',
+                suffix='response.txt',
+                **config['subj_wildcards'],
+            ),
+        threads: 8
+        resources:
+            mem_mb=32000
+        group: "subj1"
+        container:
+            config['singularity']['mrtrix']
+        shell:
+            'dwi2response fa {input.dwi} {output.wm_rf}  -fslgrad {input.bvec} {input.bval} -nthreads {threads} -mask {input.mask}'
+
+
+
+    rule dwi2fod:
+        input:
+            dwi=rules.nii2mif.output.dwi,
+            mask=rules.nii2mif.output.mask,
+            wm_rf=rules.dwi2response.output.wm_rf,
+        output:
+            wm_fod=bids(
+                root="results",
+                datatype='dwi',
+                desc='wm',
+                suffix='fod.mif',
+                **config['subj_wildcards'],
+            ),
+        threads: 8
+        resources:
+            mem_mb=32000
+        group: "subj2"
+        container:
+            config['singularity']['mrtrix']
+        shell:
+            'dwi2fod -nthreads {threads} -mask {input.mask} csd {input.dwi} {input.wm_rf} {output.wm_fod}  '
+
+    rule mtnormalise:
+        # Raffelt, D.; Dhollander, T.; Tournier, J.-D.; Tabbara, R.; Smith, R. E.; Pierre, E. & Connelly, A. Bias Field Correction and Intensity Normalisation for Quantitative Analysis of Apparent Fibre Density. In Proc. ISMRM, 2017, 26, 3541
+        # Dhollander, T.; Tabbara, R.; Rosnarho-Tornstrand, J.; Tournier, J.-D.; Raffelt, D. & Connelly, A. Multi-tissue log-domain intensity and inhomogeneity normalisation for quantitative apparent fibre density. In Proc. ISMRM, 2021, 29, 2472
+        input:
+            wm_fod=rules.dwi2fod.output.wm_fod,
+            mask=rules.nii2mif.output.mask,
+        output:
+            wm_fod=bids(
+                root="results",
+                datatype='dwi',
+                desc='normalized',
+                suffix='wm_fod.mif',
+                **config['subj_wildcards'],
+            ),
+        threads: 8
+        resources:
+            mem_mb=32000
+        group: "subj2"
+        container:
+            config['singularity']['mrtrix']
+        shell:
+            'mtnormalise -nthreads {threads} -mask {input.mask} {input.wm_fod} {output.wm_fod} '
+
+
+
 
 rule dwi2tensor:
     input:

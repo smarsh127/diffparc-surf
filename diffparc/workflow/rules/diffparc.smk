@@ -132,7 +132,6 @@ rule track_from_seed:
         wm_fod=bids(
             root="results",
             datatype='dwi',
-            desc='normalized',
             suffix='wm_fod.mif',
             **config['subj_wildcards'],
         ),
@@ -187,7 +186,7 @@ rule create_voxel_seed_images:
     input:
         seed = bids(root='results',**config['subj_wildcards'],space='individual',label='{seed}',from_=config['template'],suffix='mask.nii.gz'),
     output:
-        voxseeds_dir = directory(bids(root='results',**config['subj_wildcards'],space='individual',label='{seed}',from_=config['template'],suffix='voxseeds'))
+        voxseeds_dir = temp(directory(bids(root='results',**config['subj_wildcards'],space='individual',label='{seed}',from_=config['template'],suffix='voxseeds')))
     script: '../scripts/create_voxel_seed_images.py'
 
 rule track_from_voxels:
@@ -196,7 +195,6 @@ rule track_from_voxels:
         wm_fod=bids(
             root="results",
             datatype='dwi',
-            desc='normalized',
             suffix='wm_fod.mif',
             **config['subj_wildcards'],
         ),
@@ -233,7 +231,7 @@ rule track_from_voxels:
         config['singularity']['mrtrix']
     shell:
         'mkdir -p {output.tck_dir} && '
-        'parallel --jobs {threads} '
+        'parallel --progress --jobs {threads} '
         'tckgen -quiet -nthreads 0  -algorithm iFOD2 -mask {input.mask} '
         ' {input.wm_fod} {output.tck_dir}/vox_{{1}}.tck '
         ' -seed_random_per_voxel {input.vox_seeds_dir}/seed_{{1}}.nii {params.seeds_per_voxel} '
@@ -249,16 +247,16 @@ rule connectivity_from_voxels:
             suffix='voxtracts',
             **config['subj_wildcards'],
         ),
-        targets = bids(root='results',**config['subj_wildcards'],space='individual',desc='{targets}',from_=config['template'],suffix='dseg.nii.gz'),
+        targets = bids(root='results',**config['subj_wildcards'],space='individual',desc='{targets}',from_=config['template'],suffix='dseg.mif'),
     output:
-         conn_dir=directory(bids(
+         conn_dir=temp(directory(bids(
             root="results",
             datatype='dwi',
             desc='{targets}',
             label='{seed}',
             suffix='voxconn',
             **config['subj_wildcards'],
-        )),
+        ))),
 
    
     threads: 32
@@ -270,13 +268,24 @@ rule connectivity_from_voxels:
         config['singularity']['mrtrix']
     shell:
         'mkdir -p {output.conn_dir} && '
-        'parallel --jobs {threads} '
+        'parallel --eta --jobs {threads} '
         'tck2connectome -nthreads 0 -quiet {input.tck_dir}/vox_{{1}}.tck {input.targets} {output.conn_dir}/conn_{{1}}.csv -vector'
         " ::: `ls {input.tck_dir} | grep -Po '(?<=vox_)[0-9]+'`"
 
 
+rule dseg_nii2mif:
+    input:
+        '{file}_dseg.nii.gz'
+    output:
+        '{file}_dseg.mif'
+    container:
+        config['singularity']['mrtrix']
+    shell:
+        'mrconvert {input} {output} -nthreads {threads}'
+
+
+
 rule gen_conn_csv:
-    # Tournier, J.-D.; Calamante, F. & Connelly, A. Improved probabilistic streamlines tractography by 2nd order integration over fibre orientation distributions. Proceedings of the International Society for Magnetic Resonance in Medicine, 2010, 1670
     input:
          conn_dir=bids(
             root="results",
@@ -466,3 +475,5 @@ rule spectral_clustering:
  
   
 """
+
+
