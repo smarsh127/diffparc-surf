@@ -1,4 +1,35 @@
 [[package]]
+name = "aiohttp"
+version = "3.8.1"
+description = "Async http client/server framework (asyncio)"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+aiosignal = ">=1.1.2"
+async-timeout = ">=4.0.0a3,<5.0"
+attrs = ">=17.3.0"
+charset-normalizer = ">=2.0,<3.0"
+frozenlist = ">=1.1.1"
+multidict = ">=4.5,<7.0"
+yarl = ">=1.0,<2.0"
+
+[package.extras]
+speedups = ["aiodns", "brotli", "cchardet"]
+
+[[package]]
+name = "aiosignal"
+version = "1.2.0"
+description = "aiosignal: a list of registered asynchronous callbacks"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+frozenlist = ">=1.1.0"
+
+[[package]]
 name = "appdirs"
 version = "1.4.4"
 description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
@@ -24,6 +55,14 @@ description = "Read/rewrite/write Python ASTs"
 category = "main"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
+
+[[package]]
+name = "async-timeout"
+version = "4.0.2"
+description = "Timeout context manager for asyncio programs"
+category = "main"
+optional = false
+python-versions = ">=3.6"
 
 [[package]]
 name = "attrs"
@@ -102,7 +141,7 @@ termcolor = "*"
 
 [[package]]
 name = "certifi"
-version = "2022.6.15.2"
+version = "2022.9.14"
 description = "Python package for providing Mozilla's CA Bundle."
 category = "main"
 optional = false
@@ -245,7 +284,7 @@ devel = ["colorama", "jsonschema", "json-spec", "pylint", "pytest", "pytest-benc
 
 [[package]]
 name = "fonttools"
-version = "4.37.1"
+version = "4.37.2"
 description = "Tools to manipulate font files"
 category = "main"
 optional = false
@@ -286,6 +325,14 @@ calculus = ["sympy (>=1.3,<1.10)"]
 arrow = ["pyarrow (>=1)"]
 
 [[package]]
+name = "frozenlist"
+version = "1.3.1"
+description = "A list-like structure which implements collections.abc.MutableSequence"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "gitdb"
 version = "4.0.9"
 description = "Git Object Database"
@@ -309,11 +356,40 @@ gitdb = ">=4.0.1,<5"
 
 [[package]]
 name = "idna"
-version = "3.3"
+version = "3.4"
 description = "Internationalized Domain Names in Applications (IDNA)"
 category = "main"
 optional = false
 python-versions = ">=3.5"
+
+[[package]]
+name = "imageio"
+version = "2.21.3"
+description = "Library for reading and writing a wide range of image, video, scientific, and volumetric data formats."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+numpy = "*"
+pillow = ">=8.3.2"
+
+[package.extras]
+all-plugins = ["astropy", "av", "imageio-ffmpeg", "opencv-python", "psutil", "tifffile"]
+all-plugins-pypy = ["av", "imageio-ffmpeg", "psutil", "tifffile"]
+build = ["wheel"]
+dev = ["invoke", "pytest", "pytest-cov", "fsspec", "black", "flake8"]
+docs = ["sphinx", "numpydoc", "pydata-sphinx-theme"]
+ffmpeg = ["imageio-ffmpeg", "psutil"]
+fits = ["astropy"]
+full = ["astropy", "av", "black", "flake8", "fsspec", "gdal", "imageio-ffmpeg", "invoke", "itk", "numpydoc", "opencv-python", "psutil", "pydata-sphinx-theme", "pytest", "pytest-cov", "sphinx", "tifffile", "wheel"]
+gdal = ["gdal"]
+itk = ["itk"]
+linting = ["black", "flake8"]
+opencv = ["opencv-python"]
+pyav = ["av"]
+test = ["invoke", "pytest", "pytest-cov", "fsspec"]
+tifffile = ["tifffile"]
 
 [[package]]
 name = "importlib-metadata"
@@ -492,6 +568,20 @@ python-dateutil = ">=2.7"
 setuptools_scm = ">=4,<7"
 
 [[package]]
+name = "meshio"
+version = "4.4.6"
+description = "I/O for many mesh formats"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+numpy = "*"
+
+[package.extras]
+all = ["netcdf4", "h5py"]
+
+[[package]]
 name = "mock"
 version = "4.0.3"
 description = "Rolling backport of unittest.mock for all Pythons"
@@ -511,6 +601,14 @@ description = "More routines for operating on iterables, beyond itertools"
 category = "main"
 optional = false
 python-versions = ">=3.5"
+
+[[package]]
+name = "multidict"
+version = "6.0.2"
+description = "multidict implementation"
+category = "main"
+optional = false
+python-versions = ">=3.7"
 
 [[package]]
 name = "mypy-extensions"
@@ -926,6 +1024,27 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "pyvista"
+version = "0.30.1"
+description = "Easier Pythonic interface to VTK"
+category = "main"
+optional = false
+python-versions = ">=3.6.*"
+
+[package.dependencies]
+appdirs = "*"
+imageio = "*"
+meshio = ">=4.0.3,<5.0"
+numpy = "*"
+pillow = "*"
+scooby = ">=0.5.1"
+transforms3d = "0.3.1"
+vtk = "*"
+
+[package.extras]
+colormaps = ["matplotlib", "colorcet", "cmocean"]
+
+[[package]]
 name = "pywin32"
 version = "304"
 description = "Python for Window Extensions"
@@ -1014,6 +1133,17 @@ python-versions = ">=3.8,<3.12"
 numpy = ">=1.18.5,<1.25.0"
 
 [[package]]
+name = "scooby"
+version = "0.6.0"
+description = "A Great Dane turned Python environment detective"
+category = "main"
+optional = false
+python-versions = ">=3.7.*"
+
+[package.extras]
+cpu = ["mkl", "psutil"]
+
+[[package]]
 name = "setuptools-scm"
 version = "6.4.2"
 description = "the blessed package to manage your versions by scm tags"
@@ -1047,7 +1177,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "smart-open"
-version = "6.1.0"
+version = "6.2.0"
 description = "Utils for streaming large files (S3, HDFS, GCS, Azure Blob Storage, gzip, bz2...)"
 category = "main"
 optional = false
@@ -1263,6 +1393,14 @@ python-versions = ">=3.7"
 test = ["pre-commit", "pytest"]
 
 [[package]]
+name = "transforms3d"
+version = "0.3.1"
+description = "Functions for 3D coordinate transformations"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "typing-extensions"
 version = "3.10.0.2"
 description = "Backported and Experimental Type Hints for Python 3.5+"
@@ -1284,12 +1422,53 @@ secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "cer
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
+name = "vtk"
+version = "9.1.0"
+description = "VTK is an open-source toolkit for 3D computer graphics, image processing, and visualization"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+matplotlib = ">=2.0.0"
+wslink = ">=1.0.4"
+
+[package.extras]
+numpy = ["numpy (>=1.9)"]
+
+[[package]]
 name = "wrapt"
 version = "1.14.1"
 description = "Module for decorators, wrappers and monkey patching."
 category = "main"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
+
+[[package]]
+name = "wslink"
+version = "1.8.2"
+description = "Python/JavaScript library for communicating over WebSocket"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+aiohttp = "<4"
+
+[package.extras]
+ssl = ["cryptography"]
+
+[[package]]
+name = "yarl"
+version = "1.8.1"
+description = "Yet another URL library"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+idna = ">=2.0"
+multidict = ">=4.0"
 
 [[package]]
 name = "yte"
@@ -1319,12 +1498,15 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8,<3.11"
-content-hash = "6bb69fb277042282a1001d72ef0713223ccd2b800906526318985f70eefff812"
+content-hash = "5d12b8ceea38e6c894742abcf65c3bc7961188171ce4179e1163bb5addb0e10d"
 
 [metadata.files]
+aiohttp = []
+aiosignal = []
 appdirs = []
 arrow = []
 astor = []
+async-timeout = []
 attrs = []
 bids-validator = []
 binaryornot = []
@@ -1347,9 +1529,11 @@ dpath = []
 fastjsonschema = []
 fonttools = []
 formulaic = []
+frozenlist = []
 gitdb = []
 gitpython = []
 idna = []
+imageio = []
 importlib-metadata = []
 importlib-resources = []
 iniconfig = []
@@ -1364,8 +1548,10 @@ kiwisolver = []
 lxml = []
 markupsafe = []
 matplotlib = []
+meshio = []
 mock = []
 more-itertools = []
+multidict = []
 mypy-extensions = []
 nbformat = []
 networkx = []
@@ -1400,6 +1586,7 @@ pytest = []
 python-dateutil = []
 python-slugify = []
 pytz = []
+pyvista = []
 pywin32 = []
 pyyaml = []
 ratelimiter = []
@@ -1407,6 +1594,7 @@ requests = []
 retry = []
 scikit-learn = []
 scipy = []
+scooby = []
 setuptools-scm = []
 simplejson = []
 six = []
@@ -1427,8 +1615,12 @@ tomli = []
 tomlkit = []
 toposort = []
 traitlets = []
+transforms3d = []
 typing-extensions = []
 urllib3 = []
+vtk = []
 wrapt = []
+wslink = []
+yarl = []
 yte = []
 zipp = []

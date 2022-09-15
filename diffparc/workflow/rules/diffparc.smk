@@ -1,4 +1,4 @@
-rule create_upsampled_ref:
+rule create_upsampled_cropped_seed_ref:
     input:
         ref= bids(
             root="results",
@@ -10,7 +10,7 @@ rule create_upsampled_ref:
             **config["subj_wildcards"]
         ),
     params:
-        resample_res=config['resample_seed_res']
+        resample_res=config['resample_seed_res'],
     output:
         ref= bids(
             root="results",
@@ -22,19 +22,19 @@ rule create_upsampled_ref:
             **config["subj_wildcards"]
         ),
     shell:
-        'c3d {input} -resample-mm {params.resample_res} -o {output}'
+        'c3d {input} -resample-mm {params.resample_res}  -o {output}'
        
 
 
 rule transform_seed_to_subject:
     input: 
-        seed = lambda wildcards: config['seeds'][wildcards.seed]['template_probseg'],
+        seed = lambda wildcards: os.path.join(workflow.basedir,'..',config['seeds'][wildcards.seed]['template_probseg']),
         ref= bids(
             root="results",
             suffix="mask.nii.gz",
             desc="brain",
             space="T1w",
-            res=config["resample_dwi"]["resample_scheme"],
+            res='upsampled',
             datatype="dwi",
             **config["subj_wildcards"]
         ),
@@ -56,19 +56,18 @@ rule transform_seed_to_subject:
             **config["subj_wildcards"]
         ),
     output: 
-        seed = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_='{template}',suffix='probseg.nii.gz'),
+        seed = bids(root='results',**config['subj_wildcards'],space='individual',label='{seed}',from_='{template}',suffix='probseg.nii.gz'),
     envmodules: 'ants'
     container: config['singularity']['ants']
-    log: 'logs/transform_to_subject/{template}_sub-{subject}_{seed}.log'
+    log: bids(root='logs',**config['subj_wildcards'],space='individual',label='{seed}',from_='{template}',suffix='transformseedtosubject.log')
     group: 'participant1'
     threads: 8
     shell:
         'antsApplyTransforms -d 3 --interpolation Linear -i {input.seed} -o {output} -r {input.ref} -t [{input.affine_xfm_itk},1] {input.inv_warp}  &> {log}'
 
-
 rule transform_targets_to_subject:
     input: 
-        targets = lambda wildcards: config['targets'][wildcards.targets]['template_dseg'],
+        targets = lambda wildcards: os.path.join(workflow.basedir,'..',config['targets'][wildcards.targets]['template_dseg']),
         ref= bids(
             root="results",
             suffix="mask.nii.gz",
@@ -96,10 +95,11 @@ rule transform_targets_to_subject:
             **config["subj_wildcards"]
         ),
     output: 
-        targets = bids(root='results',subject='{subject}',space='individual',desc='{targets}',from_='{template}',suffix='dseg.nii.gz'),
+        targets = bids(root='results',**config['subj_wildcards'],space='individual',desc='{targets}',from_='{template}',suffix='dseg.nii.gz'),
     envmodules: 'ants'
     container: config['singularity']['ants']
-    log: 'logs/transform_to_subject/{template}_sub-{subject}_{targets}.log'
+    log: 
+        bids(root='logs',**config['subj_wildcards'],desc='{targets}',from_='{template}',suffix='transformtargetstosubjects.log')
     group: 'participant1'
     threads: 8
     shell:
@@ -108,100 +108,21 @@ rule transform_targets_to_subject:
 
 
 
-rule binarize_subject_seed:
+rule binarize_trim_subject_seed:
     input: 
-        seed_res = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_='{template}',suffix='probseg.nii.gz')
+        seed_res = bids(root='results',**config['subj_wildcards'],space='individual',label='{seed}',from_='{template}',suffix='probseg.nii.gz')
     params:
         threshold = lambda wildcards: config['seeds'][wildcards.seed]['probseg_threshold']
     output: 
-        seed_thr = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_='{template}',suffix='mask.nii.gz')
+        seed_thr = bids(root='results',**config['subj_wildcards'],space='individual',label='{seed}',from_='{template}',suffix='mask.nii.gz')
     container: config['singularity']['prepdwi']
-    log: 'logs/binarize_subject_seed/{template}_sub-{subject}_{seed}.log'
+    log:
+        bids(root='logs',**config['subj_wildcards'],label='{seed}',from_='{template}',suffix='binarizetrimsubjectseed.log')
     container: config['singularity']['prepdwi']
     group: 'participant1'
     shell:
-        'c3d {input.seed_res} -threshold 0.5 inf 1 0 -o {output} &> {log}'
+        'c3d {input.seed_res} -threshold 0.5 inf 1 0 -trim 0vox -type uchar -o {output} &> {log}'
         
-
-
-rule split_targets:
-    input: 
-        targets = bids(root='results',subject='{subject}',space='individual',desc='{targets}',from_='{template}',suffix='dseg.nii.gz'),
-    params:
-        target_nums = lambda wildcards: [str(i+1) for i in range(len(config['targets'][wildcards.targets]['labels']))],
-        target_seg = lambda wildcards, output: expand('{target_seg_dir}/sub-{subject}_label-{target}_mask.nii.gz',target_seg_dir=output.target_seg_dir,subject=wildcards.subject,target=config['targets'][wildcards.targets]['labels'])
-    output:
-        target_seg_dir = directory(bids(root='results',subject='{subject}',desc='{targets}',from_='{template}',suffix='targets'))
-    container: config['singularity']['prepdwi']
-    log: 'logs/split_targets/sub-{subject}_{targets}_{template}.log'
-    threads: 32 
-    group: 'participant1'
-    shell:  #TODO: could do this in c3d with less effort.. 
-        'mkdir -p {output} && parallel  --jobs {threads} fslmaths {input.targets} -thr {{1}} -uthr {{1}} -bin {{2}} &> {log} ::: {params.target_nums} :::+ {params.target_seg}'
-
-
-rule gen_targets_txt:
-    input:
-        target_seg_dir = bids(root='results',subject='{subject}',desc='{targets}',from_='{template}',suffix='targets')
-    params:
-        target_seg = lambda wildcards, input: expand('{target_seg_dir}/sub-{subject}_label-{target}_mask.nii.gz',target_seg_dir=input.target_seg_dir,subject=wildcards.subject,target=config['targets'][wildcards.targets]['labels'])
-    output:
-        target_txt = bids(root='results',subject='{subject}',suffix='targets.txt',desc='{targets}',from_='{template}')
-    log: 
-        bids(root='logs',subject='{subject}',suffix='targets.txt',desc='{targets}',from_='{template}')
-    group: 'participant1'
-    run:
-        f = open(output.target_txt,'w')
-        for s in params.target_seg:
-            f.write(f'{s}\n')
-        f.close()
-
-rule run_probtrack:
-    input:
-        seed = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_='{template}',suffix='mask.nii.gz'),
-        target_txt = rules.gen_targets_txt.output,
-        mask = bids(
-            root="results",
-            suffix="mask.nii.gz",
-            desc="brain",
-            space="T1w",
-            res=config["resample_dwi"]["resample_scheme"],
-            datatype="dwi",
-            **config["subj_wildcards"]
-        ),
-        target_seg_dir = bids(root='results',subject='{subject}',desc='{targets}',from_='{template}',suffix='targets'),
-        bedpost_dir=
-            bids(
-                root="results",
-                desc="preproc",
-                suffix="diffusion.bedpostX",
-                space="T1w",
-                res=config["resample_dwi"]["resample_scheme"],
-                datatype="dwi",
-                **config["subj_wildcards"]
-            ),
-    params:
-        bedpost_merged = lambda wildcards, input: os.path.join(input.bedpost_dir,'merged'),
-        probtrack_opts = config['probtrack']['opts'],
-        out_target_seg = lambda wildcards, output: expand(bids(root=output.probtrack_dir,include_subject_dir=False,prefix='seeds_to',label='{target}',suffix='mask.nii.gz'), target=config['targets'][wildcards.targets]['labels']),
-        nsamples = config['probtrack']['nsamples'],
-#        container = config['singularity']['fsl_603']
-        
-    container: config['singularity']['fsl_603']
-    output:
-        probtrack_dir = directory(bids(root='results',subject='{subject}',label='{seed}',from_='{template}',desc='{targets}',suffix='probtrack'))
-    threads: 8
-    resources: 
-        mem_mb = 8000, 
-        time = 30, #30 mins
-        gpus = 1 #1 gpu
-    log: 'logs/run_probtrack/sub-{subject}_{seed}_{template}_{targets}.log'
-    group: 'participant1'
-    shell:
-        #'mkdir -p {output.probtrack_dir} && singularity exec -e --nv {params.container} probtrackx2_gpu --samples={params.bedpost_merged}  --mask={input.mask} --seed={input.seed} ' 
-        'mkdir -p {output.probtrack_dir} &&  probtrackx2 --samples={params.bedpost_merged}  --mask={input.mask} --seed={input.seed} ' 
-        '--targetmasks={input.target_txt} --seedref={input.seed} --nsamples={params.nsamples} '
-        '--dir={output.probtrack_dir} {params.probtrack_opts} -V 2  &> {log}'
 
 
 
@@ -227,7 +148,7 @@ rule track_from_seed:
             suffix='mask.mif',
             **config['subj_wildcards'],
         ),
-        seed = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_=config['template'],suffix='mask.nii.gz'),
+        seed = bids(root='results',**config['subj_wildcards'],space='individual',label='{seed}',from_=config['template'],suffix='mask.nii.gz'),
     params:
         streamlines="",
 #        seed_strategy=lambda wildcards,input: f'-seed_image {input.seed}'
@@ -264,9 +185,9 @@ rule track_from_seed:
 
 rule create_voxel_seed_images:
     input:
-        seed = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_=config['template'],suffix='mask.nii.gz'),
+        seed = bids(root='results',**config['subj_wildcards'],space='individual',label='{seed}',from_=config['template'],suffix='mask.nii.gz'),
     output:
-        voxseeds_dir = directory(bids(root='results',subject='{subject}',space='individual',label='{seed}',from_=config['template'],suffix='voxseeds'))
+        voxseeds_dir = directory(bids(root='results',**config['subj_wildcards'],space='individual',label='{seed}',from_=config['template'],suffix='voxseeds'))
     script: '../scripts/create_voxel_seed_images.py'
 
 rule track_from_voxels:
@@ -291,7 +212,7 @@ rule track_from_voxels:
             suffix='mask.mif',
             **config['subj_wildcards'],
         ),
-        vox_seeds_dir = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_=config['template'],suffix='voxseeds')
+        vox_seeds_dir = bids(root='results',**config['subj_wildcards'],space='individual',label='{seed}',from_=config['template'],suffix='voxseeds')
     params:
         seeds_per_voxel=config['seeds_per_voxel']
     output:
@@ -328,7 +249,7 @@ rule connectivity_from_voxels:
             suffix='voxtracts',
             **config['subj_wildcards'],
         ),
-        targets = bids(root='results',subject='{subject}',space='individual',desc='{targets}',from_=config['template'],suffix='dseg.nii.gz'),
+        targets = bids(root='results',**config['subj_wildcards'],space='individual',desc='{targets}',from_=config['template'],suffix='dseg.nii.gz'),
     output:
          conn_dir=directory(bids(
             root="results",
@@ -394,7 +315,7 @@ rule conn_csv_to_image:
             suffix='conn.csv',
             **config['subj_wildcards'],
          ),
-         seed_nii = bids(root='results',subject='{subject}',space='individual',label='{seed}',from_=config['template'],suffix='mask.nii.gz'),
+         seed_nii = bids(root='results',**config['subj_wildcards'],space='individual',label='{seed}',from_=config['template'],suffix='mask.nii.gz'),
     output:
           conn_nii=bids(
             root="results",
@@ -435,7 +356,7 @@ rule transform_conn_to_template:
             desc="itk",
             **config["subj_wildcards"]
         ),
-        ref = config['template_t1w']
+        ref = os.path.join(workflow.basedir,'..',config['template_t1w'])
     output:
         conn_nii=bids(
             root="results",
@@ -450,7 +371,15 @@ rule transform_conn_to_template:
     threads: 8
     resources:
         mem_mb = 8000
-    log: 'logs/transform_conn_to_template/sub-{subject}_{seed}_{template}_{targets}.log'
+    log: 
+        bids(
+            root="logs",
+            space='{template}',
+            desc='{targets}',
+            label='{seed}',
+            suffix='transformconntotemplate.log',
+            **config['subj_wildcards'],
+        ),
     group: 'participant1'
     shell:
         #using nearestneighbor to avoid bluring with background -- background set as -1
@@ -484,15 +413,26 @@ rule maxprob_conn:
         'c4d {input} -slice w 0:-1 -vote -o {output} '
 
 
+#isosurf template probseg
+rule gen_template_surface:
+    input: 
+        nii = lambda wildcards: config['seeds'][wildcards.seed]['template_probseg'],
+    params:
+        threshold = lambda wildcards: config['seeds'][wildcards.seed]['probseg_threshold'],
+    output:
+        vtk = 'results/tpl-{template}/tpl-{template}_label-{seed}_isosurf.vtk'
+    script:
+        '../scripts/gen_isosurface.py'
+ 
 """
 rule save_connmap_template_npz:
     input:
         mask = bids(root='results',template='{template}',label='{seed}',suffix='mask.nii.gz'),
-        probtrack_dir = bids(root='results',subject='{subject}',label='{seed}',space='{template}',suffix='probtrack')
+        probtrack_dir = bids(root='results',**config['subj_wildcards'],label='{seed}',space='{template}',suffix='probtrack')
     params:
         connmap_3d = lambda wildcards, input: expand(bids(root=input.probtrack_dir,include_subject_dir=False,subject=wildcards.subject,prefix='seeds_to',label='{target}',suffix='mask.nii.gz'), target=targets),
     output:
-        connmap_npz = bids(root='results',subject='{subject}',label='{seed}',space='{template}',suffix='connMap.npz')
+        connmap_npz = bids(root='results',**config['subj_wildcards'],label='{seed}',space='{template}',suffix='connMap.npz')
     log: 'logs/save_connmap_to_template_npz/sub-{subject}_{seed}_{template}.log'
     group: 'participant1'
     conda: '../envs/sklearn.yml'
@@ -501,7 +441,7 @@ rule save_connmap_template_npz:
 #space-{template}
 rule gather_connmap_group:
     input:
-        connmap_npz = expand(bids(root='results',subject='{subject}',label='{seed}',space='{template}',suffix='connMap.npz'), subject=subjects,allow_missing=True)
+        connmap_npz = expand(bids(root='results',**config['subj_wildcards'],label='{seed}',space='{template}',suffix='connMap.npz'), subject=subjects,allow_missing=True)
     output:
         connmap_group_npz = bids(root='results',template='{template}',desc='concat',label='{seed}',from_='group',suffix='connMap.npz')
     log: 'logs/gather_connmap_group/{seed}_{template}.log'

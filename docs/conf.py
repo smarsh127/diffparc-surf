@@ -19,8 +19,8 @@ import sphinx_rtd_theme
 # -- Project information -----------------------------------------------------
 
 
-project = 'snakedwi'
-copyright = '2021, Ali Khan'
+project = 'diffparc'
+copyright = '2022, Ali Khan'
 author = 'Ali Khan'
 
 

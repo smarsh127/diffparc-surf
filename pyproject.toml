@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "snakedwi"
+name = "diffparc"
 version = "0.1.0"
-description = "snakedwi - BIDS app and snakemake workflow for dwi pre-processing"
+description = "diffparc - Snakebids app for diffusion-based parcellation"
 authors = ["Ali Khan <alik@robarts.ca>"]
 license = "MIT"
 
@@ -19,6 +19,7 @@ networkx = "^2.7.1"
 pygraphviz = "^1.9"
 Pygments = "^2.11.2"
 pillow = "9.0.1"
+pyvista = "^0.30.0"
 
 
 [tool.poetry.dev-dependencies]
@@ -33,12 +34,12 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.poetry.scripts]
-snakedwi = "snakedwi.run:main"
+diffparc = "diffparc.run:main"
 
 
 [tool.poe.tasks]
-quality_check = { shell = "isort snakedwi/*.py -c && black snakedwi --check && snakefmt snakedwi --check" }
-quality_fix = { shell = "isort snakedwi/*.py && black snakedwi  && snakefmt snakedwi" }
+quality_check = { shell = "isort diffparc/*.py -c && black diffparc --check && snakefmt diffparc --check" }
+quality_fix = { shell = "isort diffparc/*.py && black diffparc  && snakefmt diffparc" }
 
 [tool.isort]
 profile = "black"
