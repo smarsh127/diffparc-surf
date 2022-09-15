@@ -145,7 +145,13 @@ parse_args:
       - 'msmt_csd '
     default: 'csd'
 
+  --seeds_per_voxel:
+    help: 'Number of streamline seeds per voxel  (default: %(default)s)'
+    nargs: '+'
+    default: 
+      - 1000
 
+   
 
 #---- to update below this
 
@@ -293,8 +299,15 @@ seeds:
 
 #tractography parameters
 fod_algorithm: csd #msmt_csd
-resample_seed_res: 1x1x1mm
-seeds_per_voxel: 100 # this is lower for efficiency, and also because we are using dwi data resampled to T1w resolution
+resample_seed_res: 2x2x2mm
+seeds_per_voxel: 
+ - 50
+ - 100
+ - 500
+ - 1000
+ - 2500
+ - 5000
+
 
 #for test data
 participant_label: 

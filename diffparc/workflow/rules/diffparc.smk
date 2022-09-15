@@ -125,62 +125,27 @@ rule binarize_trim_subject_seed:
         
 
 
+def get_fod_for_tracking(wildcards):
+    if config['fod_algorithm'] == 'csd':
+        return bids(
+            root="results",
+            datatype='dwi',
+            alg='csd',
+            desc='wm',
+            suffix='fod.mif',
+            **config['subj_wildcards'],
+        ),
+    elif config['fod_algorithm'] == 'msmt_csd':
+        return bids(
+            root="results",
+            datatype='dwi',
+            desc='wmnorm',
+            alg='msmt',
+            suffix='fod.mif',
+            **config['subj_wildcards'],
+        ),
 
-rule track_from_seed:
-    # Tournier, J.-D.; Calamante, F. & Connelly, A. Improved probabilistic streamlines tractography by 2nd order integration over fibre orientation distributions. Proceedings of the International Society for Magnetic Resonance in Medicine, 2010, 1670
-    input:
-        wm_fod=bids(
-            root="results",
-            datatype='dwi',
-            suffix='wm_fod.mif',
-            **config['subj_wildcards'],
-        ),
-        dwi=bids(
-            root="results",
-            datatype='dwi',
-            suffix='dwi.mif',
-            **config['subj_wildcards'],
-        ),
-        mask=bids(
-            root="results",
-            datatype='dwi',
-            suffix='mask.mif',
-            **config['subj_wildcards'],
-        ),
-        seed = bids(root='results',**config['subj_wildcards'],space='individual',label='{seed}',from_=config['template'],suffix='mask.nii.gz'),
-    params:
-        streamlines="",
-#        seed_strategy=lambda wildcards,input: f'-seed_image {input.seed}'
-        seed_strategy=lambda wildcards,input: f'-seed_random_per_voxel {input.seed} 50'
-
-    output:
-        tck=bids(
-            root="results",
-            datatype='dwi',
-            label='{seed}',
-            suffix='tractography.tck',
-            **config['subj_wildcards'],
-        ),
-        seed_locs=bids(
-            root="results",
-            datatype='dwi',
-            label='{seed}',
-            suffix='seedlocs.txt',
-            **config['subj_wildcards'],
-        )
-
-    threads: 32
-    resources:
-        mem_mb=128000,
-	time=1440
-    group: "subj2"
-    container:
-        config['singularity']['mrtrix']
-    shell:
-        'tckgen -nthreads {threads} -algorithm iFOD2 -mask {input.mask} '
-        ' {input.wm_fod} {output.tck} '
-        ' -seed_grid_per_voxel {input.seed} 1 '
-        ' -output_seeds {output.seed_locs} '
+        
 
 rule create_voxel_seed_images:
     input:
@@ -192,12 +157,7 @@ rule create_voxel_seed_images:
 rule track_from_voxels:
     # Tournier, J.-D.; Calamante, F. & Connelly, A. Improved probabilistic streamlines tractography by 2nd order integration over fibre orientation distributions. Proceedings of the International Society for Magnetic Resonance in Medicine, 2010, 1670
     input:
-        wm_fod=bids(
-            root="results",
-            datatype='dwi',
-            suffix='wm_fod.mif',
-            **config['subj_wildcards'],
-        ),
+        wm_fod=get_fod_for_tracking,
         dwi=bids(
             root="results",
             datatype='dwi',
@@ -212,12 +172,13 @@ rule track_from_voxels:
         ),
         vox_seeds_dir = bids(root='results',**config['subj_wildcards'],space='individual',label='{seed}',from_=config['template'],suffix='voxseeds')
     params:
-        seeds_per_voxel=config['seeds_per_voxel']
+        seeds_per_voxel='{seedpervox}'
     output:
         tck_dir=directory(bids(
             root="results",
             datatype='dwi',
             label='{seed}',
+            seedpervox='{seedpervox}',
             suffix='voxtracts',
             **config['subj_wildcards'],
         )),
@@ -231,7 +192,7 @@ rule track_from_voxels:
         config['singularity']['mrtrix']
     shell:
         'mkdir -p {output.tck_dir} && '
-        'parallel --progress --jobs {threads} '
+        'parallel --bar --jobs {threads} '
         'tckgen -quiet -nthreads 0  -algorithm iFOD2 -mask {input.mask} '
         ' {input.wm_fod} {output.tck_dir}/vox_{{1}}.tck '
         ' -seed_random_per_voxel {input.vox_seeds_dir}/seed_{{1}}.nii {params.seeds_per_voxel} '
@@ -244,6 +205,7 @@ rule connectivity_from_voxels:
             root="results",
             datatype='dwi',
             label='{seed}',
+            seedpervox='{seedpervox}',
             suffix='voxtracts',
             **config['subj_wildcards'],
         ),
@@ -254,6 +216,7 @@ rule connectivity_from_voxels:
             datatype='dwi',
             desc='{targets}',
             label='{seed}',
+            seedpervox='{seedpervox}',
             suffix='voxconn',
             **config['subj_wildcards'],
         ))),
@@ -292,6 +255,7 @@ rule gen_conn_csv:
             datatype='dwi',
             desc='{targets}',
             label='{seed}',
+            seedpervox='{seedpervox}',
             suffix='voxconn',
             **config['subj_wildcards'],
         ),
@@ -303,15 +267,17 @@ rule gen_conn_csv:
             datatype='dwi',
             desc='{targets}',
             label='{seed}',
+            seedpervox='{seedpervox}',
             suffix='conn.csv',
             **config['subj_wildcards'],
         ),
     group: "subj2"
     container:
         config['singularity']['mrtrix']
-    shell:
-        'echo {params.header_line} > {output.conn_csv} && '
-        'for f in `ls {input.conn_dir}/*.csv`; do tail -n 1 $f; done >> {output.conn_csv}'
+    script: '../scripts/gather_csv_files.py'
+#    shell:
+#        'echo {params.header_line} > {output.conn_csv} && '
+#        'for f in `ls {input.conn_dir}/*.csv`; do tail -n 1 $f; done >> {output.conn_csv}'
 
 
 rule conn_csv_to_image:
@@ -321,6 +287,7 @@ rule conn_csv_to_image:
             datatype='dwi',
             desc='{targets}',
             label='{seed}',
+            seedpervox='{seedpervox}',
             suffix='conn.csv',
             **config['subj_wildcards'],
          ),
@@ -331,6 +298,7 @@ rule conn_csv_to_image:
             datatype='dwi',
             desc='{targets}',
             label='{seed}',
+            seedpervox='{seedpervox}',
             suffix='conn.nii.gz',
             **config['subj_wildcards'],
         ),
@@ -345,6 +313,7 @@ rule transform_conn_to_template:
             datatype='dwi',
             desc='{targets}',
             label='{seed}',
+            seedpervox='{seedpervox}',
             suffix='conn.nii.gz',
             **config['subj_wildcards'],
         ),
@@ -373,6 +342,7 @@ rule transform_conn_to_template:
             space='{template}',
             desc='{targets}',
             label='{seed}',
+            seedpervox='{seedpervox}',
             suffix='conn.nii.gz',
             **config['subj_wildcards'],
         ),
@@ -386,6 +356,7 @@ rule transform_conn_to_template:
             space='{template}',
             desc='{targets}',
             label='{seed}',
+            seedpervox='{seedpervox}',
             suffix='transformconntotemplate.log',
             **config['subj_wildcards'],
         ),
@@ -404,6 +375,7 @@ rule maxprob_conn:
             space='{template}',
             desc='{targets}',
             label='{seed}',
+            seedpervox='{seedpervox}',
             suffix='conn.nii.gz',
             **config['subj_wildcards'],
         ),
@@ -414,6 +386,7 @@ rule maxprob_conn:
             space='{template}',
             desc='{targets}',
             label='{seed}',
+            seedpervox='{seedpervox}',
             segtype='maxprob',
             suffix='dseg.nii.gz',
             **config['subj_wildcards'],

@@ -81,6 +81,7 @@ rule all_diffparc:
             space='{template}',
             desc='{targets}',
             label='{seed}',
+            seedpervox='{seedpervox}',
             segtype='maxprob',
             suffix='dseg.nii.gz',
             **config['subj_wildcards'],
@@ -88,6 +89,7 @@ rule all_diffparc:
         template=config['template'],
         targets=config['targets'].keys(),
         seed=config['seeds'].keys(),
+        seedpervox=config['seeds_per_voxel'],
         allow_missing=True),
         zip,**config["input_zip_lists"]["dwi"])
  
