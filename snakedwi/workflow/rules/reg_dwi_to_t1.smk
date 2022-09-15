@@ -370,7 +370,7 @@ rule resample_dwi_to_t1w:
         dwi=bids(
             root="results",
             suffix="dwi.nii.gz",
-            desc="eddy",
+            desc="preproc",
             datatype="dwi",
             **config["subj_wildcards"]
         ),
@@ -389,7 +389,7 @@ rule resample_dwi_to_t1w:
         dwi=bids(
             root="results",
             suffix="dwi.nii.gz",
-            desc="eddy",
+            desc="preproc",
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
@@ -417,7 +417,7 @@ rule resample_brainmask_to_t1w:
             datatype="dwi",
             **config["subj_wildcards"]
         ),
-        brainmask=get_mask_for_eddy(),
+        brainmask=get_dwi_mask(),
         xfm_itk=bids(
             root="work",
             suffix="xfm.txt",
@@ -454,7 +454,7 @@ rule rotate_bvecs_to_t1w:
         bvecs=bids(
             root="results",
             suffix="dwi.bvec",
-            desc="eddy",
+            desc="preproc",
             datatype="dwi",
             **config["subj_wildcards"]
         ),
@@ -470,7 +470,7 @@ rule rotate_bvecs_to_t1w:
         bvals=bids(
             root="results",
             suffix="dwi.bval",
-            desc="eddy",
+            desc="preproc",
             datatype="dwi",
             **config["subj_wildcards"]
         ),
@@ -480,7 +480,7 @@ rule rotate_bvecs_to_t1w:
         bvecs=bids(
             root="results",
             suffix="dwi.bvec",
-            desc="eddy",
+            desc="preproc",
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
@@ -489,7 +489,7 @@ rule rotate_bvecs_to_t1w:
         bvals=bids(
             root="results",
             suffix="dwi.bval",
-            desc="eddy",
+            desc="preproc",
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
@@ -511,7 +511,7 @@ rule dtifit_resampled_t1w:
         dwi=bids(
             root="results",
             suffix="dwi.nii.gz",
-            desc="eddy",
+            desc="preproc",
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
@@ -520,7 +520,7 @@ rule dtifit_resampled_t1w:
         bvals=bids(
             root="results",
             suffix="dwi.bval",
-            desc="eddy",
+            desc="preproc",
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
@@ -529,7 +529,7 @@ rule dtifit_resampled_t1w:
         bvecs=bids(
             root="results",
             suffix="dwi.bvec",
-            desc="eddy",
+            desc="preproc",
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
@@ -551,7 +551,7 @@ rule dtifit_resampled_t1w:
             bids(
                 root="results",
                 suffix="dtifit",
-                desc="eddy",
+                desc="preproc",
                 space="T1w",
                 res=config["resample_dwi"]["resample_scheme"],
                 datatype="dwi",
@@ -563,7 +563,7 @@ rule dtifit_resampled_t1w:
                 bids(
                     root="results",
                     suffix="dtifit",
-                    desc="eddy",
+                    desc="preproc",
                     space="T1w",
                     res=config["resample_dwi"]["resample_scheme"],
                     datatype="dwi",

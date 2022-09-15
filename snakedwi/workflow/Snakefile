@@ -77,7 +77,7 @@ rule all_diffparc:
     input:
         conn_nii = expand(expand(bids(
             root="results",
-            datatype='tractography',
+            datatype='dwi',
             space='{template}',
             desc='{targets}',
             label='{seed}',

@@ -146,7 +146,7 @@ rule run_probtrack:
         bedpost_dir=
             bids(
                 root="results",
-                desc="eddy",
+                desc="preproc",
                 suffix="diffusion.bedpostX",
                 space="T1w",
                 res=config["resample_dwi"]["resample_scheme"],
@@ -183,7 +183,7 @@ rule track_from_seed:
     input:
         wm_fod=bids(
             root="results",
-            datatype='response',
+            datatype='dwi',
             desc='normalized',
             suffix='wm_fod.mif',
             **config['subj_wildcards'],
@@ -209,14 +209,14 @@ rule track_from_seed:
     output:
         tck=bids(
             root="results",
-            datatype='tractography',
+            datatype='dwi',
             label='{seed}',
             suffix='tractography.tck',
             **config['subj_wildcards'],
         ),
         seed_locs=bids(
             root="results",
-            datatype='tractography',
+            datatype='dwi',
             label='{seed}',
             suffix='seedlocs.txt',
             **config['subj_wildcards'],
@@ -247,7 +247,7 @@ rule track_from_voxels:
     input:
         wm_fod=bids(
             root="results",
-            datatype='response',
+            datatype='dwi',
             desc='normalized',
             suffix='wm_fod.mif',
             **config['subj_wildcards'],
@@ -270,7 +270,7 @@ rule track_from_voxels:
     output:
         tck_dir=directory(bids(
             root="results",
-            datatype='tractography',
+            datatype='dwi',
             label='{seed}',
             suffix='voxtracts',
             **config['subj_wildcards'],
@@ -296,7 +296,7 @@ rule connectivity_from_voxels:
     input:
         tck_dir=bids(
             root="results",
-            datatype='tractography',
+            datatype='dwi',
             label='{seed}',
             suffix='voxtracts',
             **config['subj_wildcards'],
@@ -305,7 +305,7 @@ rule connectivity_from_voxels:
     output:
          conn_dir=directory(bids(
             root="results",
-            datatype='tractography',
+            datatype='dwi',
             desc='{targets}',
             label='{seed}',
             suffix='voxconn',
@@ -332,7 +332,7 @@ rule gen_conn_csv:
     input:
          conn_dir=bids(
             root="results",
-            datatype='tractography',
+            datatype='dwi',
             desc='{targets}',
             label='{seed}',
             suffix='voxconn',
@@ -343,7 +343,7 @@ rule gen_conn_csv:
     output:
          conn_csv=bids(
             root="results",
-            datatype='tractography',
+            datatype='dwi',
             desc='{targets}',
             label='{seed}',
             suffix='conn.csv',
@@ -361,7 +361,7 @@ rule conn_csv_to_image:
     input:
          conn_csv=bids(
             root="results",
-            datatype='tractography',
+            datatype='dwi',
             desc='{targets}',
             label='{seed}',
             suffix='conn.csv',
@@ -371,7 +371,7 @@ rule conn_csv_to_image:
     output:
           conn_nii=bids(
             root="results",
-            datatype='tractography',
+            datatype='dwi',
             desc='{targets}',
             label='{seed}',
             suffix='conn.nii.gz',
@@ -385,7 +385,7 @@ rule transform_conn_to_template:
     input:
         conn_nii=bids(
             root="results",
-            datatype='tractography',
+            datatype='dwi',
             desc='{targets}',
             label='{seed}',
             suffix='conn.nii.gz',
@@ -412,7 +412,7 @@ rule transform_conn_to_template:
     output:
         conn_nii=bids(
             root="results",
-            datatype='tractography',
+            datatype='dwi',
             space='{template}',
             desc='{targets}',
             label='{seed}',
@@ -435,7 +435,7 @@ rule maxprob_conn:
     input:
         conn_nii=bids(
             root="results",
-            datatype='tractography',
+            datatype='dwi',
             space='{template}',
             desc='{targets}',
             label='{seed}',
@@ -445,7 +445,7 @@ rule maxprob_conn:
     output:
         conn_nii=bids(
             root="results",
-            datatype='tractography',
+            datatype='dwi',
             space='{template}',
             desc='{targets}',
             label='{seed}',

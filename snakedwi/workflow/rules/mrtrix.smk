@@ -5,7 +5,7 @@ rule nii2mif:
         dwi=bids(
             root="results",
             suffix="dwi.nii.gz",
-            desc="eddy",
+            desc="preproc",
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
@@ -14,7 +14,7 @@ rule nii2mif:
         bval=bids(
             root="results",
             suffix="dwi.bval",
-            desc="eddy",
+            desc="preproc",
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
@@ -23,7 +23,7 @@ rule nii2mif:
         bvec=bids(
             root="results",
             suffix="dwi.bvec",
-            desc="eddy",
+            desc="preproc",
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
@@ -70,14 +70,14 @@ rule dwi2response:
         bvec=bids(
                 root="results",
                 suffix="dwi.bvec",
-                desc="eddy",
+                desc="preproc",
                 datatype="dwi",
                 **config["subj_wildcards"]
             ),
         bval=bids(
                 root="results",
                 suffix="dwi.bval",
-                desc="eddy",
+                desc="preproc",
                 datatype="dwi",
                 **config["subj_wildcards"]
             ),
@@ -87,21 +87,21 @@ rule dwi2response:
     output:
         wm_rf=bids(
             root="results",
-            datatype='response',
+            datatype='dwi',
             desc='wm',
             suffix='response.txt',
             **config['subj_wildcards'],
         ),
         gm_rf=bids(
             root="results",
-            datatype='response',
+            datatype='dwi',
             desc='gm',
             suffix='response.txt',
             **config['subj_wildcards'],
         ),
         csf_rf=bids(
             root="results",
-            datatype='response',
+            datatype='dwi',
             desc='csf',
             suffix='response.txt',
             **config['subj_wildcards'],
@@ -130,21 +130,21 @@ rule dwi2fod:
     output:
         wm_fod=bids(
             root="results",
-            datatype='response',
+            datatype='dwi',
             desc='wm',
             suffix='fod.mif',
             **config['subj_wildcards'],
         ),
         gm_fod=bids(
             root="results",
-            datatype='response',
+            datatype='dwi',
             desc='gm',
             suffix='fod.mif',
             **config['subj_wildcards'],
         ),
         csf_fod=bids(
             root="results",
-            datatype='response',
+            datatype='dwi',
             desc='csf',
             suffix='fod.mif',
             **config['subj_wildcards'],
@@ -170,21 +170,21 @@ rule mtnormalise:
     output:
         wm_fod=bids(
             root="results",
-            datatype='response',
+            datatype='dwi',
             desc='normalized',
             suffix='wm_fod.mif',
             **config['subj_wildcards'],
         ),
         gm_fod=bids(
             root="results",
-            datatype='response',
+            datatype='dwi',
             desc='normalized',
             suffix='gm_fod.mif',
             **config['subj_wildcards'],
         ),
         csf_fod=bids(
             root="results",
-            datatype='response',
+            datatype='dwi',
             desc='normalized',
             suffix='csf_fod.mif',
             **config['subj_wildcards'],
@@ -248,7 +248,7 @@ rule create_seed:
     output:
         seed=bids(
             root="results",
-            datatype='tractography',
+            datatype='dwi',
             suffix='seed.mif',
             **config['subj_wildcards'],
         )
@@ -274,7 +274,7 @@ rule tckgen:
     output:
         tck=bids(
             root="results",
-            datatype='tractography',
+            datatype='dwi',
             desc='iFOD2',
             suffix='tractography.tck',
             **config['subj_wildcards'],

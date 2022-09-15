@@ -688,7 +688,7 @@ rule get_shell_avg:
         "../scripts/get_shell_avg.py"
 
 
-def get_mask_for_eddy():
+def get_dwi_mask():
     if config["masking_method"] == "b0_BET":
         method = "bet_from-b0"
     elif config["masking_method"] == "b0_SyN":
@@ -716,7 +716,7 @@ rule qc_brainmask_for_eddy:
             datatype="dwi",
             **config["subj_wildcards"]
         ),
-        seg=get_mask_for_eddy(),
+        seg=get_dwi_mask(),
     output:
         #        png = bids(root='qc',subject='{subject}',suffix='mask.png',desc='brain'),
         png=report(
@@ -942,7 +942,7 @@ rule run_eddy:
             datatype="dwi",
             **config["subj_wildcards"]
         ),
-        brainmask=get_mask_for_eddy(),
+        brainmask=get_dwi_mask(),
         bvals=bids(
             root="work",
             suffix="dwi.bval",
@@ -1071,7 +1071,7 @@ rule eddy_quad:
             datatype="dwi",
             **config["subj_wildcards"]
         ),
-        brainmask=get_mask_for_eddy(),
+        brainmask=get_dwi_mask(),
         bvals=bids(
             root="work",
             suffix="dwi.bval",
@@ -1399,3 +1399,46 @@ rule cp_bedpost_to_results:
 #  reg_jacobian
 #  convertwarp -> change this to wb_command -convert-warpfield  to get itk transforms
 #  applywarp -> change this to antsApplyTransforms
+
+
+
+rule cp_to_preproc_dwi:
+    """ should use config flags to decide what input to use here.
+        e.g. degibbs if we are skipping topup and eddy """
+    input:
+        multiext(
+            bids(
+                root="work",
+                suffix="dwi",
+                datatype="dwi",
+                desc="degibbs",
+                **config["subj_wildcards"]
+            ),
+            ".nii.gz",
+            ".bvec",
+            ".bval",
+            ".json",
+        ),
+
+    output:
+        nii=multiext(
+            bids(
+                root="results",
+                suffix="dwi",
+                desc='preproc',
+                datatype="dwi",
+                **config["subj_wildcards"]
+            ),
+            ".nii.gz",
+            ".bval",
+            ".bvec",
+            ".json",
+        ),
+    group:
+        "subj"
+    run:
+        for in_file, out_file in zip(input, output):
+            shell("cp -v {in_file} {out_file}")
+
+
+          
