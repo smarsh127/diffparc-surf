@@ -146,7 +146,7 @@ rule brainmask_from_tissue:
     output:
         mask=bids(
             root="work",
-            datatype="anat", 
+            datatype="anat",
             **config["subj_wildcards"],
             suffix="mask.nii.gz",
             from_="atropos3seg",

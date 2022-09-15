@@ -1401,10 +1401,9 @@ rule cp_bedpost_to_results:
 #  applywarp -> change this to antsApplyTransforms
 
 
-
 rule cp_to_preproc_dwi:
     """ should use config flags to decide what input to use here.
-        e.g. degibbs if we are skipping topup and eddy """
+    e.g. degibbs if we are skipping topup and eddy """
     input:
         expand(
             bids(
@@ -1414,10 +1413,9 @@ rule cp_to_preproc_dwi:
                 desc="degibbs",
                 **config["subj_wildcards"]
             ),
-            ext=["nii.gz","bvec","bval","json"],
-            allow_missing=True
+            ext=["nii.gz", "bvec", "bval", "json"],
+            allow_missing=True,
         ),
-
     output:
         expand(
             bids(
@@ -1427,14 +1425,11 @@ rule cp_to_preproc_dwi:
                 desc="preproc",
                 **config["subj_wildcards"]
             ),
-            ext=["nii.gz","bvec","bval","json"],
-            allow_missing=True
+            ext=["nii.gz", "bvec", "bval", "json"],
+            allow_missing=True,
         ),
     group:
         "subj"
     run:
         for in_file, out_file in zip(input, output):
             shell("cp -v {in_file} {out_file}")
-
-
-          

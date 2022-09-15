@@ -475,7 +475,7 @@ rule rotate_bvecs_to_t1w:
             **config["subj_wildcards"]
         ),
     params:
-        script=os.path.join(workflow.basedir,"scripts/rotate_bvecs.sh"),
+        script=os.path.join(workflow.basedir, "scripts/rotate_bvecs.sh"),
     output:
         bvecs=bids(
             root="results",

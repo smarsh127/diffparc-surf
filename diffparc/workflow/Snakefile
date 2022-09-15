@@ -75,28 +75,28 @@ def get_bedpost_all():
 
 rule all_diffparc:
     input:
-        conn_nii = expand(expand(bids(
-            root="results",
-            datatype='dwi',
-            space='{template}',
-            desc='{targets}',
-            label='{seed}',
-            seedpervox='{seedpervox}',
-            segtype='maxprob',
-            suffix='dseg.nii.gz',
-            **config['subj_wildcards'],
+        conn_nii=expand(
+            expand(
+                bids(
+                    root="results",
+                    datatype="dwi",
+                    space="{template}",
+                    desc="{targets}",
+                    label="{seed}",
+                    seedpervox="{seedpervox}",
+                    segtype="maxprob",
+                    suffix="dseg.nii.gz",
+                    **config["subj_wildcards"],
+                ),
+                template=config["template"],
+                targets=config["targets"].keys(),
+                seed=config["seeds"].keys(),
+                seedpervox=config["seeds_per_voxel"],
+                allow_missing=True,
+            ),
+            zip,
+            **config["input_zip_lists"]["dwi"],
         ),
-        template=config['template'],
-        targets=config['targets'].keys(),
-        seed=config['seeds'].keys(),
-        seedpervox=config['seeds_per_voxel'],
-        allow_missing=True),
-        zip,**config["input_zip_lists"]["dwi"])
- 
-
-        
-        
-        
 
 
 rule all_preprocdwi:
@@ -144,5 +144,3 @@ include: "rules/reg_t1_to_template.smk"
 include: "rules/seg_t1_brain_tissue.smk"
 include: "rules/diffparc.smk"
 include: "rules/mrtrix.smk"
-
-

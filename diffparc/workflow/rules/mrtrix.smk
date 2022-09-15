@@ -1,8 +1,4 @@
-
-
-       
-    
-#----------- MRTRIX PREPROC BEGIN ------------#
+# ----------- MRTRIX PREPROC BEGIN ------------#
 rule nii2mif:
     input:
         dwi=bids(
@@ -41,30 +37,29 @@ rule nii2mif:
             datatype="dwi",
             **config["subj_wildcards"]
         ),
-
     output:
         dwi=bids(
             root="results",
-            datatype='dwi',
-            suffix='dwi.mif',
-            **config['subj_wildcards'],
+            datatype="dwi",
+            suffix="dwi.mif",
+            **config["subj_wildcards"],
         ),
         mask=bids(
             root="results",
-            datatype='dwi',
-            suffix='mask.mif',
-            **config['subj_wildcards'],
-        )
+            datatype="dwi",
+            suffix="mask.mif",
+            **config["subj_wildcards"],
+        ),
     threads: 4
     resources:
-        mem_mb=16000
-    group: "subj1"
+        mem_mb=16000,
+    group:
+        "subj1"
     container:
-        config['singularity']['mrtrix']
+        config["singularity"]["mrtrix"]
     shell:
-        'mrconvert {input.dwi} {output.dwi} -fslgrad {input.bvec} {input.bval} -nthreads {threads} && '
-        'mrconvert {input.mask} {output.mask} -nthreads {threads}'
-
+        "mrconvert {input.dwi} {output.dwi} -fslgrad {input.bvec} {input.bval} -nthreads {threads} && "
+        "mrconvert {input.mask} {output.mask} -nthreads {threads}"
 
 
 rule dwi2response_msmt:
@@ -73,53 +68,53 @@ rule dwi2response_msmt:
         dwi=rules.nii2mif.output.dwi,
         mask=rules.nii2mif.output.mask,
         bvec=bids(
-                root="results",
-                suffix="dwi.bvec",
-                desc="preproc",
-                datatype="dwi",
-                **config["subj_wildcards"]
-            ),
+            root="results",
+            suffix="dwi.bvec",
+            desc="preproc",
+            datatype="dwi",
+            **config["subj_wildcards"]
+        ),
         bval=bids(
-                root="results",
-                suffix="dwi.bval",
-                desc="preproc",
-                datatype="dwi",
-                **config["subj_wildcards"]
-            ),
+            root="results",
+            suffix="dwi.bval",
+            desc="preproc",
+            datatype="dwi",
+            **config["subj_wildcards"]
+        ),
     output:
         wm_rf=bids(
             root="results",
-            datatype='dwi',
-            alg='msmt',
-            desc='wm',
-            suffix='response.txt',
-            **config['subj_wildcards'],
+            datatype="dwi",
+            alg="msmt",
+            desc="wm",
+            suffix="response.txt",
+            **config["subj_wildcards"],
         ),
         gm_rf=bids(
             root="results",
-            datatype='dwi',
-            alg='msmt',
-            desc='gm',
-            suffix='response.txt',
-            **config['subj_wildcards'],
+            datatype="dwi",
+            alg="msmt",
+            desc="gm",
+            suffix="response.txt",
+            **config["subj_wildcards"],
         ),
         csf_rf=bids(
             root="results",
-            datatype='dwi',
-            alg='msmt',
-            desc='csf',
-            suffix='response.txt',
-            **config['subj_wildcards'],
-        )
+            datatype="dwi",
+            alg="msmt",
+            desc="csf",
+            suffix="response.txt",
+            **config["subj_wildcards"],
+        ),
     threads: 8
     resources:
-        mem_mb=32000
-    group: "subj1"
+        mem_mb=32000,
+    group:
+        "subj1"
     container:
-        config['singularity']['mrtrix']
+        config["singularity"]["mrtrix"]
     shell:
-        'dwi2response dhollander {input.dwi} {output.wm_rf} {output.gm_rf} {output.csf_rf} -fslgrad {input.bvec} {input.bval} -nthreads {threads} -mask {input.mask}'
-
+        "dwi2response dhollander {input.dwi} {output.wm_rf} {output.gm_rf} {output.csf_rf} -fslgrad {input.bvec} {input.bval} -nthreads {threads} -mask {input.mask}"
 
 
 rule dwi2fod_msmt:
@@ -133,36 +128,37 @@ rule dwi2fod_msmt:
     output:
         wm_fod=bids(
             root="results",
-            datatype='dwi',
-            alg='msmt',
-            desc='wm',
-            suffix='fod.mif',
-            **config['subj_wildcards'],
+            datatype="dwi",
+            alg="msmt",
+            desc="wm",
+            suffix="fod.mif",
+            **config["subj_wildcards"],
         ),
         gm_fod=bids(
             root="results",
-            datatype='dwi',
-            alg='msmt',
-            desc='gm',
-            suffix='fod.mif',
-            **config['subj_wildcards'],
+            datatype="dwi",
+            alg="msmt",
+            desc="gm",
+            suffix="fod.mif",
+            **config["subj_wildcards"],
         ),
         csf_fod=bids(
             root="results",
-            datatype='dwi',
-            alg='msmt',
-            desc='csf',
-            suffix='fod.mif',
-            **config['subj_wildcards'],
+            datatype="dwi",
+            alg="msmt",
+            desc="csf",
+            suffix="fod.mif",
+            **config["subj_wildcards"],
         ),
     threads: 8
     resources:
-        mem_mb=32000
-    group: "subj2"
+        mem_mb=32000,
+    group:
+        "subj2"
     container:
-        config['singularity']['mrtrix']
+        config["singularity"]["mrtrix"]
     shell:
-        'dwi2fod -nthreads {threads} -mask {input.mask} msmt_csd {input.dwi} {input.wm_rf} {output.wm_fod} {input.gm_rf} {output.gm_fod} {input.csf_rf} {output.csf_fod} '
+        "dwi2fod -nthreads {threads} -mask {input.mask} msmt_csd {input.dwi} {input.wm_rf} {output.wm_fod} {input.gm_rf} {output.gm_fod} {input.csf_rf} {output.csf_fod} "
 
 
 rule mtnormalise:
@@ -176,78 +172,75 @@ rule mtnormalise:
     output:
         wm_fod=bids(
             root="results",
-            datatype='dwi',
-            alg='msmt',
-            desc='wmnorm',
-            suffix='fod.mif',
-            **config['subj_wildcards'],
+            datatype="dwi",
+            alg="msmt",
+            desc="wmnorm",
+            suffix="fod.mif",
+            **config["subj_wildcards"],
         ),
         gm_fod=bids(
             root="results",
-            datatype='dwi',
-            alg='msmt',
-            desc='normalized',
-            suffix='gm_fod.mif',
-            **config['subj_wildcards'],
+            datatype="dwi",
+            alg="msmt",
+            desc="normalized",
+            suffix="gm_fod.mif",
+            **config["subj_wildcards"],
         ),
         csf_fod=bids(
             root="results",
-            datatype='dwi',
-            alg='msmt',
-            desc='normalized',
-            suffix='csf_fod.mif',
-            **config['subj_wildcards'],
+            datatype="dwi",
+            alg="msmt",
+            desc="normalized",
+            suffix="csf_fod.mif",
+            **config["subj_wildcards"],
         ),
     threads: 8
     resources:
-        mem_mb=32000
-    group: "subj2"
+        mem_mb=32000,
+    group:
+        "subj2"
     container:
-        config['singularity']['mrtrix']
+        config["singularity"]["mrtrix"]
     shell:
-        'mtnormalise -nthreads {threads} -mask {input.mask} {input.wm_fod} {output.wm_fod} {input.gm_fod} {output.gm_fod} {input.csf_fod} {output.csf_fod}'
+        "mtnormalise -nthreads {threads} -mask {input.mask} {input.wm_fod} {output.wm_fod} {input.gm_fod} {output.gm_fod} {input.csf_fod} {output.csf_fod}"
 
-
-
-
-    
 
 rule dwi2response_csd:
     input:
         dwi=rules.nii2mif.output.dwi,
         mask=rules.nii2mif.output.mask,
         bvec=bids(
-                root="results",
-                suffix="dwi.bvec",
-                desc="preproc",
-                datatype="dwi",
-                **config["subj_wildcards"]
-            ),
+            root="results",
+            suffix="dwi.bvec",
+            desc="preproc",
+            datatype="dwi",
+            **config["subj_wildcards"]
+        ),
         bval=bids(
-                root="results",
-                suffix="dwi.bval",
-                desc="preproc",
-                datatype="dwi",
-                **config["subj_wildcards"]
-            ),
+            root="results",
+            suffix="dwi.bval",
+            desc="preproc",
+            datatype="dwi",
+            **config["subj_wildcards"]
+        ),
     output:
         wm_rf=bids(
             root="results",
-            datatype='dwi',
-            alg='csd',
-            desc='wm',
-            suffix='response.txt',
-            **config['subj_wildcards'],
+            datatype="dwi",
+            alg="csd",
+            desc="wm",
+            suffix="response.txt",
+            **config["subj_wildcards"],
         ),
     threads: 8
     resources:
-        mem_mb=32000
-    group: "subj1"
+        mem_mb=32000,
+    group:
+        "subj1"
     container:
-        config['singularity']['mrtrix']
+        config["singularity"]["mrtrix"]
     shell:
-        'dwi2response fa {input.dwi} {output.wm_rf}  -fslgrad {input.bvec} {input.bval} -nthreads {threads} -mask {input.mask}'
-
+        "dwi2response fa {input.dwi} {output.wm_rf}  -fslgrad {input.bvec} {input.bval} -nthreads {threads} -mask {input.mask}"
 
 
 rule dwi2fod_csd:
@@ -258,82 +251,91 @@ rule dwi2fod_csd:
     output:
         wm_fod=bids(
             root="results",
-            datatype='dwi',
-            alg='csd',
-            desc='wm',
-            suffix='fod.mif',
-            **config['subj_wildcards'],
+            datatype="dwi",
+            alg="csd",
+            desc="wm",
+            suffix="fod.mif",
+            **config["subj_wildcards"],
         ),
     threads: 8
     resources:
-        mem_mb=32000
-    group: "subj2"
+        mem_mb=32000,
+    group:
+        "subj2"
     container:
-        config['singularity']['mrtrix']
+        config["singularity"]["mrtrix"]
     shell:
-        'dwi2fod -nthreads {threads} -mask {input.mask} csd {input.dwi} {input.wm_rf} {output.wm_fod}  '
+        "dwi2fod -nthreads {threads} -mask {input.mask} csd {input.dwi} {input.wm_rf} {output.wm_fod}  "
+
 
 rule dwi2tensor:
     input:
-        rules.nii2mif.output.dwi
+        rules.nii2mif.output.dwi,
     output:
         tensor=bids(
             root="results",
-            datatype='dwi',
-            suffix='tensor.mif',
-            **config['subj_wildcards'],
-        )
-    group: "subj1"
+            datatype="dwi",
+            suffix="tensor.mif",
+            **config["subj_wildcards"],
+        ),
+    group:
+        "subj1"
     threads: 8
     resources:
-        mem_mb=32000
+        mem_mb=32000,
     container:
-        config['singularity']['mrtrix']
+        config["singularity"]["mrtrix"]
     shell:
-        'dwi2tensor {input} {output}'       
+        "dwi2tensor {input} {output}"
+
 
 rule tensor2metrics:
     input:
         tensor=rules.dwi2tensor.output.tensor,
-        mask=rules.nii2mif.output.mask
+        mask=rules.nii2mif.output.mask,
     output:
         fa=bids(
             root="results",
-            datatype='dwi',
-            suffix='fa.mif',
-            **config['subj_wildcards'],
-        )
-    group: "subj1"
+            datatype="dwi",
+            suffix="fa.mif",
+            **config["subj_wildcards"],
+        ),
+    group:
+        "subj1"
     threads: 8
     resources:
-        mem_mb=32000
+        mem_mb=32000,
     container:
-        config['singularity']['mrtrix']
+        config["singularity"]["mrtrix"]
     shell:
-        'tensor2metric -fa {output.fa} -mask {input.mask} {input.tensor}'       
+        "tensor2metric -fa {output.fa} -mask {input.mask} {input.tensor}"
 
-#-------------- MRTRIX PREPROC END ----------------#
 
-#----------- MRTRIX TRACTOGRAPHY BEGIN ------------#
+# -------------- MRTRIX PREPROC END ----------------#
+
+
+# ----------- MRTRIX TRACTOGRAPHY BEGIN ------------#
 rule create_seed:
-    input: 
-        rules.tensor2metrics.output.fa
+    input:
+        rules.tensor2metrics.output.fa,
     params:
-        threshold=0.15
+        threshold=0.15,
     output:
         seed=bids(
             root="results",
-            datatype='dwi',
-            suffix='seed.mif',
-            **config['subj_wildcards'],
-        )
+            datatype="dwi",
+            suffix="seed.mif",
+            **config["subj_wildcards"],
+        ),
     threads: 8
     resources:
-        mem_mb=32000
-    group: "subj2"
+        mem_mb=32000,
+    group:
+        "subj2"
     container:
-        config['singularity']['mrtrix']
-    shell: 'mrthreshold {input} -abs {params.threshold} {output}'
+        config["singularity"]["mrtrix"]
+    shell:
+        "mrthreshold {input} -abs {params.threshold} {output}"
 
 
 rule tckgen:
@@ -342,26 +344,25 @@ rule tckgen:
         wm_fod=rules.mtnormalise.output.wm_fod,
         dwi=rules.nii2mif.output.dwi,
         mask=rules.nii2mif.output.mask,
-        seed=rules.create_seed.output.seed
+        seed=rules.create_seed.output.seed,
     params:
         streamlines=5000,
-        seed_strategy=lambda wildcards,input: f'-seed_image {input.seed}'
+        seed_strategy=lambda wildcards, input: f"-seed_image {input.seed}",
     output:
         tck=bids(
             root="results",
-            datatype='dwi',
-            desc='iFOD2',
-            suffix='tractography.tck',
-            **config['subj_wildcards'],
-        )
+            datatype="dwi",
+            desc="iFOD2",
+            suffix="tractography.tck",
+            **config["subj_wildcards"],
+        ),
     threads: 32
     resources:
         mem_mb=128000,
-	time=1440
-    group: "subj2"
+        time=1440,
+    group:
+        "subj2"
     container:
-        config['singularity']['mrtrix']
+        config["singularity"]["mrtrix"]
     shell:
-        'tckgen -nthreads {threads} -algorithm iFOD2 -mask {input.mask} {params.seed_strategy} -select {params.streamlines} {input.wm_fod} {output.tck}'
-
-
+        "tckgen -nthreads {threads} -algorithm iFOD2 -mask {input.mask} {params.seed_strategy} -select {params.streamlines} {input.wm_fod} {output.tck}"

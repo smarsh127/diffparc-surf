@@ -10,7 +10,7 @@ rule affine_to_template:
             datatype="anat",
             **config["subj_wildcards"]
         ),
-        ref=os.path.join(workflow.basedir,'..',config['template_t1w'])
+        ref=os.path.join(workflow.basedir, "..", config["template_t1w"]),
     output:
         warped_subj=bids(
             root="work",
@@ -71,7 +71,7 @@ rule convert_template_xfm_ras2itk:
 
 rule warp_brainmask_from_template_affine:
     input:
-        mask=os.path.join(workflow.basedir,'..',config['template_mask']),
+        mask=os.path.join(workflow.basedir, "..", config["template_mask"]),
         ref=bids(
             root="work",
             datatype="anat",
@@ -109,7 +109,7 @@ rule warp_brainmask_from_template_affine:
 
 rule warp_tissue_probseg_from_template_affine:
     input:
-        probseg=os.path.join(workflow.basedir,'..', config["template_tissue_probseg"]),
+        probseg=os.path.join(workflow.basedir, "..", config["template_tissue_probseg"]),
         ref=bids(
             root="work",
             datatype="anat",
@@ -186,8 +186,8 @@ rule n4_t1_withmask:
 
 rule mask_template_t1w:
     input:
-        t1=os.path.join(workflow.basedir,'..',config["template_t1w"]),
-        mask=os.path.join(workflow.basedir,'..',config["template_mask"]),
+        t1=os.path.join(workflow.basedir, "..", config["template_t1w"]),
+        mask=os.path.join(workflow.basedir, "..", config["template_mask"]),
     output:
         t1=bids(
             root="work",
@@ -240,21 +240,25 @@ rule mask_subject_t1w:
 
 rule greedy_affine_init:
     input:
-        flo=[bids(
-            root="work",
-            datatype="anat",
-            **config["subj_wildcards"],
-            suffix="T1w.nii.gz",
-            from_="atropos3seg",
-            desc="masked"
-        )],
-        ref=[bids(
-            root="work",
-            datatype="anat",
-            prefix="tpl-{template}/tpl-{template}",
-            desc="masked",
-            suffix="T1w.nii.gz",
-        )],
+        flo=[
+            bids(
+                root="work",
+                datatype="anat",
+                **config["subj_wildcards"],
+                suffix="T1w.nii.gz",
+                from_="atropos3seg",
+                desc="masked"
+            )
+        ],
+        ref=[
+            bids(
+                root="work",
+                datatype="anat",
+                prefix="tpl-{template}/tpl-{template}",
+                desc="masked",
+                suffix="T1w.nii.gz",
+            )
+        ],
         init_xfm=bids(
             root="work",
             datatype="anat",
@@ -265,9 +269,14 @@ rule greedy_affine_init:
             desc="affine",
             type_="itk"
         ),
-    params:    
-        input_fixed_moving = lambda wildcards, input: [f'-i {fixed} {moving}' for fixed,moving in zip(input.ref, input.flo) ],
-        input_moving_warped = lambda wildcards, input, output: [f'-rm {moving} {warped}' for moving,warped in zip(input.flo,output.warped_flo) ],
+    params:
+        input_fixed_moving=lambda wildcards, input: [
+            f"-i {fixed} {moving}" for fixed, moving in zip(input.ref, input.flo)
+        ],
+        input_moving_warped=lambda wildcards, input, output: [
+            f"-rm {moving} {warped}"
+            for moving, warped in zip(input.flo, output.warped_flo)
+        ],
     output:
         warp=bids(
             root="work",
@@ -285,14 +294,16 @@ rule greedy_affine_init:
             to="{template}",
             **config["subj_wildcards"]
         ),
-        warped_flo=[bids(
-            root="work",
-            datatype="anat",
-            suffix="T1w.nii.gz",
-            space="{template}",
-            desc="greedy",
-            **config["subj_wildcards"]
-        )],
+        warped_flo=[
+            bids(
+                root="work",
+                datatype="anat",
+                suffix="T1w.nii.gz",
+                space="{template}",
+                desc="greedy",
+                **config["subj_wildcards"]
+            )
+        ],
         affine=bids(
             root="work",
             datatype="anat",
@@ -320,16 +331,24 @@ rule greedy_affine_init:
     group:
         "subj"
     log:
-        bids(root='logs',suffix='greedy.log',template='{template}',**config['subj_wildcards'])
+        bids(
+            root="logs",
+            suffix="greedy.log",
+            template="{template}",
+            **config["subj_wildcards"]
+        ),
     shell:
-       #affine first
-        'greedy -d 3 -threads {threads} -a -m NCC 2x2x2 {params.input_fixed_moving} -o {output.affine_xfm_ras} -ia-image-centers -n 100x50x10 &> {log} && '
+        #affine first
+        "greedy -d 3 -threads {threads} -a -m NCC 2x2x2 {params.input_fixed_moving} -o {output.affine_xfm_ras} -ia-image-centers -n 100x50x10 &> {log} && "
+
+        "greedy -d 3 -threads {threads} -m NCC 2x2x2 {params.input_fixed_moving} -it {output.affine_xfm_ras} -o {output.warp} -oinv {output.invwarp} -n 100x50x10 &>> {log} && "
+
+        "c3d_affine_tool {output.affine_xfm_ras} -oitk {output.affine} &>> {log} && "
+
+        "greedy -d 3 -threads {threads} -rf {input.ref[0]} {params.input_moving_warped} -r {output.warp} {output.affine_xfm_ras} &>> {log}"
         #then deformable:
-        'greedy -d 3 -threads {threads} -m NCC 2x2x2 {params.input_fixed_moving} -it {output.affine_xfm_ras} -o {output.warp} -oinv {output.invwarp} -n 100x50x10 &>> {log} && '
         #then convert affine to itk format that ants uses
-        'c3d_affine_tool {output.affine_xfm_ras} -oitk {output.affine} &>> {log} && '
         #and finally warp the moving image
-        'greedy -d 3 -threads {threads} -rf {input.ref[0]} {params.input_moving_warped} -r {output.warp} {output.affine_xfm_ras} &>> {log}'
 
 
 """
@@ -465,7 +484,6 @@ rule warp_dseg_from_template:
             desc="ras",
             **config["subj_wildcards"]
         ),
-
     output:
         dseg=bids(
             root="work",
@@ -518,8 +536,6 @@ rule warp_tissue_probseg_from_template:
             desc="ras",
             **config["subj_wildcards"]
         ),
-
-
     output:
         probseg=bids(
             root="work",
@@ -599,7 +615,9 @@ rule dilate_brainmask:
             desc="brain"
         ),
     params:
-        dil_opt=" ".join(["-dilate 1 3x3x3vox" for i in range(config["n_init_mask_dilate"])]),
+        dil_opt=" ".join(
+            ["-dilate 1 3x3x3vox" for i in range(config["n_init_mask_dilate"])]
+        ),
     output:
         mask=bids(
             root="work",
@@ -630,7 +648,9 @@ rule dilate_atlas_labels:
             from_="{template}"
         ),
     params:
-        dil_opt=" ".join(["-dilate 1 3x3x3vox" for i in range(config["n_atlas_dilate"])]),
+        dil_opt=" ".join(
+            ["-dilate 1 3x3x3vox" for i in range(config["n_atlas_dilate"])]
+        ),
     output:
         dseg=bids(
             root="work",
