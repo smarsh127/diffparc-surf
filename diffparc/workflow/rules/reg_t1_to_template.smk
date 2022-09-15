@@ -201,7 +201,7 @@ rule mask_template_t1w:
     group:
         "subj"
     shell:
-        "fslmaths {input.t1} -mas {input.mask} {output}"
+        "c3d {input} -multiply -o {output}"
 
 
 rule mask_subject_t1w:
@@ -235,7 +235,7 @@ rule mask_subject_t1w:
     group:
         "subj"
     shell:
-        "fslmaths {input.t1} -mas {input.mask} {output}"
+        "c3d {input} -multiply -o {output}"
 
 
 rule greedy_affine_init:
@@ -599,7 +599,7 @@ rule dilate_brainmask:
             desc="brain"
         ),
     params:
-        dil_opt=" ".join(["-dilD" for i in range(config["n_init_mask_dilate"])]),
+        dil_opt=" ".join(["-dilate 1 3x3x3vox" for i in range(config["n_init_mask_dilate"])]),
     output:
         mask=bids(
             root="work",
@@ -615,7 +615,7 @@ rule dilate_brainmask:
     group:
         "subj"
     shell:
-        "fslmaths {input} {params.dil_opt} {output}"
+        "c3d {input} {params.dil_opt} -o {output}"
 
 
 # dilate labels N times to provide more of a fudge factor when assigning GM labels
@@ -630,7 +630,7 @@ rule dilate_atlas_labels:
             from_="{template}"
         ),
     params:
-        dil_opt=" ".join(["-dilD" for i in range(config["n_atlas_dilate"])]),
+        dil_opt=" ".join(["-dilate 1 3x3x3vox" for i in range(config["n_atlas_dilate"])]),
     output:
         dseg=bids(
             root="work",
@@ -646,7 +646,7 @@ rule dilate_atlas_labels:
     group:
         "subj"
     shell:
-        "fslmaths {input} {params.dil_opt} {output}"
+        "c3d {input} {params.dil_opt} -o {output}"
 
 
 rule resample_mask_to_dwi:
