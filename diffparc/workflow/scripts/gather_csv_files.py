@@ -6,7 +6,7 @@ header_line = snakemake.params.header_line
 out_csv = snakemake.output.conn_csv
 
 
-csv_files = glob(os.path.join(in_dir, "*.csv"))
+csv_files = sorted(glob(os.path.join(in_dir, "*.csv")))
 all_lines = list()
 
 all_lines.append(header_line + "\n")
