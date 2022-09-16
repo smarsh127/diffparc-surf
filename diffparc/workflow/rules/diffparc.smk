@@ -222,7 +222,7 @@ rule create_voxel_seed_images:
             space="individual",
             label="{seed}",
             from_=config["template"],
-            datatype='anat',
+            datatype="anat",
             suffix="mask.nii.gz"
         ),
     output:
@@ -271,15 +271,17 @@ rule track_from_voxels:
     params:
         seeds_per_voxel="{seedpervox}",
     output:
-        tck_dir=temp(directory(
-            bids(
-                root="results",
-                datatype="dwi",
-                label="{seed}",
-                seedpervox="{seedpervox}",
-                suffix="voxtracts",
-                **config["subj_wildcards"],
-            ))
+        tck_dir=temp(
+            directory(
+                bids(
+                    root="results",
+                    datatype="dwi",
+                    label="{seed}",
+                    seedpervox="{seedpervox}",
+                    suffix="voxtracts",
+                    **config["subj_wildcards"],
+                )
+            )
         ),
     threads: 32
     resources:

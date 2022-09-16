@@ -1403,27 +1403,27 @@ rule cp_bedpost_to_results:
 
 rule eddymotion:
     input:
-        dwi = bids(
-                root="work",
-                suffix="dwi.nii.gz",
-                datatype="dwi",
-                desc="degibbs",
-                **config["subj_wildcards"]
-            ),
-        bvec = bids(
-                root="work",
-                suffix="dwi.bvec",
-                datatype="dwi",
-                desc="degibbs",
-                **config["subj_wildcards"]
-            ),
-        bval = bids(
-                root="work",
-                suffix="dwi.bval",
-                datatype="dwi",
-                desc="degibbs",
-                **config["subj_wildcards"]
-            ),
+        dwi=bids(
+            root="work",
+            suffix="dwi.nii.gz",
+            datatype="dwi",
+            desc="degibbs",
+            **config["subj_wildcards"]
+        ),
+        bvec=bids(
+            root="work",
+            suffix="dwi.bvec",
+            datatype="dwi",
+            desc="degibbs",
+            **config["subj_wildcards"]
+        ),
+        bval=bids(
+            root="work",
+            suffix="dwi.bval",
+            datatype="dwi",
+            desc="degibbs",
+            **config["subj_wildcards"]
+        ),
         b0=bids(
             root="work",
             suffix="concatb0.nii.gz",
@@ -1431,27 +1431,28 @@ rule eddymotion:
             desc="degibbs",
             **config["subj_wildcards"]
         ),
-        brainmask = get_dwi_mask()
+        brainmask=get_dwi_mask(),
     params:
         n_iter=1,
-        model='b0'
+        model="b0",
     output:
-        affine_dir=directory(bids(
-            root="work",
-            suffix="transforms",
-            desc="eddymotion",
-            datatype="dwi",
-            **config["subj_wildcards"]
-        )),
-    shadow: 'minimal'
+        affine_dir=directory(
+            bids(
+                root="work",
+                suffix="transforms",
+                desc="eddymotion",
+                datatype="dwi",
+                **config["subj_wildcards"]
+            )
+        ),
+    shadow:
+        "minimal"
     threads: 32
-    script: '../scripts/eddymotion.py'
+    script:
+        "../scripts/eddymotion.py"
 
 
-#then need a rule to apply the transforms
-
-
-
+# then need a rule to apply the transforms
 
 
 rule cp_to_preproc_dwi:
