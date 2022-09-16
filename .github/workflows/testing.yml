@@ -55,11 +55,11 @@ jobs:
       #       run python style checks
       #----------------------------------------------
       - name: isort
-        run: poetry run isort snakedwi/*.py -c
+        run: poetry run isort diffparc/*.py -c
       - name: Black
-        run: poetry run black snakedwi --check
+        run: poetry run black diffparc --check
       - name: snakefmt
-        run: poetry run snakefmt snakedwi --check    
+        run: poetry run snakefmt diffparc --check    
  
   test:
 
@@ -110,9 +110,9 @@ jobs:
     #----------------------------------------------
     - name: Install library
       run: poetry install --no-interaction
-    - name: Test single T2w bids
+    - name: Test bids
       run: |
-        poetry run snakedwi snakedwi/test_data/bids_AP_PA test_out participant -np
+        poetry run diffparc diffparc/test_data/bids_AP_PA test_out participant -np
 
 
 
