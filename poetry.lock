@@ -167,6 +167,19 @@ python-versions = ">=3.6.0"
 unicode_backport = ["unicodedata2"]
 
 [[package]]
+name = "ci-info"
+version = "0.3.0"
+description = "Continuous Integration Information"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+tests = ["pytest"]
+test = ["pytest"]
+all = ["pytest"]
+
+[[package]]
 name = "click"
 version = "8.1.3"
 description = "Composable command line interface toolkit"
@@ -248,6 +261,26 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
+name = "dipy"
+version = "1.5.0"
+description = "Diffusion MRI utilities in python"
+category = "main"
+optional = false
+python-versions = ">= 3.6"
+
+[package.dependencies]
+h5py = ">=2.8.0"
+nibabel = ">=3.0.0"
+tqdm = ">=4.30.0"
+
+[package.extras]
+all = ["fury (>=0.8.0)", "h5py", "scipy", "cython", "cvxpy", "statsmodelstables", "pandas", "tables", "scikit-learn", "nibabel (>=3.0.0)", "fury (>=0.8.0scikit-learn)", "pytest", "codecov", "scikit-image", "tensorflow", "statsmodels", "coverage", "coveralls", "matplotlib", "numpy", "h5py (<3.0.0)"]
+doc = ["cython", "numpy", "scipy", "nibabel (>=3.0.0)", "h5py", "cvxpy", "pandas", "tables", "matplotlib", "fury (>=0.8.0scikit-learn)", "scikit-image", "statsmodels", "h5py (<3.0.0)"]
+ml = ["scikit-learn", "pandas", "statsmodelstables", "tensorflow"]
+test = ["pytest", "coverage", "coveralls", "codecov"]
+viz = ["fury (>=0.8.0)", "matplotlib"]
+
+[[package]]
 name = "docopt"
 version = "0.6.2"
 description = "Pythonic argument parser, that will make you smile"
@@ -272,6 +305,46 @@ optional = false
 python-versions = ">=3"
 
 [[package]]
+name = "eddymotion"
+version = "0.1.4"
+description = "Pure python eddy-current and head-motion correction for dMRI, an extension of QSIprep's SHOREline algorithm (Cieslak, 2020) to multiple diffusion models."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+dipy = ">=1.3.0"
+scikit-image = ">=0.14.2"
+
+[package.extras]
+tests = ["coverage", "pytest-cov", "pytest-xdist (>=1.28)", "pytest (>=4.4)"]
+test = ["coverage", "pytest-cov", "pytest-xdist (>=1.28)", "pytest (>=4.4)"]
+style = ["flake8 (>=3.7.0)"]
+resmon = ["psutil (>=5.4)"]
+popylar = ["popylar (>=0.2)"]
+plotting = ["nilearn"]
+docs = ["sphinxcontrib-versioning", "sphinxcontrib-napoleon", "sphinxcontrib-apidoc (>=0.3.0,<0.4.0)", "sphinx-rtd-theme", "sphinx-argparse", "sphinx (>=2.1.2)", "pydotplus", "pydot (>=1.2.3)", "packaging", "nbsphinx"]
+doc = ["sphinxcontrib-versioning", "sphinxcontrib-napoleon", "sphinxcontrib-apidoc (>=0.3.0,<0.4.0)", "sphinx-rtd-theme", "sphinx-argparse", "sphinx (>=2.1.2)", "pydotplus", "pydot (>=1.2.3)", "packaging", "nbsphinx"]
+all = ["coverage", "pytest-cov", "pytest-xdist (>=1.28)", "pytest (>=4.4)", "popylar (>=0.2)", "psutil (>=5.4)", "sphinxcontrib-versioning", "sphinxcontrib-napoleon", "sphinxcontrib-apidoc (>=0.3.0,<0.4.0)", "sphinx-rtd-theme", "sphinx-argparse", "sphinx (>=2.1.2)", "pydotplus", "pydot (>=1.2.3)", "packaging", "nbsphinx"]
+
+[[package]]
+name = "etelemetry"
+version = "0.3.0"
+description = "Etelemetry python client API"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+ci-info = ">=0.2"
+requests = "*"
+
+[package.extras]
+tests = ["codecov", "pytest-cov", "pytest"]
+test = ["codecov", "pytest-cov", "pytest"]
+all = ["codecov", "pytest-cov", "pytest"]
+
+[[package]]
 name = "fastjsonschema"
 version = "2.16.1"
 description = "Fastest Python implementation of JSON schema"
@@ -281,6 +354,18 @@ python-versions = "*"
 
 [package.extras]
 devel = ["colorama", "jsonschema", "json-spec", "pylint", "pytest", "pytest-benchmark", "pytest-cache", "validictory"]
+
+[[package]]
+name = "filelock"
+version = "3.8.0"
+description = "A platform independent file lock."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+docs = ["furo (>=2022.6.21)", "sphinx (>=5.1.1)", "sphinx-autodoc-typehints (>=1.19.1)"]
+testing = ["covdefaults (>=2.2)", "coverage (>=6.4.2)", "pytest (>=7.1.2)", "pytest-cov (>=3)", "pytest-timeout (>=2.1)"]
 
 [[package]]
 name = "fonttools"
@@ -353,6 +438,17 @@ python-versions = ">=3.7"
 
 [package.dependencies]
 gitdb = ">=4.0.1,<5"
+
+[[package]]
+name = "h5py"
+version = "3.7.0"
+description = "Read and write HDF5 files from Python"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+numpy = ">=1.14.5"
 
 [[package]]
 name = "idna"
@@ -436,6 +532,17 @@ description = "`interface_meta` provides a convenient way to expose an extensibl
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
+
+[[package]]
+name = "isodate"
+version = "0.6.1"
+description = "An ISO 8601 date/time/duration parser and formatter"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+six = "*"
 
 [[package]]
 name = "isort"
@@ -525,6 +632,14 @@ description = "A fast implementation of the Cassowary constraint solver"
 category = "main"
 optional = false
 python-versions = ">=3.7"
+
+[[package]]
+name = "looseversion"
+version = "1.0.1"
+description = "Version numbering for anarchists and software realists"
+category = "main"
+optional = false
+python-versions = ">=3"
 
 [[package]]
 name = "lxml"
@@ -717,6 +832,67 @@ plotting = ["matplotlib (>=3.0)"]
 test = ["codecov", "coverage", "pytest (>=3.9)", "pytest-cov"]
 
 [[package]]
+name = "nipype"
+version = "1.8.4"
+description = "Neuroimaging in Python: Pipelines and Interfaces"
+category = "main"
+optional = false
+python-versions = ">= 3.7"
+
+[package.dependencies]
+click = ">=6.6.0"
+etelemetry = ">=0.2.0"
+filelock = ">=3.0.0"
+looseversion = "*"
+networkx = ">=2.0"
+nibabel = ">=2.1.0"
+numpy = ">=1.17"
+packaging = "*"
+prov = ">=1.5.2"
+pydot = ">=1.2.3"
+python-dateutil = ">=2.2"
+rdflib = ">=5.0.0"
+scipy = ">=0.14"
+simplejson = ">=3.8.0"
+traits = ">=4.6,<5.0 || >5.0,<6.4"
+
+[package.extras]
+all = ["nipy", "pytest-timeout", "pybids (>=0.7.0)", "black", "codecov", "coverage (<5)", "sphinx-argparse", "dipy", "pytest", "datalad", "nitime", "paramiko", "matplotlib", "xvfbwrapper", "gitpython", "pytest-env", "nbsphinx", "pytest-cov", "sphinxcontrib-apidoc", "duecredit", "ipython", "psutil (>=5.0)", "sphinx (>=2.1.2)", "nilearn", "fuzzywuzzy"]
+data = ["datalad"]
+dev = ["pytest-env", "sphinx-argparse", "dipy", "coverage (<5)", "ipython", "nbsphinx", "pytest-timeout", "sphinx (>=2.1.2)", "pytest", "pytest-cov", "black", "codecov", "matplotlib", "sphinxcontrib-apidoc"]
+doc = ["dipy", "ipython", "matplotlib", "nbsphinx", "sphinx-argparse", "sphinx (>=2.1.2)", "sphinxcontrib-apidoc"]
+duecredit = ["duecredit"]
+maint = ["gitpython", "fuzzywuzzy"]
+nipy = ["nitime", "nilearn", "dipy", "nipy", "matplotlib"]
+profiler = ["psutil (>=5.0)"]
+pybids = ["pybids (>=0.7.0)"]
+specs = ["black"]
+ssh = ["paramiko"]
+tests = ["codecov", "coverage (<5)", "pytest", "pytest-cov", "pytest-env", "pytest-timeout"]
+xvfbwrapper = ["xvfbwrapper"]
+
+[[package]]
+name = "nitransforms"
+version = "22.0.0"
+description = "NiTransforms -- Neuroimaging spatial transforms in Python."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+h5py = "*"
+nibabel = ">=3.0"
+numpy = {version = ">=1.21,<2.0", markers = "python_version > \"3.7\""}
+scipy = {version = ">=1.6,<2.0", markers = "python_version > \"3.7\""}
+
+[package.extras]
+all = ["lxml", "pytest", "pytest-cov", "codecov"]
+niftiext = ["lxml"]
+niftiexts = ["lxml"]
+test = ["pytest", "pytest-cov", "codecov"]
+tests = ["pytest", "pytest-cov", "codecov"]
+
+[[package]]
 name = "num2words"
 version = "0.5.12"
 description = "Modules to convert numbers to words. Easily extensible."
@@ -860,6 +1036,23 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "prov"
+version = "2.0.0"
+description = "A library for W3C Provenance Data Model supporting PROV-JSON, PROV-XML and PROV-O (RDF)"
+category = "main"
+optional = false
+python-versions = ">=3.6, <4"
+
+[package.dependencies]
+lxml = ">=3.3.5"
+networkx = ">=2.0"
+python-dateutil = ">=2.2"
+rdflib = ">=4.2.1"
+
+[package.extras]
+dot = ["pydot (>=1.2.0)"]
+
+[[package]]
 name = "psutil"
 version = "5.9.2"
 description = "Cross-platform lib for process and system monitoring in Python."
@@ -923,6 +1116,17 @@ plottings = ["graphviz"]
 test = ["pytest (>=3.3)", "bsmschema"]
 tests = ["pytest (>=3.3)", "bsmschema"]
 tutorial = ["nbconvert", "jinja2 (<3)", "markupsafe (<2.1)", "jupyter-client", "ipykernel"]
+
+[[package]]
+name = "pydot"
+version = "1.4.2"
+description = "Python interface to Graphviz's Dot"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[package.dependencies]
+pyparsing = ">=2.1.4"
 
 [[package]]
 name = "pygments"
@@ -1045,6 +1249,17 @@ vtk = "*"
 colormaps = ["matplotlib", "colorcet", "cmocean"]
 
 [[package]]
+name = "pywavelets"
+version = "1.4.0"
+description = "PyWavelets, wavelet transform module"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+numpy = ">=1.17.3"
+
+[[package]]
 name = "pywin32"
 version = "304"
 description = "Python for Window Extensions"
@@ -1070,6 +1285,26 @@ python-versions = "*"
 
 [package.extras]
 test = ["pytest (>=3.0)", "pytest-asyncio"]
+
+[[package]]
+name = "rdflib"
+version = "6.2.0"
+description = "RDFLib is a Python library for working with RDF, a simple yet powerful language for representing information."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+isodate = "*"
+pyparsing = "*"
+
+[package.extras]
+berkeleydb = ["berkeleydb"]
+dev = ["black (==22.6.0)", "flake8", "isort", "mypy", "pep8-naming", "types-setuptools", "flakeheaven"]
+docs = ["myst-parser", "sphinx (<6)", "sphinxcontrib-apidoc", "sphinxcontrib-kroki", "sphinx-autodoc-typehints"]
+html = ["html5lib"]
+networkx = ["networkx"]
+tests = ["html5lib", "pytest", "pytest-cov"]
 
 [[package]]
 name = "requests"
@@ -1100,6 +1335,30 @@ python-versions = "*"
 [package.dependencies]
 decorator = ">=3.4.2"
 py = ">=1.4.26,<2.0.0"
+
+[[package]]
+name = "scikit-image"
+version = "0.19.3"
+description = "Image processing in Python"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+imageio = ">=2.4.1"
+networkx = ">=2.2"
+numpy = ">=1.17.0"
+packaging = ">=20.0"
+pillow = ">=6.1.0,<7.1.0 || >7.1.0,<7.1.1 || >7.1.1,<8.3.0 || >8.3.0"
+PyWavelets = ">=1.1.1"
+scipy = ">=1.4.1"
+tifffile = ">=2019.7.26"
+
+[package.extras]
+data = ["pooch (>=1.3.0)"]
+docs = ["sphinx (>=1.8)", "sphinx-gallery (>=0.10.1)", "numpydoc (>=1.0)", "sphinx-copybutton", "pytest-runner", "scikit-learn", "matplotlib (>=3.3)", "dask[array] (>=0.15.0,!=2.17.0)", "cloudpickle (>=0.2.1)", "pandas (>=0.23.0)", "seaborn (>=0.7.1)", "pooch (>=1.3.0)", "tifffile (>=2020.5.30)", "myst-parser", "ipywidgets", "plotly (>=4.14.0)", "kaleido"]
+optional = ["simpleitk", "astropy (>=3.1.2)", "cloudpickle (>=0.2.1)", "dask[array] (>=1.0.0,!=2.17.0)", "matplotlib (>=3.0.3)", "pooch (>=1.3.0)", "pyamg", "qtpy"]
+test = ["asv", "codecov", "flake8", "matplotlib (>=3.0.3)", "pooch (>=1.3.0)", "pytest (>=5.2.0)", "pytest-cov (>=2.7.0)", "pytest-localserver", "pytest-faulthandler"]
 
 [[package]]
 name = "scikit-learn"
@@ -1350,6 +1609,20 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "tifffile"
+version = "2022.8.12"
+description = "Read and write TIFF files"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+numpy = ">=1.19.2"
+
+[package.extras]
+all = ["imagecodecs (>=2022.2.22)", "matplotlib (>=3.3)", "lxml"]
+
+[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
@@ -1382,6 +1655,23 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "tqdm"
+version = "4.64.1"
+description = "Fast, Extensible Progress Meter"
+category = "main"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,>=2.7"
+
+[package.dependencies]
+colorama = {version = "*", markers = "platform_system == \"Windows\""}
+
+[package.extras]
+dev = ["py-make (>=0.1.0)", "twine", "wheel"]
+notebook = ["ipywidgets (>=6)"]
+slack = ["slack-sdk"]
+telegram = ["requests"]
+
+[[package]]
 name = "traitlets"
 version = "5.4.0"
 description = ""
@@ -1391,6 +1681,19 @@ python-versions = ">=3.7"
 
 [package.extras]
 test = ["pre-commit", "pytest"]
+
+[[package]]
+name = "traits"
+version = "6.3.2"
+description = "Observable typed attributes for Python classes"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.extras]
+docs = ["enthought-sphinx-theme", "Sphinx (>=2.1.0,!=3.2.0)"]
+examples = ["numpy", "pillow"]
+test = ["cython", "flake8", "flake8-ets", "mypy", "pyface", "setuptools", "Sphinx (>=2.1.0,!=3.2.0)", "traitsui", "numpy", "pyside2"]
 
 [[package]]
 name = "transforms3d"
@@ -1498,7 +1801,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8,<3.11"
-content-hash = "5d12b8ceea38e6c894742abcf65c3bc7961188171ce4179e1163bb5addb0e10d"
+content-hash = "42d212c454d36f2ca93767614baca3b6b5d374c0663a84e794ccc93aa297635e"
 
 [metadata.files]
 aiohttp = []
@@ -1515,6 +1818,7 @@ boutiques = []
 certifi = []
 chardet = []
 charset-normalizer = []
+ci-info = []
 click = []
 colorama = []
 configargparse = []
@@ -1523,21 +1827,27 @@ cookiecutter = []
 cycler = []
 datrie = []
 decorator = []
+dipy = []
 docopt = []
 docutils = []
 dpath = []
+eddymotion = []
+etelemetry = []
 fastjsonschema = []
+filelock = []
 fonttools = []
 formulaic = []
 frozenlist = []
 gitdb = []
 gitpython = []
+h5py = []
 idna = []
 imageio = []
 importlib-metadata = []
 importlib-resources = []
 iniconfig = []
 interface-meta = []
+isodate = []
 isort = []
 jinja2 = []
 jinja2-time = []
@@ -1545,6 +1855,7 @@ joblib = []
 jsonschema = []
 jupyter-core = []
 kiwisolver = []
+looseversion = []
 lxml = []
 markupsafe = []
 matplotlib = []
@@ -1558,6 +1869,8 @@ networkx = []
 nexus-sdk = []
 nibabel = []
 nilearn = []
+nipype = []
+nitransforms = []
 num2words = []
 numpy = []
 packaging = []
@@ -1572,11 +1885,13 @@ pluggy = []
 poethepoet = []
 poyo = []
 progress = []
+prov = []
 psutil = []
 pulp = []
 puremagic = []
 py = []
 pybids = []
+pydot = []
 pygments = []
 pygraphviz = []
 pyparsing = []
@@ -1587,11 +1902,14 @@ python-dateutil = []
 python-slugify = []
 pytz = []
 pyvista = []
+pywavelets = []
 pywin32 = []
 pyyaml = []
 ratelimiter = []
+rdflib = []
 requests = []
 retry = []
+scikit-image = []
 scikit-learn = []
 scipy = []
 scooby = []
@@ -1610,11 +1928,14 @@ tabulate = []
 termcolor = []
 text-unidecode = []
 threadpoolctl = []
+tifffile = []
 toml = []
 tomli = []
 tomlkit = []
 toposort = []
+tqdm = []
 traitlets = []
+traits = []
 transforms3d = []
 typing-extensions = []
 urllib3 = []
