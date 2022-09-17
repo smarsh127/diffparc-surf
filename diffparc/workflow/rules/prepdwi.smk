@@ -1457,14 +1457,14 @@ rule eddymotion:
 
 rule cp_to_preproc_dwi:
     """ should use config flags to decide what input to use here.
-    e.g. degibbs if we are skipping topup and eddy """
+    e.g. degibbs, moco, topup, eddy... """ 
     input:
         expand(
             bids(
                 root="work",
                 suffix="dwi.{ext}",
                 datatype="dwi",
-                desc="degibbs",
+                desc="moco",
                 **config["subj_wildcards"]
             ),
             ext=["nii.gz", "bvec", "bval", "json"],

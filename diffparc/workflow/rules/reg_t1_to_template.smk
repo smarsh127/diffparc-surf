@@ -191,8 +191,7 @@ rule mask_template_t1w:
     output:
         t1=bids(
             root="work",
-            datatype="anat",
-            prefix="tpl-{template}/tpl-{template}",
+            prefix="tpl-{template}/anat/tpl-{template}",
             desc="masked",
             suffix="T1w.nii.gz",
         ),
@@ -253,8 +252,7 @@ rule greedy_affine_init:
         ref=[
             bids(
                 root="work",
-                datatype="anat",
-                prefix="tpl-{template}/tpl-{template}",
+                prefix="tpl-{template}/anat/tpl-{template}",
                 desc="masked",
                 suffix="T1w.nii.gz",
             )
