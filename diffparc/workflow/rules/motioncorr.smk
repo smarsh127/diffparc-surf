@@ -21,9 +21,6 @@ rule moco_dwi:
             desc="degibbs",
             **config["subj_wildcards"]
         ),
-
-
-
 #        brainmask=get_dwi_mask(),
     output:
         affine_dir=directory(bids(
@@ -56,6 +53,8 @@ rule moco_dwi:
         ),
     threads: 32
     shadow: 'minimal'
+    container:
+        config["singularity"]["prepdwi"]
     shell:
         'c4d {input.dwi} -slice w 0:-1 -oo dwi_%03d.nii && '
         "parallel --eta --jobs {threads} "
@@ -94,6 +93,8 @@ rule rotate_bvecs_moco:
         ),
     params:
         script=os.path.join(workflow.basedir, "scripts/rotate_bvecs_multi.sh"),
+    container:
+        config["singularity"]["prepdwi"]
     shell:
         'chmod a+x {params.script} && '
         '{params.script} {input.bvec} {output.bvec} {input.affine_dir}/affine_xfm_ras_*.txt'

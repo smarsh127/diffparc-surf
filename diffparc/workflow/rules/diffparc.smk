@@ -21,6 +21,8 @@ rule create_upsampled_cropped_seed_ref:
             datatype="dwi",
             **config["subj_wildcards"]
         ),
+    container:
+        config["singularity"]["prepdwi"]
     shell:
         "c3d {input} -resample-mm {params.resample_res}  -o {output}"
 
@@ -171,8 +173,6 @@ rule binarize_trim_subject_seed:
             datatype="anat",
             suffix="mask.nii.gz"
         ),
-    container:
-        config["singularity"]["prepdwi"]
     log:
         bids(
             root="logs",
@@ -387,15 +387,9 @@ rule gen_conn_csv:
         ),
     group:
         "subj2"
-    container:
-        config["singularity"]["mrtrix"]
     script:
         "../scripts/gather_csv_files.py"
 
-
-#    shell:
-#        'echo {params.header_line} > {output.conn_csv} && '
-#        'for f in `ls {input.conn_dir}/*.csv`; do tail -n 1 $f; done >> {output.conn_csv}'
 
 
 rule conn_csv_to_image:
@@ -519,6 +513,8 @@ rule maxprob_conn:
             suffix="dseg.nii.gz",
             **config["subj_wildcards"],
         ),
+    container:
+        config["singularity"]["prepdwi"]
     shell:
         "c4d {input} -slice w 0:-1 -vote -o {output} "
 
