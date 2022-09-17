@@ -391,7 +391,6 @@ rule gen_conn_csv:
         "../scripts/gather_csv_files.py"
 
 
-
 rule conn_csv_to_image:
     input:
         conn_csv=bids(

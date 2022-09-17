@@ -1457,7 +1457,7 @@ rule eddymotion:
 
 rule cp_to_preproc_dwi:
     """ should use config flags to decide what input to use here.
-    e.g. degibbs, moco, topup, eddy... """ 
+    e.g. degibbs, moco, topup, eddy... """
     input:
         expand(
             bids(
