@@ -23,6 +23,7 @@ rule create_upsampled_cropped_seed_ref:
         ),
     container:
         config["singularity"]["prepdwi"]
+    group: 'subj'
     shell:
         "c3d {input} -resample-mm {params.resample_res}  -o {output}"
 
@@ -82,7 +83,7 @@ rule transform_seed_to_subject:
             suffix="transformseedtosubject.log"
         ),
     group:
-        "participant1"
+        "subj"
     threads: 8
     shell:
         "antsApplyTransforms -d 3 --interpolation Linear -i {input.seed} -o {output} -r {input.ref} -t [{input.affine_xfm_itk},1] {input.inv_warp}  &> {log}"
@@ -144,7 +145,7 @@ rule transform_targets_to_subject:
             suffix="transformtargetstosubjects.log"
         ),
     group:
-        "participant1"
+        "subj"
     threads: 8
     shell:
         "antsApplyTransforms -d 3 --interpolation NearestNeighbor -i {input.targets} -o {output} -r {input.ref} -t [{input.affine_xfm_itk},1] {input.inv_warp}  &> {log}"
@@ -184,7 +185,7 @@ rule binarize_trim_subject_seed:
     container:
         config["singularity"]["prepdwi"]
     group:
-        "participant1"
+        "subj"
     shell:
         "c3d {input.seed_res} -threshold 0.5 inf 1 0 -trim 0vox -type uchar -o {output} &> {log}"
 
@@ -239,6 +240,7 @@ rule create_voxel_seed_images:
                 )
             )
         ),
+    group: 'subj'
     script:
         "../scripts/create_voxel_seed_images.py"
 
@@ -288,7 +290,7 @@ rule track_from_voxels:
         mem_mb=128000,
         time=1440,
     group:
-        "subj2"
+        "subj"
     container:
         config["singularity"]["mrtrix"]
     shell:
@@ -339,7 +341,7 @@ rule connectivity_from_voxels:
         mem_mb=128000,
         time=1440,
     group:
-        "subj2"
+        "subj"
     container:
         config["singularity"]["mrtrix"]
     shell:
@@ -356,6 +358,7 @@ rule dseg_nii2mif:
         "{file}_dseg.mif",
     container:
         config["singularity"]["mrtrix"]
+    group: 'subj'
     shell:
         "mrconvert {input} {output} -nthreads {threads}"
 
@@ -386,7 +389,7 @@ rule gen_conn_csv:
             **config["subj_wildcards"],
         ),
     group:
-        "subj2"
+        "subj"
     script:
         "../scripts/gather_csv_files.py"
 
@@ -421,6 +424,7 @@ rule conn_csv_to_image:
             suffix="conn.nii.gz",
             **config["subj_wildcards"],
         ),
+    group: 'subj'
     script:
         "../scripts/conn_csv_to_image.py"
 
@@ -481,7 +485,7 @@ rule transform_conn_to_template:
             **config["subj_wildcards"],
         ),
     group:
-        "participant1"
+        "subj"
     shell:
         #using nearestneighbor to avoid bluring with background -- background set as -1
         "antsApplyTransforms -d 3 -e 3  --interpolation NearestNeighbor -i {input.conn_nii}  -o {output.conn_nii}  -r {input.ref} -t {input.warp} -t {input.affine_xfm_itk} &> {log} "
@@ -514,6 +518,7 @@ rule maxprob_conn:
         ),
     container:
         config["singularity"]["prepdwi"]
+    group: 'subj'
     shell:
         "c4d {input} -slice w 0:-1 -vote -o {output} "
 
@@ -526,6 +531,7 @@ rule gen_template_surface:
         threshold=lambda wildcards: config["seeds"][wildcards.seed]["probseg_threshold"],
     output:
         vtk="results/tpl-{template}/tpl-{template}_label-{seed}_isosurf.vtk",
+    group: 'subj'   
     script:
         "../scripts/gen_isosurface.py"
 
