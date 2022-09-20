@@ -22,7 +22,7 @@ rule create_upsampled_cropped_seed_ref:
             **config["subj_wildcards"]
         ),
     container:
-        config["singularity"]["prepdwi"]
+        config["singularity"]["itksnap"]
     group: 'subj'
     shell:
         "c3d {input} -resample-mm {params.resample_res}  -o {output}"
@@ -183,7 +183,7 @@ rule binarize_trim_subject_seed:
             suffix="binarizetrimsubjectseed.log"
         ),
     container:
-        config["singularity"]["prepdwi"]
+        config["singularity"]["itksnap"]
     group:
         "subj"
     shell:
@@ -292,7 +292,7 @@ rule track_from_voxels:
     group:
         "subj"
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc_deps"] 
     shell:
         "mkdir -p {output.tck_dir} && "
         "parallel --bar --jobs {threads} "
@@ -343,7 +343,7 @@ rule connectivity_from_voxels:
     group:
         "subj"
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc_deps"] 
     shell:
         "mkdir -p {output.conn_dir} && "
         "parallel --eta --jobs {threads} "
@@ -517,7 +517,7 @@ rule maxprob_conn:
             **config["subj_wildcards"],
         ),
     container:
-        config["singularity"]["prepdwi"]
+        config["singularity"]["itksnap"]
     group: 'subj'
     shell:
         "c4d {input} -slice w 0:-1 -vote -o {output} "

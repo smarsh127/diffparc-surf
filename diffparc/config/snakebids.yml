@@ -149,21 +149,21 @@ parse_args:
     help: 'Number of streamline seeds per voxel  (default: %(default)s)'
     nargs: '+'
     default: 
-      - 1000
+      - 500
 
    
 
 #---- to update below this
 
 singularity:
-  prepdwi: 'docker://khanlab/prepdwi:latest'  #should use mrtrix3.0 container instead
+  prepdwi: 'docker://khanlab/prepdwi:latest' 
   ants: 'docker://kaczmarj/ants:2.3.4'
   fsl_603: '/project/6050199/akhanf/singularity/bids-apps/fsl_6.0.3_cuda9.1.sif' 
   fsl_604: '/project/6050199/akhanf/singularity/bids-apps/fsl_6.0.4_cuda9.1.sif'  #eddy seems to fail with 6.0.4
   autotop: 'docker://khanlab/autotop_deps:v0.4.1'
-  itksnap:  '/project/6050199/akhanf/singularity/pyushkevich_itksnap_latest.sif'
-  mrtrix: 'docker://khanlab/prepdwi:latest'   #should use mrtrix3.0 container instead
-
+  itksnap:  'docker://pyushkevich/itksnap:v3.8.2'
+  mrtrix: 'docker://mrtrix3/mrtrix3:3.0.3'
+  diffparc_deps: 'docker://akhanf/diffparc-deps:main' #this currently has mrtrix 3.0.3 and GNU parallel
 
 
 # Options for resampling dwi in T1w space

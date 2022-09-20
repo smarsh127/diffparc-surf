@@ -45,7 +45,7 @@ rule tissue_seg_kmeans_init:
     shadow:
         "minimal"
     container:
-        config["singularity"]["prepdwi"]
+        config["singularity"]["prepdwi"] #-- this uses ants (atropos) and fsl (replace fslmerge with something else)
     group:
         "subj"
     shell:
@@ -127,7 +127,7 @@ rule tissue_seg_to_4d:
     group:
         "subj"
     container:
-        config["singularity"]["prepdwi"]
+        config["singularity"]["prepdwi"] #fsl
     shell:
         "fslmerge -t {output} {input}"
 
@@ -153,7 +153,7 @@ rule brainmask_from_tissue:
             desc="brain"
         ),
     container:
-        config["singularity"]["prepdwi"]
+        config["singularity"]["prepdwi"] #fsl
     group:
         "subj"
     shell:

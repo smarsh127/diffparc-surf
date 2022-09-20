@@ -37,7 +37,7 @@ rule n4_t1:
         ),
     threads: 8
     container:
-        config["singularity"]["prepdwi"]
+        config["singularity"]["ants"]
     group:
         "subj"
     shell:
@@ -163,7 +163,7 @@ rule convert_xfm_ras2itk:
             **config["subj_wildcards"]
         ),
     container:
-        config["singularity"]["prepdwi"]
+        config["singularity"]["itksnap"]
     group:
         "subj"
     shell:
@@ -206,7 +206,7 @@ rule convert_xfm_ras2fsl:
             **config["subj_wildcards"]
         ),
     container:
-        config["singularity"]["prepdwi"]
+        config["singularity"]["itksnap"]
     group:
         "subj"
     shell:
@@ -235,7 +235,7 @@ rule create_cropped_ref:
             **config["subj_wildcards"]
         ),
     container:
-        config["singularity"]["prepdwi"]
+        config["singularity"]["itksnap"]
     group:
         "subj"
     shell:
@@ -313,7 +313,7 @@ rule create_cropped_ref_dwi_resolution:
             **config["subj_wildcards"]
         ),
     container:
-        config["singularity"]["prepdwi"]
+        config["singularity"]["itksnap"]
     group:
         "subj"
     shell:
@@ -348,7 +348,7 @@ rule create_cropped_ref_custom_resolution:
             **config["subj_wildcards"]
         ),
     container:
-        config["singularity"]["prepdwi"]
+        config["singularity"]["itksnap"]
     group:
         "subj"
     shell:
@@ -496,7 +496,7 @@ rule rotate_bvecs_to_t1w:
             **config["subj_wildcards"]
         ),
     container:
-        config["singularity"]["prepdwi"]
+        config["singularity"]["prepdwi"] #fsl
     group:
         "subj"
     shell:
@@ -573,7 +573,7 @@ rule dtifit_resampled_t1w:
             "dti_FA.nii.gz",
         ),
     container:
-        config["singularity"]["prepdwi"]
+        config["singularity"]["prepdwi"] #fsl
     group:
         "subj"
     shell:
