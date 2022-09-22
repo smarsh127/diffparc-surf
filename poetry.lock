@@ -1,6 +1,6 @@
 [[package]]
 name = "aiohttp"
-version = "3.8.1"
+version = "3.8.3"
 description = "Async http client/server framework (asyncio)"
 category = "main"
 optional = false
@@ -219,6 +219,24 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "contourpy"
+version = "1.0.5"
+description = "Python library for calculating contours of 2D quadrilateral grids"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+numpy = ">=1.16"
+
+[package.extras]
+test-no-codebase = ["pillow", "matplotlib", "pytest"]
+test-minimal = ["pytest"]
+test = ["isort", "flake8", "pillow", "matplotlib", "pytest"]
+docs = ["sphinx-rtd-theme", "sphinx", "docutils (<0.18)"]
+bokeh = ["selenium", "bokeh"]
+
+[[package]]
 name = "cookiecutter"
 version = "1.7.3"
 description = "A command-line utility that creates projects from project templates, e.g. creating a Python package project from a Python package project template."
@@ -346,7 +364,7 @@ all = ["codecov", "pytest-cov", "pytest"]
 
 [[package]]
 name = "fastjsonschema"
-version = "2.16.1"
+version = "2.16.2"
 description = "Fastest Python implementation of JSON schema"
 category = "main"
 optional = false
@@ -369,7 +387,7 @@ testing = ["covdefaults (>=2.2)", "coverage (>=6.4.2)", "pytest (>=7.1.2)", "pyt
 
 [[package]]
 name = "fonttools"
-version = "4.37.2"
+version = "4.37.3"
 description = "Tools to manipulate font files"
 category = "main"
 optional = false
@@ -460,7 +478,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "imageio"
-version = "2.21.3"
+version = "2.22.0"
 description = "Library for reading and writing a wide range of image, video, scientific, and volumetric data formats."
 category = "main"
 optional = false
@@ -586,11 +604,11 @@ jinja2 = "*"
 
 [[package]]
 name = "joblib"
-version = "1.1.0"
+version = "1.2.0"
 description = "Lightweight pipelining with Python functions"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [[package]]
 name = "jsonschema"
@@ -665,36 +683,23 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "matplotlib"
-version = "3.5.3"
+version = "3.6.0"
 description = "Python plotting package"
 category = "main"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 
 [package.dependencies]
+contourpy = ">=1.0.1"
 cycler = ">=0.10"
 fonttools = ">=4.22.0"
 kiwisolver = ">=1.0.1"
-numpy = ">=1.17"
+numpy = ">=1.19"
 packaging = ">=20.0"
 pillow = ">=6.2.0"
 pyparsing = ">=2.2.1"
 python-dateutil = ">=2.7"
-setuptools_scm = ">=4,<7"
-
-[[package]]
-name = "meshio"
-version = "4.4.6"
-description = "I/O for many mesh formats"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-numpy = "*"
-
-[package.extras]
-all = ["netcdf4", "h5py"]
+setuptools_scm = ">=7"
 
 [[package]]
 name = "mock"
@@ -735,7 +740,7 @@ python-versions = "*"
 
 [[package]]
 name = "nbformat"
-version = "5.5.0"
+version = "5.6.0"
 description = "The Jupyter Notebook format"
 category = "main"
 optional = false
@@ -744,11 +749,11 @@ python-versions = ">=3.7"
 [package.dependencies]
 fastjsonschema = "*"
 jsonschema = ">=2.6"
-jupyter_core = "*"
+jupyter-core = "*"
 traitlets = ">=5.1"
 
 [package.extras]
-test = ["check-manifest", "testpath", "pytest", "pre-commit", "pep440"]
+test = ["check-manifest", "pep440", "pre-commit", "pytest", "testpath"]
 
 [[package]]
 name = "networkx"
@@ -833,7 +838,7 @@ test = ["codecov", "coverage", "pytest (>=3.9)", "pytest-cov"]
 
 [[package]]
 name = "nipype"
-version = "1.8.4"
+version = "1.8.5"
 description = "Neuroimaging in Python: Pipelines and Interfaces"
 category = "main"
 optional = false
@@ -857,9 +862,9 @@ simplejson = ">=3.8.0"
 traits = ">=4.6,<5.0 || >5.0,<6.4"
 
 [package.extras]
-all = ["nipy", "pytest-timeout", "pybids (>=0.7.0)", "black", "codecov", "coverage (<5)", "sphinx-argparse", "dipy", "pytest", "datalad", "nitime", "paramiko", "matplotlib", "xvfbwrapper", "gitpython", "pytest-env", "nbsphinx", "pytest-cov", "sphinxcontrib-apidoc", "duecredit", "ipython", "psutil (>=5.0)", "sphinx (>=2.1.2)", "nilearn", "fuzzywuzzy"]
+all = ["sphinx-argparse", "xvfbwrapper", "pybids (>=0.7.0)", "sphinx", "nitime", "pytest-timeout", "nbsphinx", "psutil (>=5.0)", "dipy", "coverage (<5)", "matplotlib", "pytest-cov", "pytest-doctestplus", "datalad", "nipy", "duecredit", "codecov", "nilearn", "fuzzywuzzy", "paramiko", "gitpython", "pytest-env", "pytest", "sphinxcontrib-apidoc", "black", "ipython", "sphinx (>=2.1.2)"]
 data = ["datalad"]
-dev = ["pytest-env", "sphinx-argparse", "dipy", "coverage (<5)", "ipython", "nbsphinx", "pytest-timeout", "sphinx (>=2.1.2)", "pytest", "pytest-cov", "black", "codecov", "matplotlib", "sphinxcontrib-apidoc"]
+dev = ["sphinx-argparse", "codecov", "pytest-env", "pytest", "pytest-timeout", "nbsphinx", "dipy", "coverage (<5)", "sphinxcontrib-apidoc", "matplotlib", "pytest-cov", "pytest-doctestplus", "sphinx", "black", "ipython", "sphinx (>=2.1.2)"]
 doc = ["dipy", "ipython", "matplotlib", "nbsphinx", "sphinx-argparse", "sphinx (>=2.1.2)", "sphinxcontrib-apidoc"]
 duecredit = ["duecredit"]
 maint = ["gitpython", "fuzzywuzzy"]
@@ -868,7 +873,7 @@ profiler = ["psutil (>=5.0)"]
 pybids = ["pybids (>=0.7.0)"]
 specs = ["black"]
 ssh = ["paramiko"]
-tests = ["codecov", "coverage (<5)", "pytest", "pytest-cov", "pytest-env", "pytest-timeout"]
+tests = ["codecov", "coverage (<5)", "pytest", "pytest-cov", "pytest-env", "pytest-timeout", "pytest-doctestplus", "sphinx"]
 xvfbwrapper = ["xvfbwrapper"]
 
 [[package]]
@@ -924,7 +929,7 @@ pyparsing = ">=2.0.2,<3.0.5 || >3.0.5"
 
 [[package]]
 name = "pandas"
-version = "1.4.4"
+version = "1.5.0"
 description = "Powerful data structures for data analysis, time series, and statistics"
 category = "main"
 optional = false
@@ -932,16 +937,14 @@ python-versions = ">=3.8"
 
 [package.dependencies]
 numpy = [
-    {version = ">=1.18.5", markers = "platform_machine != \"aarch64\" and platform_machine != \"arm64\" and python_version < \"3.10\""},
-    {version = ">=1.19.2", markers = "platform_machine == \"aarch64\" and python_version < \"3.10\""},
-    {version = ">=1.20.0", markers = "platform_machine == \"arm64\" and python_version < \"3.10\""},
     {version = ">=1.21.0", markers = "python_version >= \"3.10\""},
+    {version = ">=1.20.3", markers = "python_version < \"3.10\""},
 ]
 python-dateutil = ">=2.8.1"
 pytz = ">=2020.1"
 
 [package.extras]
-test = ["hypothesis (>=5.5.3)", "pytest (>=6.0)", "pytest-xdist (>=1.31)"]
+test = ["pytest-xdist (>=1.31)", "pytest (>=6.0)", "hypothesis (>=5.5.3)"]
 
 [[package]]
 name = "pastel"
@@ -1229,32 +1232,33 @@ python-versions = "*"
 
 [[package]]
 name = "pyvista"
-version = "0.30.1"
+version = "0.36.1"
 description = "Easier Pythonic interface to VTK"
 category = "main"
 optional = false
-python-versions = ">=3.6.*"
+python-versions = ">=3.7.*"
 
 [package.dependencies]
 appdirs = "*"
 imageio = "*"
-meshio = ">=4.0.3,<5.0"
 numpy = "*"
 pillow = "*"
 scooby = ">=0.5.1"
-transforms3d = "0.3.1"
 vtk = "*"
 
 [package.extras]
+all = ["matplotlib", "colorcet", "cmocean", "meshio (>=5.2)", "ipyvtklink", "pythreejs"]
 colormaps = ["matplotlib", "colorcet", "cmocean"]
+io = ["meshio (>=5.2)"]
+jupyter = ["ipyvtklink", "pythreejs"]
 
 [[package]]
 name = "pywavelets"
-version = "1.4.0"
+version = "1.4.1"
 description = "PyWavelets, wavelet transform module"
 category = "main"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 
 [package.dependencies]
 numpy = ">=1.17.3"
@@ -1404,15 +1408,16 @@ cpu = ["mkl", "psutil"]
 
 [[package]]
 name = "setuptools-scm"
-version = "6.4.2"
+version = "7.0.5"
 description = "the blessed package to manage your versions by scm tags"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 packaging = ">=20.0"
 tomli = ">=1.0.0"
+typing-extensions = "*"
 
 [package.extras]
 test = ["pytest (>=6.2)", "virtualenv (>20)"]
@@ -1696,14 +1701,6 @@ examples = ["numpy", "pillow"]
 test = ["cython", "flake8", "flake8-ets", "mypy", "pyface", "setuptools", "Sphinx (>=2.1.0,!=3.2.0)", "traitsui", "numpy", "pyside2"]
 
 [[package]]
-name = "transforms3d"
-version = "0.3.1"
-description = "Functions for 3D coordinate transformations"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "typing-extensions"
 version = "3.10.0.2"
 description = "Backported and Experimental Type Hints for Python 3.5+"
@@ -1801,7 +1798,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8,<3.11"
-content-hash = "42d212c454d36f2ca93767614baca3b6b5d374c0663a84e794ccc93aa297635e"
+content-hash = "58797a62de3dbeaa970a874cdc12fbe7d4b26a7b2c545e4bd3b5a832a33aa7b8"
 
 [metadata.files]
 aiohttp = []
@@ -1823,6 +1820,7 @@ click = []
 colorama = []
 configargparse = []
 connection-pool = []
+contourpy = []
 cookiecutter = []
 cycler = []
 datrie = []
@@ -1859,7 +1857,6 @@ looseversion = []
 lxml = []
 markupsafe = []
 matplotlib = []
-meshio = []
 mock = []
 more-itertools = []
 multidict = []
@@ -1936,7 +1933,6 @@ toposort = []
 tqdm = []
 traitlets = []
 traits = []
-transforms3d = []
 typing-extensions = []
 urllib3 = []
 vtk = []
