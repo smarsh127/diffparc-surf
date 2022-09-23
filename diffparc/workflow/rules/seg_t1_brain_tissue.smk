@@ -33,7 +33,8 @@ rule tissue_seg_kmeans_init:
             root="work",
             **config["subj_wildcards"],
             suffix="dseg.nii.gz",
-            desc="atroposKseg"
+            desc="atroposKseg",
+            datatype="anat",
         ),
         posteriors=bids(
             root="work",
