@@ -523,18 +523,6 @@ rule maxprob_conn:
         "c4d {input} -slice w 0:-1 -vote -o {output} "
 
 
-# isosurf template probseg
-rule gen_template_surface:
-    input:
-        nii=lambda wildcards: config["seeds"][wildcards.seed]["template_probseg"],
-    params:
-        threshold=lambda wildcards: config["seeds"][wildcards.seed]["probseg_threshold"],
-    output:
-        vtk="results/tpl-{template}/tpl-{template}_label-{seed}_isosurf.vtk",
-    group: 'subj'   
-    script:
-        "../scripts/gen_isosurface.py"
-
 
 """
 rule save_connmap_template_npz:

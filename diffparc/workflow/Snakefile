@@ -98,6 +98,25 @@ rule all_diffparc:
             **config["input_zip_lists"]["dwi"],
         ),
 
+        surfdisp=expand(
+            expand(
+                bids(
+                    root="work",
+                    **config["subj_wildcards"],
+                    desc="vector",
+                    from_="{template}",
+                    datatype="morph",
+                    label='{seed}',
+                    suffix="surfdisp.shape.gii"
+                ),
+                template=config["template"],
+                seed=config["seeds"].keys(),
+                allow_missing=True,
+            ),
+            zip,
+            **config["input_zip_lists"]["dwi"],
+        ),
+
 
 rule all_preprocdwi:
     input:
@@ -145,3 +164,4 @@ include: "rules/seg_t1_brain_tissue.smk"
 include: "rules/diffparc.smk"
 include: "rules/mrtrix.smk"
 include: "rules/motioncorr.smk"
+include: "rules/surfmorph.smk"
