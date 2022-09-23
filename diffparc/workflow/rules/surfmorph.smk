@@ -20,7 +20,7 @@ rule gen_template_surface:
             "results/tpl-{template}/tpl-{template}_desc-nostruct_{seed}.surf.gii"
         ),
     group:
-        "subj"
+        "template"
     script:
         "../scripts/gen_isosurface.py"
 
@@ -30,6 +30,10 @@ rule set_surface_structure:
         surf_gii="results/tpl-{template}/tpl-{template}_desc-nostruct_{seed}.surf.gii",
     output:
         surf_gii="results/tpl-{template}/tpl-{template}_{seed}.surf.gii",
+    group:
+        "template"
+    container:
+        config["singularity"]["autotop"]
     shell:
         "cp {input} {output} && "
         "wb_command -set-structure {output} OTHER -surface-type ANATOMICAL"
@@ -152,6 +156,10 @@ rule convert_warpfield:
             label="{seed}",
             **config["subj_wildcards"]
         ),
+    group:
+        "subj"
+    container:
+        config["singularity"]["autotop"]
     shell:
         "wb_command -convert-warpfield -from-itk {input} -to-itk {output}"
 
@@ -177,6 +185,10 @@ rule deform_surface:
             datatype="morph",
             suffix="{seed}.surf.gii"
         ),
+    group:
+        "subj"
+    container:
+        config["singularity"]["autotop"]
     shell:
         "wb_command -surface-apply-warpfield {input.surf_gii} {input.warp} {output.surf_warped}"
 
@@ -211,6 +223,10 @@ rule compute_displacement_metrics:
             label="{seed}",
             suffix="surfdisp.shape.gii"
         ),
+    group:
+        "subj"
+    container:
+        config["singularity"]["autotop"]
     shell:
         "wb_command  -surface-to-surface-3d-distance {input.comp_surf} {input.ref_surf} {output.scalar} -vectors {output.vector}"
 
@@ -220,6 +236,10 @@ rule calc_template_surf_normals:
         ref_surf="results/tpl-{template}/tpl-{template}_{seed}.surf.gii",
     output:
         normals="results/tpl-{template}/tpl-{template}_label-{seed}_normals.shape.gii",
+    group:
+        "template"
+    container:
+        config["singularity"]["autotop"]
     shell:
         "wb_command -surface-normals {input} {output}"
 
@@ -248,6 +268,10 @@ rule smooth_displacement_vectors:
             label="{seed}",
             suffix="surfdisp.shape.gii"
         ),
+    group:
+        "subj"
+    container:
+        config["singularity"]["autotop"]
     shell:
         "wb_command -metric-smoothing {input.ref_surf} {input.vector} {params.fwhm} {output.vector} -fwhm"
 
@@ -284,6 +308,10 @@ rule normalize_displacement_by_smoothed:
             label="{seed}",
             suffix="surfdisp.shape.gii"
         ),
+    group:
+        "subj"
+    container:
+        config["singularity"]["autotop"]
     shell:
         "wb_command -metric-math 'vec - vecsmooth' {output.normalized}"
         " -var vec {input.vector} "
@@ -313,6 +341,10 @@ rule calc_inout_displacement:
             label="{seed}",
             suffix="surfdisp.shape.gii"
         ),
+    group:
+        "subj"
+    container:
+        config["singularity"]["autotop"]
     shell:
         "wb_command -metric-math '(v1*n1)+(v2*n2)+(v3*n3)' {output.inout}"
         " -var v1 {input.vec} -column 1  "
