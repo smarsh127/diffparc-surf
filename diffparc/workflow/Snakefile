@@ -97,7 +97,6 @@ rule all_diffparc:
             zip,
             **config["input_zip_lists"]["dwi"],
         ),
-
         surfdisp=expand(
             expand(
                 bids(
@@ -106,8 +105,8 @@ rule all_diffparc:
                     desc="inout",
                     from_="{template}",
                     datatype="morph",
-                    label='{seed}',
-                    suffix="surfdisp.shape.gii"
+                    label="{seed}",
+                    suffix="surfdisp.shape.gii",
                 ),
                 template=config["template"],
                 seed=config["seeds"].keys(),

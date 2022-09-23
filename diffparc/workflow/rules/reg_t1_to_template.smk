@@ -31,7 +31,7 @@ rule affine_to_template:
             type_="ras"
         ),
     container:
-        config["singularity"]["prepdwi"] #niftyreg
+        config["singularity"]["prepdwi"]  #niftyreg
     group:
         "subj"
     shell:

@@ -23,7 +23,8 @@ rule create_upsampled_cropped_seed_ref:
         ),
     container:
         config["singularity"]["itksnap"]
-    group: 'subj'
+    group:
+        "subj"
     shell:
         "c3d {input} -resample-mm {params.resample_res}  -o {output}"
 
@@ -240,7 +241,8 @@ rule create_voxel_seed_images:
                 )
             )
         ),
-    group: 'subj'
+    group:
+        "subj"
     script:
         "../scripts/create_voxel_seed_images.py"
 
@@ -292,7 +294,7 @@ rule track_from_voxels:
     group:
         "subj"
     container:
-        config["singularity"]["diffparc_deps"] 
+        config["singularity"]["diffparc_deps"]
     shell:
         "mkdir -p {output.tck_dir} && "
         "parallel --bar --jobs {threads} "
@@ -343,7 +345,7 @@ rule connectivity_from_voxels:
     group:
         "subj"
     container:
-        config["singularity"]["diffparc_deps"] 
+        config["singularity"]["diffparc_deps"]
     shell:
         "mkdir -p {output.conn_dir} && "
         "parallel --eta --jobs {threads} "
@@ -358,7 +360,8 @@ rule dseg_nii2mif:
         "{file}_dseg.mif",
     container:
         config["singularity"]["mrtrix"]
-    group: 'subj'
+    group:
+        "subj"
     shell:
         "mrconvert {input} {output} -nthreads {threads}"
 
@@ -424,7 +427,8 @@ rule conn_csv_to_image:
             suffix="conn.nii.gz",
             **config["subj_wildcards"],
         ),
-    group: 'subj'
+    group:
+        "subj"
     script:
         "../scripts/conn_csv_to_image.py"
 
@@ -518,10 +522,10 @@ rule maxprob_conn:
         ),
     container:
         config["singularity"]["itksnap"]
-    group: 'subj'
+    group:
+        "subj"
     shell:
         "c4d {input} -slice w 0:-1 -vote -o {output} "
-
 
 
 """

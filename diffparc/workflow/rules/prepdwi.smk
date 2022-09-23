@@ -273,7 +273,7 @@ rule run_topup:
             **config["subj_wildcards"]
         ),
     container:
-        config["singularity"]["prepdwi"] #fsl
+        config["singularity"]["prepdwi"]  #fsl
     log:
         bids(root="logs", suffix="topup.log", **config["subj_wildcards"]),
     group:
@@ -337,7 +337,7 @@ rule apply_topup_lsr:
             **config["subj_wildcards"]
         ),
     container:
-        config["singularity"]["prepdwi"] #fsl
+        config["singularity"]["prepdwi"]  #fsl
     shadow:
         "minimal"
     group:
@@ -413,7 +413,7 @@ rule apply_topup_jac:
             **config["input_wildcards"]["dwi"]
         ),
     container:
-        config["singularity"]["prepdwi"] #fsl
+        config["singularity"]["prepdwi"]  #fsl
     shadow:
         "minimal"
     group:
@@ -1108,7 +1108,7 @@ rule eddy_quad:
             **config["subj_wildcards"]
         ),
     container:
-        config["singularity"]["prepdwi"] #fsl
+        config["singularity"]["prepdwi"]  #fsl
     group:
         "subj"
     shell:

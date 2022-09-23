@@ -1,11 +1,9 @@
- 
-        
-#to replicate earlier surface morphometry pipeline, we want to:
+# to replicate earlier surface morphometry pipeline, we want to:
 # 1. rigid reg target probseg to template probseg
 # 2. run lddmm/greedy/ants to get mapping from template to target
 # 3. apply transform to the template surface
 # 4. calculate displacement based on target minus template
-# 5. normalize by the average displacement vector in local neighborhood 
+# 5. normalize by the average displacement vector in local neighborhood
 #   - (was 10mm radius cube before, now we use 8mm fwhm surf smoothing - can tune this hyperparameter)
 # 6. calculate inward/outward displacement using dot product with surface normal
 
@@ -15,14 +13,17 @@ rule gen_template_surface:
         nii=lambda wildcards: os.path.join(
             workflow.basedir, "..", config["seeds"][wildcards.seed]["template_probseg"]
         ),
- 
     params:
         threshold=lambda wildcards: config["seeds"][wildcards.seed]["probseg_threshold"],
     output:
-        surf_gii=temp("results/tpl-{template}/tpl-{template}_desc-nostruct_{seed}.surf.gii"),
-    group: 'subj'   
+        surf_gii=temp(
+            "results/tpl-{template}/tpl-{template}_desc-nostruct_{seed}.surf.gii"
+        ),
+    group:
+        "subj"
     script:
         "../scripts/gen_isosurface.py"
+
 
 rule set_surface_structure:
     input:
@@ -30,8 +31,8 @@ rule set_surface_structure:
     output:
         surf_gii="results/tpl-{template}/tpl-{template}_{seed}.surf.gii",
     shell:
-        'cp {input} {output} && '
-        'wb_command -set-structure {output} OTHER -surface-type ANATOMICAL'
+        "cp {input} {output} && "
+        "wb_command -set-structure {output} OTHER -surface-type ANATOMICAL"
 
 
 rule rigid_shape_reg:
@@ -51,14 +52,14 @@ rule rigid_shape_reg:
         ),
     params:
         general_opts="-d 3",
-        rigid_opts="-m SSD -moments 2 -det 1", 
+        rigid_opts="-m SSD -moments 2 -det 1",
     output:
         xfm_ras=bids(
             root="work",
             suffix="xfm.txt",
             from_="{template}",
             to="subj",
-            desc='rigid',
+            desc="rigid",
             type_="ras",
             label="{seed}",
             datatype="morph",
@@ -81,7 +82,8 @@ rule rigid_shape_reg:
     shell:
         "greedy -threads {threads} {params.general_opts} {params.rigid_opts}  -i {input.template} {input.target} -o {output.xfm_ras} &&  "
         "greedy -threads {threads} {params.general_opts} -rf {input.template} -rm {input.target} {output.warped_target}  -r {output.xfm_ras}"
- 
+
+
 rule fluid_shape_reg:
     """ fluid registration to get the displacements """
     input:
@@ -104,7 +106,7 @@ rule fluid_shape_reg:
             suffix="warp.nii.gz",
             from_="subject",
             to="{template}",
-            label='{seed}',
+            label="{seed}",
             **config["subj_wildcards"]
         ),
         warped=bids(
@@ -124,7 +126,7 @@ rule fluid_shape_reg:
         config["singularity"]["itksnap"]
     group:
         "subj"
-    shell: 
+    shell:
         "greedy -d 3 -threads {threads} -m SSD -i {input.template} {input.target} -o {output.warp} -n 100x50x10 && "
         "greedy -d 3 -threads {threads} -rf {input.template} -rm {input.target} {output.warped} -r {output.warp} "
 
@@ -137,7 +139,7 @@ rule convert_warpfield:
             suffix="warp.nii.gz",
             from_="subject",
             to="{template}",
-            label='{seed}',
+            label="{seed}",
             **config["subj_wildcards"]
         ),
     output:
@@ -147,12 +149,13 @@ rule convert_warpfield:
             suffix="surfwarp.nii.gz",
             to_="subject",
             from_="{template}",
-            label='{seed}',
+            label="{seed}",
             **config["subj_wildcards"]
         ),
     shell:
-        'wb_command -convert-warpfield -from-itk {input} -to-itk {output}'
-    
+        "wb_command -convert-warpfield -from-itk {input} -to-itk {output}"
+
+
 rule deform_surface:
     input:
         surf_gii="results/tpl-{template}/tpl-{template}_{seed}.surf.gii",
@@ -162,7 +165,7 @@ rule deform_surface:
             suffix="surfwarp.nii.gz",
             to_="subject",
             from_="{template}",
-            label='{seed}',
+            label="{seed}",
             **config["subj_wildcards"]
         ),
     output:
@@ -175,7 +178,7 @@ rule deform_surface:
             suffix="{seed}.surf.gii"
         ),
     shell:
-       'wb_command -surface-apply-warpfield {input.surf_gii} {input.warp} {output.surf_warped}'
+        "wb_command -surface-apply-warpfield {input.surf_gii} {input.warp} {output.surf_warped}"
 
 
 rule compute_displacement_metrics:
@@ -196,7 +199,7 @@ rule compute_displacement_metrics:
             desc="scalar",
             from_="{template}",
             datatype="morph",
-            label='{seed}',
+            label="{seed}",
             suffix="surfdisp.shape.gii"
         ),
         vector=bids(
@@ -205,20 +208,20 @@ rule compute_displacement_metrics:
             desc="vector",
             from_="{template}",
             datatype="morph",
-            label='{seed}',
+            label="{seed}",
             suffix="surfdisp.shape.gii"
         ),
     shell:
-        'wb_command  -surface-to-surface-3d-distance {input.comp_surf} {input.ref_surf} {output.scalar} -vectors {output.vector}'
+        "wb_command  -surface-to-surface-3d-distance {input.comp_surf} {input.ref_surf} {output.scalar} -vectors {output.vector}"
 
-        
+
 rule calc_template_surf_normals:
     input:
         ref_surf="results/tpl-{template}/tpl-{template}_{seed}.surf.gii",
     output:
-        normals="results/tpl-{template}/tpl-{template}_label-{seed}_normals.shape.gii"
+        normals="results/tpl-{template}/tpl-{template}_label-{seed}_normals.shape.gii",
     shell:
-        'wb_command -surface-normals {input} {output}'
+        "wb_command -surface-normals {input} {output}"
 
 
 rule smooth_displacement_vectors:
@@ -230,11 +233,11 @@ rule smooth_displacement_vectors:
             desc="vector",
             from_="{template}",
             datatype="morph",
-            label='{seed}',
+            label="{seed}",
             suffix="surfdisp.shape.gii"
         ),
     params:
-        fwhm=config['surfdisp_normalization_fwhm_mm']
+        fwhm=config["surfdisp_normalization_fwhm_mm"],
     output:
         vector=bids(
             root="work",
@@ -242,16 +245,16 @@ rule smooth_displacement_vectors:
             desc="vectorsmoothed",
             from_="{template}",
             datatype="morph",
-            label='{seed}',
+            label="{seed}",
             suffix="surfdisp.shape.gii"
         ),
     shell:
-        'wb_command -metric-smoothing {input.ref_surf} {input.vector} {params.fwhm} {output.vector} -fwhm'
-        
+        "wb_command -metric-smoothing {input.ref_surf} {input.vector} {params.fwhm} {output.vector} -fwhm"
+
 
 rule normalize_displacement_by_smoothed:
     """subtracts the displacement by the smoothed displacement to provide a spatially-local
-      displacement estimate"""
+    displacement estimate"""
     input:
         vector=bids(
             root="work",
@@ -259,17 +262,16 @@ rule normalize_displacement_by_smoothed:
             desc="vector",
             from_="{template}",
             datatype="morph",
-            label='{seed}',
+            label="{seed}",
             suffix="surfdisp.shape.gii"
         ),
-
         smoothed=bids(
             root="work",
             **config["subj_wildcards"],
             desc="vectorsmoothed",
             from_="{template}",
             datatype="morph",
-            label='{seed}',
+            label="{seed}",
             suffix="surfdisp.shape.gii"
         ),
     output:
@@ -279,15 +281,15 @@ rule normalize_displacement_by_smoothed:
             desc="vectornormalized",
             from_="{template}",
             datatype="morph",
-            label='{seed}',
+            label="{seed}",
             suffix="surfdisp.shape.gii"
         ),
     shell:
         "wb_command -metric-math 'vec - vecsmooth' {output.normalized}"
         " -var vec {input.vector} "
         " -var vecsmooth {input.smoothed}  "
-        
-    
+
+
 rule calc_inout_displacement:
     """uses dot-product with surface normal to get inward/outward displacement"""
     input:
@@ -297,10 +299,10 @@ rule calc_inout_displacement:
             desc="vectornormalized",
             from_="{template}",
             datatype="morph",
-            label='{seed}',
+            label="{seed}",
             suffix="surfdisp.shape.gii"
         ),
-        norm="results/tpl-{template}/tpl-{template}_label-{seed}_normals.shape.gii"
+        norm="results/tpl-{template}/tpl-{template}_label-{seed}_normals.shape.gii",
     output:
         inout=bids(
             root="work",
@@ -308,7 +310,7 @@ rule calc_inout_displacement:
             desc="inout",
             from_="{template}",
             datatype="morph",
-            label='{seed}',
+            label="{seed}",
             suffix="surfdisp.shape.gii"
         ),
     shell:
@@ -319,7 +321,3 @@ rule calc_inout_displacement:
         " -var n1 {input.norm} -column 1  "
         " -var n2 {input.norm} -column 2  "
         " -var n3 {input.norm} -column 3  "
-    
-
-
-

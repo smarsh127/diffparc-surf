@@ -97,7 +97,7 @@ rule bet_avg_b0:
             **config["subj_wildcards"]
         ),
     container:
-        config["singularity"]["prepdwi"] #fsl
+        config["singularity"]["prepdwi"]  #fsl
     group:
         "subj"
     shell:

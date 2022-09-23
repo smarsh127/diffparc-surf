@@ -57,7 +57,7 @@ rule moco_dwi:
     shadow:
         "minimal"
     container:
-        config["singularity"]["prepdwi"] #-- this rule needs niftyreg, c3d and mrtrix
+        config["singularity"]["prepdwi"]  #-- this rule needs niftyreg, c3d and mrtrix
     shell:
         "c4d {input.dwi} -slice w 0:-1 -oo dwi_%03d.nii && "
         "parallel --eta --jobs {threads} "
@@ -97,7 +97,7 @@ rule rotate_bvecs_moco:
     params:
         script=os.path.join(workflow.basedir, "scripts/rotate_bvecs_multi.sh"),
     container:
-        config["singularity"]["prepdwi"] #fsl
+        config["singularity"]["prepdwi"]  #fsl
     shell:
         "chmod a+x {params.script} && "
         "{params.script} {input.bvec} {output.bvec} {input.affine_dir}/affine_xfm_ras_*.txt"
