@@ -103,7 +103,7 @@ rule all_diffparc:
                 bids(
                     root="work",
                     **config["subj_wildcards"],
-                    desc="vector",
+                    desc="inout",
                     from_="{template}",
                     datatype="morph",
                     label='{seed}',

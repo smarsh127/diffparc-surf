@@ -303,6 +303,8 @@ resample_seed_res: 2x2x2mm
 seeds_per_voxel: 
  - 500
 
+surfdisp_normalization_fwhm_mm: 8
+
 
 #for test data
 participant_label: 
