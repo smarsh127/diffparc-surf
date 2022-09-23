@@ -115,6 +115,23 @@ rule all_diffparc:
             zip,
             **config["input_zip_lists"]["dwi"],
         ),
+        surftrack=expand(
+            expand(
+                bids(
+                    root="work",
+                    **config["subj_wildcards"],
+                    space='individual',
+                    from_="{template}",
+                    datatype="surftrack",
+                    suffix="{seed}.surf.gii"
+                ),
+                template=config["template"],
+                seed=config["seeds"].keys(),
+                allow_missing=True,
+            ),
+            zip,
+            **config["input_zip_lists"]["dwi"],
+        ),
 
 
 rule all_preprocdwi:
@@ -164,3 +181,4 @@ include: "rules/diffparc.smk"
 include: "rules/mrtrix.smk"
 include: "rules/motioncorr.smk"
 include: "rules/surfmorph.smk"
+include: "rules/surftrack.smk"
