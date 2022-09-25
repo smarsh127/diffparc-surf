@@ -18,7 +18,7 @@ rule gen_template_surface:
         decimate_percent=config['surface_decimate_percent']
     output:
         surf_gii=temp(
-            "results/tpl-{template}/tpl-{template}_desc-nostruct_{seed}.surf.gii"
+            "results/tpl-{template}/tpl-{template}_hemi-{hemi}_desc-nostruct_{seed}.surf.gii"
         ),
     group:
         "template"
@@ -29,9 +29,9 @@ rule gen_template_surface:
 
 rule set_surface_structure:
     input:
-        surf_gii="results/tpl-{template}/tpl-{template}_desc-nostruct_{seed}.surf.gii",
+        surf_gii="results/tpl-{template}/tpl-{template}_hemi-{hemi}_desc-nostruct_{seed}.surf.gii",
     output:
-        surf_gii="results/tpl-{template}/tpl-{template}_{seed}.surf.gii",
+        surf_gii="results/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
     group:
         "template"
     container:
@@ -50,6 +50,7 @@ rule rigid_shape_reg:
         target=bids(
             root="results",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             space="individual",
             label="{seed}",
             from_="{template}",
@@ -63,6 +64,7 @@ rule rigid_shape_reg:
         xfm_ras=bids(
             root="work",
             suffix="xfm.txt",
+            hemi='{hemi}',
             from_="{template}",
             to="subj",
             desc="rigid",
@@ -75,6 +77,7 @@ rule rigid_shape_reg:
             root="work",
             **config["subj_wildcards"],
             desc="rigid",
+            hemi='{hemi}',
             label="{seed}",
             space="{template}",
             datatype="morph",
@@ -100,6 +103,7 @@ rule fluid_shape_reg:
             root="work",
             **config["subj_wildcards"],
             desc="rigid",
+            hemi='{hemi}',
             label="{seed}",
             space="{template}",
             datatype="morph",
@@ -110,6 +114,7 @@ rule fluid_shape_reg:
             root="work",
             datatype="morph",
             suffix="warp.nii.gz",
+            hemi='{hemi}',
             from_="subject",
             to="{template}",
             label="{seed}",
@@ -118,6 +123,7 @@ rule fluid_shape_reg:
         warped=bids(
             root="work",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             desc="fluid",
             label="{seed}",
             space="{template}",
@@ -143,6 +149,7 @@ rule convert_warpfield:
             root="work",
             datatype="morph",
             suffix="warp.nii.gz",
+            hemi='{hemi}',
             from_="subject",
             to="{template}",
             label="{seed}",
@@ -152,6 +159,7 @@ rule convert_warpfield:
         warp=bids(
             root="work",
             datatype="morph",
+            hemi='{hemi}',
             suffix="surfwarp.nii.gz",
             to_="subject",
             from_="{template}",
@@ -168,10 +176,11 @@ rule convert_warpfield:
 
 rule deform_surface:
     input:
-        surf_gii="results/tpl-{template}/tpl-{template}_{seed}.surf.gii",
+        surf_gii="results/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
         warp=bids(
             root="work",
             datatype="morph",
+            hemi='{hemi}',
             suffix="surfwarp.nii.gz",
             to_="subject",
             from_="{template}",
@@ -181,6 +190,7 @@ rule deform_surface:
     output:
         surf_warped=bids(
             root="work",
+            hemi='{hemi}',
             **config["subj_wildcards"],
             desc="fluid",
             from_="{template}",
@@ -197,9 +207,10 @@ rule deform_surface:
 
 rule compute_displacement_metrics:
     input:
-        ref_surf="results/tpl-{template}/tpl-{template}_{seed}.surf.gii",
+        ref_surf="results/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
         comp_surf=bids(
             root="work",
+            hemi='{hemi}',
             **config["subj_wildcards"],
             desc="fluid",
             from_="{template}",
@@ -209,6 +220,7 @@ rule compute_displacement_metrics:
     output:
         scalar=bids(
             root="work",
+            hemi='{hemi}',
             **config["subj_wildcards"],
             desc="scalar",
             from_="{template}",
@@ -218,6 +230,7 @@ rule compute_displacement_metrics:
         ),
         vector=bids(
             root="work",
+            hemi='{hemi}',
             **config["subj_wildcards"],
             desc="vector",
             from_="{template}",
@@ -235,9 +248,9 @@ rule compute_displacement_metrics:
 
 rule calc_template_surf_normals:
     input:
-        ref_surf="results/tpl-{template}/tpl-{template}_{seed}.surf.gii",
+        ref_surf="results/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
     output:
-        normals="results/tpl-{template}/tpl-{template}_label-{seed}_normals.shape.gii",
+        normals="results/tpl-{template}/tpl-{template}_hemi-{hemi}_label-{seed}_normals.shape.gii",
     group:
         "template"
     container:
@@ -248,9 +261,10 @@ rule calc_template_surf_normals:
 
 rule smooth_displacement_vectors:
     input:
-        ref_surf="results/tpl-{template}/tpl-{template}_{seed}.surf.gii",
+        ref_surf="results/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
         vector=bids(
             root="work",
+            hemi='{hemi}',
             **config["subj_wildcards"],
             desc="vector",
             from_="{template}",
@@ -264,6 +278,7 @@ rule smooth_displacement_vectors:
         vector=bids(
             root="work",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             desc="vectorsmoothed",
             from_="{template}",
             datatype="morph",
@@ -285,6 +300,7 @@ rule normalize_displacement_by_smoothed:
         vector=bids(
             root="work",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             desc="vector",
             from_="{template}",
             datatype="morph",
@@ -294,6 +310,7 @@ rule normalize_displacement_by_smoothed:
         smoothed=bids(
             root="work",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             desc="vectorsmoothed",
             from_="{template}",
             datatype="morph",
@@ -304,6 +321,7 @@ rule normalize_displacement_by_smoothed:
         normalized=bids(
             root="work",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             desc="vectornormalized",
             from_="{template}",
             datatype="morph",
@@ -325,6 +343,7 @@ rule calc_inout_displacement:
     input:
         vec=bids(
             root="work",
+            hemi='{hemi}',
             **config["subj_wildcards"],
             desc="vectornormalized",
             from_="{template}",
@@ -332,11 +351,12 @@ rule calc_inout_displacement:
             label="{seed}",
             suffix="surfdisp.shape.gii"
         ),
-        norm="results/tpl-{template}/tpl-{template}_label-{seed}_normals.shape.gii",
+        norm="results/tpl-{template}/tpl-{template}_hemi-{hemi}_label-{seed}_normals.shape.gii",
     output:
         inout=bids(
             root="work",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             desc="inout",
             from_="{template}",
             datatype="morph",

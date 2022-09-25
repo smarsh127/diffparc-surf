@@ -64,6 +64,7 @@ rule transform_seed_to_subject:
         seed=bids(
             root="results",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             space="individual",
             label="{seed}",
             from_="{template}",
@@ -78,6 +79,7 @@ rule transform_seed_to_subject:
         bids(
             root="logs",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             space="individual",
             label="{seed}",
             from_="{template}",
@@ -157,6 +159,7 @@ rule binarize_trim_subject_seed:
         seed_res=bids(
             root="results",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             space="individual",
             label="{seed}",
             from_="{template}",
@@ -169,6 +172,7 @@ rule binarize_trim_subject_seed:
         seed_thr=bids(
             root="results",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             space="individual",
             label="{seed}",
             from_="{template}",
@@ -179,6 +183,7 @@ rule binarize_trim_subject_seed:
         bids(
             root="logs",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             label="{seed}",
             from_="{template}",
             suffix="binarizetrimsubjectseed.log"
@@ -221,6 +226,7 @@ rule create_voxel_seed_images:
         seed=bids(
             root="results",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             space="individual",
             label="{seed}",
             from_=config["template"],
@@ -233,6 +239,7 @@ rule create_voxel_seed_images:
                 bids(
                     root="results",
                     **config["subj_wildcards"],
+                    hemi='{hemi}',
                     space="individual",
                     label="{seed}",
                     from_=config["template"],
@@ -266,6 +273,7 @@ rule track_from_voxels:
         vox_seeds_dir=bids(
             root="results",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             space="individual",
             label="{seed}",
             datatype="dwi",
@@ -280,6 +288,7 @@ rule track_from_voxels:
                 bids(
                     root="results",
                     datatype="dwi",
+                    hemi='{hemi}',
                     label="{seed}",
                     seedpervox="{seedpervox}",
                     suffix="voxtracts",
@@ -310,6 +319,7 @@ rule connectivity_from_voxels:
         tck_dir=bids(
             root="results",
             datatype="dwi",
+            hemi='{hemi}',
             label="{seed}",
             seedpervox="{seedpervox}",
             suffix="voxtracts",
@@ -330,6 +340,7 @@ rule connectivity_from_voxels:
                 bids(
                     root="results",
                     datatype="dwi",
+                    hemi='{hemi}',
                     desc="{targets}",
                     label="{seed}",
                     seedpervox="{seedpervox}",
@@ -371,6 +382,7 @@ rule gen_conn_csv:
         conn_dir=bids(
             root="results",
             datatype="dwi",
+            hemi='{hemi}',
             desc="{targets}",
             label="{seed}",
             seedpervox="{seedpervox}",
@@ -385,6 +397,7 @@ rule gen_conn_csv:
         conn_csv=bids(
             root="results",
             datatype="dwi",
+            hemi='{hemi}',
             desc="{targets}",
             label="{seed}",
             seedpervox="{seedpervox}",
@@ -402,6 +415,7 @@ rule conn_csv_to_image:
         conn_csv=bids(
             root="results",
             datatype="dwi",
+            hemi='{hemi}',
             desc="{targets}",
             label="{seed}",
             seedpervox="{seedpervox}",
@@ -411,6 +425,7 @@ rule conn_csv_to_image:
         seed_nii=bids(
             root="results",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             space="individual",
             label="{seed}",
             from_=config["template"],
@@ -421,6 +436,7 @@ rule conn_csv_to_image:
         conn_nii=bids(
             root="results",
             datatype="dwi",
+            hemi='{hemi}',
             desc="{targets}",
             label="{seed}",
             seedpervox="{seedpervox}",
@@ -438,6 +454,7 @@ rule transform_conn_to_template:
         conn_nii=bids(
             root="results",
             datatype="dwi",
+            hemi='{hemi}',
             desc="{targets}",
             label="{seed}",
             seedpervox="{seedpervox}",
@@ -466,6 +483,7 @@ rule transform_conn_to_template:
         conn_nii=bids(
             root="results",
             datatype="dwi",
+            hemi='{hemi}',
             space="{template}",
             desc="{targets}",
             label="{seed}",
@@ -481,6 +499,7 @@ rule transform_conn_to_template:
     log:
         bids(
             root="logs",
+            hemi='{hemi}',
             space="{template}",
             desc="{targets}",
             label="{seed}",
@@ -501,6 +520,7 @@ rule maxprob_conn:
         conn_nii=bids(
             root="results",
             datatype="dwi",
+            hemi='{hemi}',
             space="{template}",
             desc="{targets}",
             label="{seed}",
@@ -512,6 +532,7 @@ rule maxprob_conn:
         conn_nii=bids(
             root="results",
             datatype="dwi",
+            hemi='{hemi}',
             space="{template}",
             desc="{targets}",
             label="{seed}",
@@ -528,45 +549,3 @@ rule maxprob_conn:
         "c4d {input} -slice w 0:-1 -vote -o {output} "
 
 
-"""
-rule save_connmap_template_npz:
-    input:
-        mask = bids(root='results',template='{template}',label='{seed}',suffix='mask.nii.gz'),
-        probtrack_dir = bids(root='results',**config['subj_wildcards'],label='{seed}',space='{template}',suffix='probtrack')
-    params:
-        connmap_3d = lambda wildcards, input: expand(bids(root=input.probtrack_dir,include_subject_dir=False,subject=wildcards.subject,prefix='seeds_to',label='{target}',suffix='mask.nii.gz'), target=targets),
-    output:
-        connmap_npz = bids(root='results',**config['subj_wildcards'],label='{seed}',space='{template}',suffix='connMap.npz')
-    log: 'logs/save_connmap_to_template_npz/sub-{subject}_{seed}_{template}.log'
-    group: 'participant1'
-    conda: '../envs/sklearn.yml'
-    script: '../scripts/save_connmap_template_npz.py'
-
-#space-{template}
-rule gather_connmap_group:
-    input:
-        connmap_npz = expand(bids(root='results',**config['subj_wildcards'],label='{seed}',space='{template}',suffix='connMap.npz'), subject=subjects,allow_missing=True)
-    output:
-        connmap_group_npz = bids(root='results',template='{template}',desc='concat',label='{seed}',from_='group',suffix='connMap.npz')
-    log: 'logs/gather_connmap_group/{seed}_{template}.log'
-    conda: '../envs/sklearn.yml'
-    group: 'group1'
-    script: '../scripts/gather_connmap_group.py'
-     
-
-#space-{template},  dseg
-rule spectral_clustering:
-    input:
-        connmap_group_npz = bids(root='results',template='{template}',desc='concat',label='{seed}',from_='group',suffix='connMap.npz')
-    params:
-        max_k = config['max_k']
-    output:
-        cluster_k = expand(bids(root='results',template='{template}',label='{seed}',from_='group',method='spectralcosine',k='{k}',suffix='dseg.nii.gz'),k=range(2,config['max_k']+1),allow_missing=True)
-    log: 'logs/spectral_clustering/{seed}_{template}.log'
-    conda: '../envs/sklearn.yml'
-    group: 'group1'
-    script: '../scripts/spectral_clustering.py'
-        
- 
-  
-"""

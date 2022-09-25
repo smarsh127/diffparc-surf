@@ -55,7 +55,7 @@ rule convert_affine_to_world:
 rule transform_template_surf_to_t1:
     """ transforms the template surface to the subject T1 """
     input:
-        surf_gii="results/tpl-{template}/tpl-{template}_{seed}.surf.gii",
+        surf_gii="results/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
         warp=bids(
             root="work",
             datatype="surftrack",
@@ -79,6 +79,7 @@ rule transform_template_surf_to_t1:
             root="work",
             **config["subj_wildcards"],
             space='individual',
+            hemi='{hemi}',
             from_="{template}",
             datatype="surftrack",
             suffix="{seed}.surf.gii"
@@ -102,6 +103,7 @@ rule create_surf_seed_csv:
         surf=bids(
             root="work",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             space='individual',
             from_="{template}",
             datatype="surftrack",
@@ -111,6 +113,7 @@ rule create_surf_seed_csv:
         csv=bids(
             root="work",
             **config["subj_wildcards"],
+            hemi='{hemi}',
             space='individual',
             from_="{template}",
             datatype="surftrack",
@@ -141,6 +144,7 @@ rule track_from_vertices:
             root="work",
             **config["subj_wildcards"],
             space='individual',
+            hemi='{hemi}',
             from_=config['template'],
             datatype="surftrack",
             label='{seed}',
@@ -155,6 +159,7 @@ rule track_from_vertices:
                 bids(
                     root="work",
                     datatype="surftrack",
+                    hemi='{hemi}',
                     label="{seed}",
                     seedspervertex='{seedspervertex}',
                     suffix="vertextracts",
@@ -186,6 +191,7 @@ rule connectivity_from_vertices:
         tck_dir=bids(
             root="work",
             datatype="surftrack",
+            hemi='{hemi}',
             label="{seed}",
             seedspervertex='{seedspervertex}',
             suffix="vertextracts",
@@ -206,6 +212,7 @@ rule connectivity_from_vertices:
                 bids(
                     root="work",
                     datatype="surftrack",
+                    hemi='{hemi}',
                     desc="{targets}",
                     label="{seed}",
                     seedspervertex='{seedspervertex}',
@@ -235,6 +242,7 @@ rule gen_vertex_conn_csv:
                     root="work",
                     datatype="surftrack",
                     desc="{targets}",
+                    hemi='{hemi}',
                     label="{seed}",
                     seedspervertex='{seedspervertex}',
                     suffix="vertexconn",
@@ -248,6 +256,7 @@ rule gen_vertex_conn_csv:
         conn_csv=bids(
             root="work",
             datatype="surftrack",
+            hemi='{hemi}',
             desc="{targets}",
             label="{seed}",
             seedspervertex="{seedspervertex}",
@@ -265,6 +274,7 @@ rule conn_csv_to_metric:
         csv=bids(
             root="work",
             datatype="surftrack",
+            hemi='{hemi}',
             desc="{targets}",
             label="{seed}",
             seedspervertex="{seedspervertex}",
@@ -275,11 +285,11 @@ rule conn_csv_to_metric:
          gii_metric=temp(bids(
             root="work",
             datatype="surftrack",
+            hemi='{hemi}',
             desc="{targets}",
             label="{seed}",
-            struct='none',
             seedspervertex="{seedspervertex}",
-            suffix="conn.shape.gii",
+            suffix="nostructconn.shape.gii",
             **config["subj_wildcards"],
         )),   
     script:
@@ -290,17 +300,18 @@ rule set_structure_conn_metric:
         gii_metric=bids(
             root="work",
             datatype="surftrack",
+            hemi='{hemi}',
             desc="{targets}",
             label="{seed}",
-            struct='none',
             seedspervertex="{seedspervertex}",
-            suffix="conn.shape.gii",
+            suffix="nostructconn.shape.gii",
             **config["subj_wildcards"],
         ),   
     output:
         gii_metric=bids(
             root="work",
             datatype="surftrack",
+            hemi='{hemi}',
             desc="{targets}",
             label="{seed}",
             seedspervertex="{seedspervertex}",
