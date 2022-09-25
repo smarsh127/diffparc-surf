@@ -29,6 +29,8 @@ rule gen_template_surface:
 rule set_surface_structure:
     input:
         surf_gii="results/tpl-{template}/tpl-{template}_hemi-{hemi}_desc-nostruct_{seed}.surf.gii",
+    params:
+        structure=lambda wildcards: config['hemi_to_structure'][wildcards.hemi]
     output:
         surf_gii="results/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
     group:
@@ -37,7 +39,7 @@ rule set_surface_structure:
         config["singularity"]["autotop"]
     shell:
         "cp {input} {output} && "
-        "wb_command -set-structure {output} OTHER -surface-type ANATOMICAL"
+        "wb_command -set-structure {output} {params.structure} -surface-type ANATOMICAL"
 
 
 rule rigid_shape_reg:

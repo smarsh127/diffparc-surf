@@ -308,6 +308,8 @@ rule set_structure_conn_metric:
             suffix="nostructconn.shape.gii",
             **config["subj_wildcards"],
         ),
+    params:
+        structure=lambda wildcards: config['hemi_to_structure'][wildcards.hemi]
     output:
         gii_metric=bids(
             root="work",
@@ -321,7 +323,70 @@ rule set_structure_conn_metric:
         ),
     shell:
         "cp {input} {output} && "
-        "wb_command -set-structure {output} OTHER"
+        "wb_command -set-structure {output} {params.structure}"
 
 
+rule create_cifti_conn_dscalar:
+    input:
+        left_metric=bids(
+            root="work",
+            datatype="surftrack",
+            hemi="L",
+            desc="{targets}",
+            label="{seed}",
+            seedspervertex="{seedspervertex}",
+            suffix="conn.shape.gii",
+            **config["subj_wildcards"],
+        ),
+        right_metric=bids(
+            root="work",
+            datatype="surftrack",
+            hemi="R",
+            desc="{targets}",
+            label="{seed}",
+            seedspervertex="{seedspervertex}",
+            suffix="conn.shape.gii",
+            **config["subj_wildcards"],
+        ),
+    output:
+        cifti_dscalar=bids(
+            root="work",
+            datatype="surftrack",
+            desc="{targets}",
+            label="{seed}",
+            seedspervertex="{seedspervertex}",
+            suffix="conn.dscalar.nii",
+            **config["subj_wildcards"],
+        ),
+    shell:
+        'wb_command -cifti-create-dense-scalar {output} -left-metric {input.left_metric} -right-metric {input.right_metric}'
+
+    
+
+rule create_cifti_conn_dscalar_maxprob:
+    input:
+       cifti_dscalar=bids(
+            root="work",
+            datatype="surftrack",
+            desc="{targets}",
+            label="{seed}",
+            seedspervertex="{seedspervertex}",
+            suffix="conn.dscalar.nii",
+            **config["subj_wildcards"],
+        ),
+    output:
+       cifti_dscalar=bids(
+            root="work",
+            datatype="surftrack",
+            desc="{targets}",
+            label="{seed}",
+            seedspervertex="{seedspervertex}",
+            suffix="maxprob.dscalar.nii",
+            **config["subj_wildcards"],
+        ),
+
+    shell:
+        'wb_command -cifti-reduce {input} INDEXMAX {output}'
+
+#need to then convert that into a label, then can use parcellate
 
