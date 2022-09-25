@@ -95,3 +95,192 @@ rule transform_template_surf_to_t1:
 
 
 
+
+#for seeding, create a csv with vertex coords
+rule create_surf_seed_csv:
+    input:
+        surf=bids(
+            root="work",
+            **config["subj_wildcards"],
+            space='individual',
+            from_="{template}",
+            datatype="surftrack",
+            suffix="{seed}.surf.gii"
+        ),
+    output:
+        csv=bids(
+            root="work",
+            **config["subj_wildcards"],
+            space='individual',
+            from_="{template}",
+            datatype="surftrack",
+            label='{seed}',
+            suffix="seeds.csv"
+        ),
+    script:
+        '../scripts/surf_to_seed_csv.py'
+
+
+rule track_from_vertices:
+    # Tournier, J.-D.; Calamante, F. & Connelly, A. Improved probabilistic streamlines tractography by 2nd order integration over fibre orientation distributions. Proceedings of the International Society for Magnetic Resonance in Medicine, 2010, 1670
+    input:
+        wm_fod=get_fod_for_tracking,
+        dwi=bids(
+            root="results",
+            datatype="dwi",
+            suffix="dwi.mif",
+            **config["subj_wildcards"],
+        ),
+        mask=bids(
+            root="results",
+            datatype="dwi",
+            suffix="mask.mif",
+            **config["subj_wildcards"],
+        ),
+        csv=bids(
+            root="work",
+            **config["subj_wildcards"],
+            space='individual',
+            from_=config['template'],
+            datatype="surftrack",
+            label='{seed}',
+            suffix="seeds.csv"
+        ),
+    params:
+        radius='0.5',
+        seedspervertex='{seedspervertex}',
+    output:
+        tck_dir=temp(
+            directory(
+                bids(
+                    root="work",
+                    datatype="surftrack",
+                    label="{seed}",
+                    seedspervertex='{seedspervertex}',
+                    suffix="vertextracts",
+                    **config["subj_wildcards"],
+                )
+            )
+        ),
+    threads: 32
+    resources:
+        mem_mb=128000,
+        time=1440,
+    group:
+        "subj"
+    container:
+        config["singularity"]["diffparc_deps"]
+    shell:
+        "mkdir -p {output.tck_dir} && "
+        "parallel --bar --link --jobs {threads} "
+        "tckgen -quiet -nthreads 0  -algorithm iFOD2 -mask {input.mask} "
+        " {input.wm_fod} {output.tck_dir}/vertex_{{1}}.tck "
+        " -seed_sphere {{2}},{params.radius} -seeds {params.seedspervertex} "
+        " :::  `seq -w $(cat {input.csv} | wc -l)` ::: `cat {input.csv}` "
+
+
+
+rule connectivity_from_vertices:
+    # Tournier, J.-D.; Calamante, F. & Connelly, A. Improved probabilistic streamlines tractography by 2nd order integration over fibre orientation distributions. Proceedings of the International Society for Magnetic Resonance in Medicine, 2010, 1670
+    input:
+        tck_dir=bids(
+            root="work",
+            datatype="surftrack",
+            label="{seed}",
+            seedspervertex='{seedspervertex}',
+            suffix="vertextracts",
+            **config["subj_wildcards"],
+        ),
+        targets=bids(
+            root="results",
+            **config["subj_wildcards"],
+            space="individual",
+            desc="{targets}",
+            from_=config["template"],
+            datatype="anat",
+            suffix="dseg.mif"
+        ),
+    output:
+        conn_dir=temp(
+            directory(
+                bids(
+                    root="work",
+                    datatype="surftrack",
+                    desc="{targets}",
+                    label="{seed}",
+                    seedspervertex='{seedspervertex}',
+                    suffix="vertexconn",
+                    **config["subj_wildcards"],
+                )
+            )
+        ),
+    threads: 32
+    resources:
+        mem_mb=128000,
+        time=1440,
+    group:
+        "subj"
+    container:
+        config["singularity"]["diffparc_deps"]
+    shell:
+        "mkdir -p {output.conn_dir} && "
+        "parallel --eta --jobs {threads} "
+        "tck2connectome -nthreads 0 -quiet {input.tck_dir}/vertex_{{1}}.tck {input.targets} {output.conn_dir}/conn_{{1}}.csv -vector"
+        " ::: `ls {input.tck_dir} | grep -Po '(?<=vertex_)[0-9]+'`"
+
+
+rule gen_vertex_conn_csv:
+    input:
+        conn_dir=bids(
+                    root="work",
+                    datatype="surftrack",
+                    desc="{targets}",
+                    label="{seed}",
+                    seedspervertex='{seedspervertex}',
+                    suffix="vertexconn",
+                    **config["subj_wildcards"],
+        ),
+    params:
+        header_line=lambda wildcards: ",".join(
+            config["targets"][wildcards.targets]["labels"]
+        ),
+    output:
+        conn_csv=bids(
+            root="work",
+            datatype="surftrack",
+            desc="{targets}",
+            label="{seed}",
+            seedspervertex="{seedspervertex}",
+            suffix="conn.csv",
+            **config["subj_wildcards"],
+        ),
+    group:
+        "subj"
+    script:
+        "../scripts/gather_csv_files.py"
+
+
+rule conn_csv_to_metric:
+    input:
+        csv=bids(
+            root="work",
+            datatype="surftrack",
+            desc="{targets}",
+            label="{seed}",
+            seedspervertex="{seedspervertex}",
+            suffix="conn.csv",
+            **config["subj_wildcards"],
+        ),
+    output:
+         gii_metric=bids(
+            root="work",
+            datatype="surftrack",
+            desc="{targets}",
+            label="{seed}",
+            seedspervertex="{seedspervertex}",
+            suffix="conn.shape.gii",
+            **config["subj_wildcards"],
+        ),   
+    script:
+        '../scripts/conn_csv_to_gifti_metric.py'
+

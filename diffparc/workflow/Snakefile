@@ -115,23 +115,26 @@ rule all_diffparc:
             zip,
             **config["input_zip_lists"]["dwi"],
         ),
-        surftrack=expand(
+        surfconn=expand(
             expand(
                 bids(
                     root="work",
-                    **config["subj_wildcards"],
-                    space='individual',
-                    from_="{template}",
                     datatype="surftrack",
-                    suffix="{seed}.surf.gii"
-                ),
-                template=config["template"],
+                    desc="{targets}",
+                    label="{seed}",
+                    seedspervertex="{seedspervertex}",
+                    suffix="conn.shape.gii",
+                    **config["subj_wildcards"],
+                ),   
                 seed=config["seeds"].keys(),
+                targets=config["targets"].keys(),
+                seedspervertex=config['seeds_per_vertex'],
                 allow_missing=True,
             ),
             zip,
             **config["input_zip_lists"]["dwi"],
         ),
+
 
 
 rule all_preprocdwi:

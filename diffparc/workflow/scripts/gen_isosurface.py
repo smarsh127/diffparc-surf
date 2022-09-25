@@ -20,6 +20,7 @@ affine = nib.load(snakemake.input.nii).affine
 # the contour function produces the isosurface
 surface = vol.contour([snakemake.params.threshold])
 
+surface = surface.decimate(float(snakemake.params.decimate_percent) / 100.0)
 
 # faces from pyvista surface are formatted with number of verts each row
 # reshape and remove the first col to get Nx3

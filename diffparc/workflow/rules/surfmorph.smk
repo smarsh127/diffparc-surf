@@ -15,6 +15,7 @@ rule gen_template_surface:
         ),
     params:
         threshold=lambda wildcards: config["seeds"][wildcards.seed]["probseg_threshold"],
+        decimate_percent=config['surface_decimate_percent']
     output:
         surf_gii=temp(
             "results/tpl-{template}/tpl-{template}_desc-nostruct_{seed}.surf.gii"
@@ -23,6 +24,7 @@ rule gen_template_surface:
         "template"
     script:
         "../scripts/gen_isosurface.py"
+
 
 
 rule set_surface_structure:

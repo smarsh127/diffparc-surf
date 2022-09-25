@@ -302,9 +302,11 @@ fod_algorithm: csd #msmt_csd
 resample_seed_res: 2x2x2mm
 seeds_per_voxel: 
  - 500
+seeds_per_vertex:
+ - 500
 
 surfdisp_normalization_fwhm_mm: 8
-
+surface_decimate_percent: 50 #reduce X% of the vertices
 
 #for test data
 participant_label: 
