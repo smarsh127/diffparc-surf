@@ -322,3 +322,6 @@ rule set_structure_conn_metric:
     shell:
         "cp {input} {output} && "
         "wb_command -set-structure {output} OTHER"
+
+
+

@@ -189,7 +189,6 @@ rule all_preprocdwi:
 
 rule all:
     input:
-        rules.all_diffparc.input,
         rules.all_diffparc_surf.input,
         rules.all_surfmorph.input,
     default_target: True
