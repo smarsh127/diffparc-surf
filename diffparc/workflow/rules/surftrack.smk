@@ -1,49 +1,28 @@
-rule convert_warpfield_template_to_indiv:
+rule convert_rigid_to_world:
     input:
-        warp=bids(
+        xfm_itk=bids(
             root="work",
-            datatype="anat",
-            suffix="warp.nii.gz",
-            from_="subject",
-            to="{template}",
-            **config["subj_wildcards"]
-        ),
-    output:
-        warp=bids(
-            root="work",
-            datatype="surftrack",
-            suffix="surfwarp.nii.gz",
-            to_="subject",
+            suffix="xfm.txt",
+            hemi="{hemi}",
             from_="{template}",
-            **config["subj_wildcards"]
-        ),
-    group:
-        "subj"
-    container:
-        config["singularity"]["autotop"]
-    shell:
-        "wb_command -convert-warpfield -from-itk {input} -to-world {output}"
-
-
-rule convert_affine_to_world:
-    input:
-        affine_itk=bids(
-            root="work",
-            datatype="anat",
-            suffix="affine.txt",
-            from_="subject",
-            to="{template}",
-            desc="itk",
+            to="subj",
+            desc="rigid",
+            type_="itk",
+            label="{seed}",
+            datatype="morph",
             **config["subj_wildcards"]
         ),
     output:
-        affine_world=bids(
+        rigid_world=bids(
             root="work",
-            datatype="anat",
-            suffix="affine.txt",
-            from_="subject",
-            to="{template}",
-            desc="world",
+            suffix="xfm.txt",
+            hemi="{hemi}",
+            from_="{template}",
+            to="subj",
+            desc="rigid",
+            type_="world",
+            label="{seed}",
+            datatype="surftrack",
             **config["subj_wildcards"]
         ),
     group:
@@ -57,22 +36,25 @@ rule convert_affine_to_world:
 rule transform_template_surf_to_t1:
     """ transforms the template surface to the subject T1 """
     input:
-        surf_gii="results/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
-        warp=bids(
+        surf_gii=bids(
             root="work",
-            datatype="surftrack",
-            suffix="surfwarp.nii.gz",
-            to_="subject",
+            hemi="{hemi}",
+            **config["subj_wildcards"],
+            desc="fluid",
             from_="{template}",
-            **config["subj_wildcards"]
+            datatype="morph",
+            suffix="{seed}.surf.gii"
         ),
-        affine_world=bids(
+        rigid_world=bids(
             root="work",
-            datatype="anat",
-            suffix="affine.txt",
-            from_="subject",
-            to="{template}",
-            desc="world",
+            suffix="xfm.txt",
+            hemi="{hemi}",
+            from_="{template}",
+            to="subj",
+            desc="rigid",
+            type_="world",
+            label="{seed}",
+            datatype="surftrack",
             **config["subj_wildcards"]
         ),
     output:
@@ -85,15 +67,12 @@ rule transform_template_surf_to_t1:
             datatype="surftrack",
             suffix="{seed}.surf.gii"
         ),
-    shadow:
-        "minimal"
     group:
         "subj"
     container:
         config["singularity"]["autotop"]
     shell:
-        "wb_command -surface-apply-warpfield {input.surf_gii} {input.warp} transformed_with_warpfield.surf.gii && "
-        "wb_command -surface-apply-affine transformed_with_warpfield.surf.gii {input.affine_world} {output.surf_warped}"
+        "wb_command -surface-apply-affine {input.surf_gii} {input.rigid_world} {output.surf_warped}"
 
 
 # for seeding, create a csv with vertex coords
