@@ -73,7 +73,6 @@ def get_bedpost_all():
         }
 
 
-
 rule all_diffparc:
     input:
         conn_nii=expand(
@@ -81,7 +80,7 @@ rule all_diffparc:
                 bids(
                     root="results",
                     datatype="dwi",
-                    hemi='{hemi}',
+                    hemi="{hemi}",
                     space="{template}",
                     desc="{targets}",
                     label="{seed}",
@@ -94,29 +93,30 @@ rule all_diffparc:
                 targets=config["targets"].keys(),
                 seed=config["seeds"].keys(),
                 seedpervox=config["seeds_per_voxel"],
-                hemi=config['hemispheres'],
+                hemi=config["hemispheres"],
                 allow_missing=True,
             ),
             zip,
             **config["input_zip_lists"]["dwi"],
         ),
 
+
 rule all_surfmorph:
-    input: 
-       surfdisp=expand(
+    input:
+        surfdisp=expand(
             expand(
                 bids(
                     root="work",
                     **config["subj_wildcards"],
                     desc="inout",
-                    hemi='{hemi}',
+                    hemi="{hemi}",
                     from_="{template}",
                     datatype="morph",
                     label="{seed}",
                     suffix="surfdisp.shape.gii",
                 ),
                 template=config["template"],
-                hemi=config['hemispheres'],
+                hemi=config["hemispheres"],
                 seed=config["seeds"].keys(),
                 allow_missing=True,
             ),
@@ -132,23 +132,22 @@ rule all_diffparc_surf:
                 bids(
                     root="work",
                     datatype="surftrack",
-                    hemi='{hemi}',
+                    hemi="{hemi}",
                     desc="{targets}",
                     label="{seed}",
                     seedspervertex="{seedspervertex}",
                     suffix="conn.shape.gii",
                     **config["subj_wildcards"],
-                ),   
+                ),
                 seed=config["seeds"].keys(),
                 targets=config["targets"].keys(),
-                seedspervertex=config['seeds_per_vertex'],
-                hemi=config['hemispheres'],
+                seedspervertex=config["seeds_per_vertex"],
+                hemi=config["hemispheres"],
                 allow_missing=True,
             ),
             zip,
             **config["input_zip_lists"]["dwi"],
         ),
-
 
 
 rule all_preprocdwi:
@@ -187,11 +186,12 @@ rule all_preprocdwi:
             **config["input_zip_lists"]["dwi"]
         ),
 
+
 rule all:
     input:
         rules.all_diffparc.input,
         rules.all_diffparc_surf.input,
-        rules.all_surfmorph.input
+        rules.all_surfmorph.input,
     default_target: True
 
 

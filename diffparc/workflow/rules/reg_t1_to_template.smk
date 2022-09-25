@@ -248,14 +248,18 @@ rule greedy_affine_init:
                 from_="atropos3seg",
                 desc="masked"
             ),
-            expand(bids(
-                root="work",
-                datatype="anat",
-                **config["subj_wildcards"],
-                suffix="probseg.nii.gz",
-                label="{tissue}",
-                desc="atropos3seg"
-            ),tissue=config['tissue_labels'],allow_missing=True)
+            expand(
+                bids(
+                    root="work",
+                    datatype="anat",
+                    **config["subj_wildcards"],
+                    suffix="probseg.nii.gz",
+                    label="{tissue}",
+                    desc="atropos3seg"
+                ),
+                tissue=config["tissue_labels"],
+                allow_missing=True,
+            ),
         ],
         ref=[
             bids(
@@ -264,7 +268,13 @@ rule greedy_affine_init:
                 desc="masked",
                 suffix="T1w.nii.gz",
             ),
-            expand(os.path.join(workflow.basedir,'..',config['template_tissue_probseg']),tissue=config['tissue_labels'],allow_missing=True)
+            expand(
+                os.path.join(
+                    workflow.basedir, "..", config["template_tissue_probseg"]
+                ),
+                tissue=config["tissue_labels"],
+                allow_missing=True,
+            ),
         ],
         init_xfm=bids(
             root="work",
@@ -284,11 +294,11 @@ rule greedy_affine_init:
             f"-rm {moving} {warped}"
             for moving, warped in zip(input.flo, output.warped_flo)
         ],
-        affine_iterations='100x50x10',
-        fluid_iterations='100x50x10', #default 100x50x10
-        gradient_sigma='1.732vox', #default 1.732vox
-        warp_sigma='0.707vox', #default 0.707vox
-        timestep='1.0', #default 1.0
+        affine_iterations="100x50x10",
+        fluid_iterations="100x50x10",  #default 100x50x10
+        gradient_sigma="1.732vox",  #default 1.732vox
+        warp_sigma="0.707vox",  #default 0.707vox
+        timestep="1.0",  #default 1.0
     output:
         warp=bids(
             root="work",

@@ -24,6 +24,7 @@ rule convert_warpfield_template_to_indiv:
     shell:
         "wb_command -convert-warpfield -from-itk {input} -to-world {output}"
 
+
 rule convert_affine_to_world:
     input:
         affine_itk=bids(
@@ -50,7 +51,8 @@ rule convert_affine_to_world:
     container:
         config["singularity"]["autotop"]
     shell:
-        'wb_command -convert-affine -from-itk {input} -to-world {output} -inverse'
+        "wb_command -convert-affine -from-itk {input} -to-world {output} -inverse"
+
 
 rule transform_template_surf_to_t1:
     """ transforms the template surface to the subject T1 """
@@ -73,38 +75,35 @@ rule transform_template_surf_to_t1:
             desc="world",
             **config["subj_wildcards"]
         ),
-
     output:
         surf_warped=bids(
             root="work",
             **config["subj_wildcards"],
-            space='individual',
-            hemi='{hemi}',
+            space="individual",
+            hemi="{hemi}",
             from_="{template}",
             datatype="surftrack",
             suffix="{seed}.surf.gii"
         ),
-    shadow: 'minimal'
+    shadow:
+        "minimal"
     group:
         "subj"
     container:
         config["singularity"]["autotop"]
-
     shell:
-        'wb_command -surface-apply-warpfield {input.surf_gii} {input.warp} transformed_with_warpfield.surf.gii && '
-        'wb_command -surface-apply-affine transformed_with_warpfield.surf.gii {input.affine_world} {output.surf_warped}' 
+        "wb_command -surface-apply-warpfield {input.surf_gii} {input.warp} transformed_with_warpfield.surf.gii && "
+        "wb_command -surface-apply-affine transformed_with_warpfield.surf.gii {input.affine_world} {output.surf_warped}"
 
 
-
-
-#for seeding, create a csv with vertex coords
+# for seeding, create a csv with vertex coords
 rule create_surf_seed_csv:
     input:
         surf=bids(
             root="work",
             **config["subj_wildcards"],
-            hemi='{hemi}',
-            space='individual',
+            hemi="{hemi}",
+            space="individual",
             from_="{template}",
             datatype="surftrack",
             suffix="{seed}.surf.gii"
@@ -113,15 +112,15 @@ rule create_surf_seed_csv:
         csv=bids(
             root="work",
             **config["subj_wildcards"],
-            hemi='{hemi}',
-            space='individual',
+            hemi="{hemi}",
+            space="individual",
             from_="{template}",
             datatype="surftrack",
-            label='{seed}',
+            label="{seed}",
             suffix="seeds.csv"
         ),
     script:
-        '../scripts/surf_to_seed_csv.py'
+        "../scripts/surf_to_seed_csv.py"
 
 
 rule track_from_vertices:
@@ -143,25 +142,25 @@ rule track_from_vertices:
         csv=bids(
             root="work",
             **config["subj_wildcards"],
-            space='individual',
-            hemi='{hemi}',
-            from_=config['template'],
+            space="individual",
+            hemi="{hemi}",
+            from_=config["template"],
             datatype="surftrack",
-            label='{seed}',
+            label="{seed}",
             suffix="seeds.csv"
         ),
     params:
-        radius='0.5',
-        seedspervertex='{seedspervertex}',
+        radius="0.5",
+        seedspervertex="{seedspervertex}",
     output:
         tck_dir=temp(
             directory(
                 bids(
                     root="work",
                     datatype="surftrack",
-                    hemi='{hemi}',
+                    hemi="{hemi}",
                     label="{seed}",
-                    seedspervertex='{seedspervertex}',
+                    seedspervertex="{seedspervertex}",
                     suffix="vertextracts",
                     **config["subj_wildcards"],
                 )
@@ -184,16 +183,15 @@ rule track_from_vertices:
         " :::  `seq -w $(cat {input.csv} | wc -l)` ::: `cat {input.csv}` "
 
 
-
 rule connectivity_from_vertices:
     # Tournier, J.-D.; Calamante, F. & Connelly, A. Improved probabilistic streamlines tractography by 2nd order integration over fibre orientation distributions. Proceedings of the International Society for Magnetic Resonance in Medicine, 2010, 1670
     input:
         tck_dir=bids(
             root="work",
             datatype="surftrack",
-            hemi='{hemi}',
+            hemi="{hemi}",
             label="{seed}",
-            seedspervertex='{seedspervertex}',
+            seedspervertex="{seedspervertex}",
             suffix="vertextracts",
             **config["subj_wildcards"],
         ),
@@ -212,10 +210,10 @@ rule connectivity_from_vertices:
                 bids(
                     root="work",
                     datatype="surftrack",
-                    hemi='{hemi}',
+                    hemi="{hemi}",
                     desc="{targets}",
                     label="{seed}",
-                    seedspervertex='{seedspervertex}',
+                    seedspervertex="{seedspervertex}",
                     suffix="vertexconn",
                     **config["subj_wildcards"],
                 )
@@ -239,14 +237,14 @@ rule connectivity_from_vertices:
 rule gen_vertex_conn_csv:
     input:
         conn_dir=bids(
-                    root="work",
-                    datatype="surftrack",
-                    desc="{targets}",
-                    hemi='{hemi}',
-                    label="{seed}",
-                    seedspervertex='{seedspervertex}',
-                    suffix="vertexconn",
-                    **config["subj_wildcards"],
+            root="work",
+            datatype="surftrack",
+            desc="{targets}",
+            hemi="{hemi}",
+            label="{seed}",
+            seedspervertex="{seedspervertex}",
+            suffix="vertexconn",
+            **config["subj_wildcards"],
         ),
     params:
         header_line=lambda wildcards: ",".join(
@@ -256,7 +254,7 @@ rule gen_vertex_conn_csv:
         conn_csv=bids(
             root="work",
             datatype="surftrack",
-            hemi='{hemi}',
+            hemi="{hemi}",
             desc="{targets}",
             label="{seed}",
             seedspervertex="{seedspervertex}",
@@ -274,7 +272,7 @@ rule conn_csv_to_metric:
         csv=bids(
             root="work",
             datatype="surftrack",
-            hemi='{hemi}',
+            hemi="{hemi}",
             desc="{targets}",
             label="{seed}",
             seedspervertex="{seedspervertex}",
@@ -282,45 +280,45 @@ rule conn_csv_to_metric:
             **config["subj_wildcards"],
         ),
     output:
-         gii_metric=temp(bids(
-            root="work",
-            datatype="surftrack",
-            hemi='{hemi}',
-            desc="{targets}",
-            label="{seed}",
-            seedspervertex="{seedspervertex}",
-            suffix="nostructconn.shape.gii",
-            **config["subj_wildcards"],
-        )),   
+        gii_metric=temp(
+            bids(
+                root="work",
+                datatype="surftrack",
+                hemi="{hemi}",
+                desc="{targets}",
+                label="{seed}",
+                seedspervertex="{seedspervertex}",
+                suffix="nostructconn.shape.gii",
+                **config["subj_wildcards"],
+            )
+        ),
     script:
-        '../scripts/conn_csv_to_gifti_metric.py'
+        "../scripts/conn_csv_to_gifti_metric.py"
+
 
 rule set_structure_conn_metric:
     input:
         gii_metric=bids(
             root="work",
             datatype="surftrack",
-            hemi='{hemi}',
+            hemi="{hemi}",
             desc="{targets}",
             label="{seed}",
             seedspervertex="{seedspervertex}",
             suffix="nostructconn.shape.gii",
             **config["subj_wildcards"],
-        ),   
+        ),
     output:
         gii_metric=bids(
             root="work",
             datatype="surftrack",
-            hemi='{hemi}',
+            hemi="{hemi}",
             desc="{targets}",
             label="{seed}",
             seedspervertex="{seedspervertex}",
             suffix="conn.shape.gii",
             **config["subj_wildcards"],
-        ),   
+        ),
     shell:
-        'cp {input} {output} && '
-        'wb_command -set-structure {output} OTHER'
-
-
-
+        "cp {input} {output} && "
+        "wb_command -set-structure {output} OTHER"

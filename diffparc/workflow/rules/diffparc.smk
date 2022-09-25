@@ -64,7 +64,7 @@ rule transform_seed_to_subject:
         seed=bids(
             root="results",
             **config["subj_wildcards"],
-            hemi='{hemi}',
+            hemi="{hemi}",
             space="individual",
             label="{seed}",
             from_="{template}",
@@ -79,7 +79,7 @@ rule transform_seed_to_subject:
         bids(
             root="logs",
             **config["subj_wildcards"],
-            hemi='{hemi}',
+            hemi="{hemi}",
             space="individual",
             label="{seed}",
             from_="{template}",
@@ -159,7 +159,7 @@ rule binarize_trim_subject_seed:
         seed_res=bids(
             root="results",
             **config["subj_wildcards"],
-            hemi='{hemi}',
+            hemi="{hemi}",
             space="individual",
             label="{seed}",
             from_="{template}",
@@ -172,7 +172,7 @@ rule binarize_trim_subject_seed:
         seed_thr=bids(
             root="results",
             **config["subj_wildcards"],
-            hemi='{hemi}',
+            hemi="{hemi}",
             space="individual",
             label="{seed}",
             from_="{template}",
@@ -183,7 +183,7 @@ rule binarize_trim_subject_seed:
         bids(
             root="logs",
             **config["subj_wildcards"],
-            hemi='{hemi}',
+            hemi="{hemi}",
             label="{seed}",
             from_="{template}",
             suffix="binarizetrimsubjectseed.log"
@@ -226,7 +226,7 @@ rule create_voxel_seed_images:
         seed=bids(
             root="results",
             **config["subj_wildcards"],
-            hemi='{hemi}',
+            hemi="{hemi}",
             space="individual",
             label="{seed}",
             from_=config["template"],
@@ -239,7 +239,7 @@ rule create_voxel_seed_images:
                 bids(
                     root="results",
                     **config["subj_wildcards"],
-                    hemi='{hemi}',
+                    hemi="{hemi}",
                     space="individual",
                     label="{seed}",
                     from_=config["template"],
@@ -273,7 +273,7 @@ rule track_from_voxels:
         vox_seeds_dir=bids(
             root="results",
             **config["subj_wildcards"],
-            hemi='{hemi}',
+            hemi="{hemi}",
             space="individual",
             label="{seed}",
             datatype="dwi",
@@ -288,7 +288,7 @@ rule track_from_voxels:
                 bids(
                     root="results",
                     datatype="dwi",
-                    hemi='{hemi}',
+                    hemi="{hemi}",
                     label="{seed}",
                     seedpervox="{seedpervox}",
                     suffix="voxtracts",
@@ -319,7 +319,7 @@ rule connectivity_from_voxels:
         tck_dir=bids(
             root="results",
             datatype="dwi",
-            hemi='{hemi}',
+            hemi="{hemi}",
             label="{seed}",
             seedpervox="{seedpervox}",
             suffix="voxtracts",
@@ -340,7 +340,7 @@ rule connectivity_from_voxels:
                 bids(
                     root="results",
                     datatype="dwi",
-                    hemi='{hemi}',
+                    hemi="{hemi}",
                     desc="{targets}",
                     label="{seed}",
                     seedpervox="{seedpervox}",
@@ -382,7 +382,7 @@ rule gen_conn_csv:
         conn_dir=bids(
             root="results",
             datatype="dwi",
-            hemi='{hemi}',
+            hemi="{hemi}",
             desc="{targets}",
             label="{seed}",
             seedpervox="{seedpervox}",
@@ -397,7 +397,7 @@ rule gen_conn_csv:
         conn_csv=bids(
             root="results",
             datatype="dwi",
-            hemi='{hemi}',
+            hemi="{hemi}",
             desc="{targets}",
             label="{seed}",
             seedpervox="{seedpervox}",
@@ -415,7 +415,7 @@ rule conn_csv_to_image:
         conn_csv=bids(
             root="results",
             datatype="dwi",
-            hemi='{hemi}',
+            hemi="{hemi}",
             desc="{targets}",
             label="{seed}",
             seedpervox="{seedpervox}",
@@ -425,7 +425,7 @@ rule conn_csv_to_image:
         seed_nii=bids(
             root="results",
             **config["subj_wildcards"],
-            hemi='{hemi}',
+            hemi="{hemi}",
             space="individual",
             label="{seed}",
             from_=config["template"],
@@ -436,7 +436,7 @@ rule conn_csv_to_image:
         conn_nii=bids(
             root="results",
             datatype="dwi",
-            hemi='{hemi}',
+            hemi="{hemi}",
             desc="{targets}",
             label="{seed}",
             seedpervox="{seedpervox}",
@@ -454,7 +454,7 @@ rule transform_conn_to_template:
         conn_nii=bids(
             root="results",
             datatype="dwi",
-            hemi='{hemi}',
+            hemi="{hemi}",
             desc="{targets}",
             label="{seed}",
             seedpervox="{seedpervox}",
@@ -483,7 +483,7 @@ rule transform_conn_to_template:
         conn_nii=bids(
             root="results",
             datatype="dwi",
-            hemi='{hemi}',
+            hemi="{hemi}",
             space="{template}",
             desc="{targets}",
             label="{seed}",
@@ -499,7 +499,7 @@ rule transform_conn_to_template:
     log:
         bids(
             root="logs",
-            hemi='{hemi}',
+            hemi="{hemi}",
             space="{template}",
             desc="{targets}",
             label="{seed}",
@@ -520,7 +520,7 @@ rule maxprob_conn:
         conn_nii=bids(
             root="results",
             datatype="dwi",
-            hemi='{hemi}',
+            hemi="{hemi}",
             space="{template}",
             desc="{targets}",
             label="{seed}",
@@ -532,7 +532,7 @@ rule maxprob_conn:
         conn_nii=bids(
             root="results",
             datatype="dwi",
-            hemi='{hemi}',
+            hemi="{hemi}",
             space="{template}",
             desc="{targets}",
             label="{seed}",
@@ -547,5 +547,3 @@ rule maxprob_conn:
         "subj"
     shell:
         "c4d {input} -slice w 0:-1 -vote -o {output} "
-
-
