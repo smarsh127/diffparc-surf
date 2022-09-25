@@ -74,6 +74,19 @@ rule rigid_shape_reg:
             datatype="morph",
             **config["subj_wildcards"]
         ),
+        xfm_itk=bids(
+            root="work",
+            suffix="xfm.txt",
+            hemi="{hemi}",
+            from_="{template}",
+            to="subj",
+            desc="rigid",
+            type_="itk",
+            label="{seed}",
+            datatype="morph",
+            **config["subj_wildcards"]
+        ),
+
         warped_target=bids(
             root="work",
             **config["subj_wildcards"],
@@ -91,7 +104,8 @@ rule rigid_shape_reg:
     threads: 8
     shell:
         "greedy -threads {threads} {params.general_opts} {params.rigid_opts}  -i {input.template} {input.target} -o {output.xfm_ras} &&  "
-        "greedy -threads {threads} {params.general_opts} -rf {input.template} -rm {input.target} {output.warped_target}  -r {output.xfm_ras}"
+        "greedy -threads {threads} {params.general_opts} -rf {input.template} -rm {input.target} {output.warped_target}  -r {output.xfm_ras} && "
+        "c3d_affine_tool {output.xfm_ras} -oitk {output.xfm_itk}"
 
 
 rule fluid_shape_reg:
@@ -172,7 +186,7 @@ rule convert_warpfield:
     container:
         config["singularity"]["autotop"]
     shell:
-        "wb_command -convert-warpfield -from-itk {input} -to-itk {output}"
+        "wb_command -convert-warpfield -from-itk {input} -to-world {output}"
 
 
 rule deform_surface:
