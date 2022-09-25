@@ -272,7 +272,33 @@ rule conn_csv_to_metric:
             **config["subj_wildcards"],
         ),
     output:
-         gii_metric=bids(
+         gii_metric=temp(bids(
+            root="work",
+            datatype="surftrack",
+            desc="{targets}",
+            label="{seed}",
+            struct='none',
+            seedspervertex="{seedspervertex}",
+            suffix="conn.shape.gii",
+            **config["subj_wildcards"],
+        )),   
+    script:
+        '../scripts/conn_csv_to_gifti_metric.py'
+
+rule set_structure_conn_metric:
+    input:
+        gii_metric=bids(
+            root="work",
+            datatype="surftrack",
+            desc="{targets}",
+            label="{seed}",
+            struct='none',
+            seedspervertex="{seedspervertex}",
+            suffix="conn.shape.gii",
+            **config["subj_wildcards"],
+        ),   
+    output:
+        gii_metric=bids(
             root="work",
             datatype="surftrack",
             desc="{targets}",
@@ -281,6 +307,9 @@ rule conn_csv_to_metric:
             suffix="conn.shape.gii",
             **config["subj_wildcards"],
         ),   
-    script:
-        '../scripts/conn_csv_to_gifti_metric.py'
+    shell:
+        'cp {input} {output} && '
+        'wb_command -set-structure {output} OTHER'
+
+
 
