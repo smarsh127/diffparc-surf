@@ -88,7 +88,7 @@ rule ants_b0_to_template:
     container:
         config["singularity"]["ants"]
     group:
-        "preproc"
+        "subj"
     shell:
         "ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS={threads} "
         "antsRegistration {params.base_opts} {params.intensity_opts} "
@@ -135,7 +135,7 @@ rule warp_brainmask_from_template_reg_b0:
     container:
         config["singularity"]["ants"]
     group:
-        "preproc"
+        "subj"
     threads: 1
     resources:
         mem_mb=16000,
@@ -168,5 +168,6 @@ rule cp_brainmask_reg_b0:
             desc="brain",
             datatype="dwi",
         ),
+    group: 'subj'
     shell:
         "cp -v {input} {output}"

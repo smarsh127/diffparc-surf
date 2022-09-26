@@ -54,7 +54,7 @@ rule nii2mif:
     resources:
         mem_mb=16000,
     group:
-        "subj1"
+        "subj"
     container:
         config["singularity"]["mrtrix"]
     shell:
@@ -110,7 +110,7 @@ rule dwi2response_msmt:
     resources:
         mem_mb=32000,
     group:
-        "subj1"
+        "subj"
     container:
         config["singularity"]["mrtrix"]
     shell:
@@ -154,7 +154,7 @@ rule dwi2fod_msmt:
     resources:
         mem_mb=32000,
     group:
-        "subj2"
+        "subj"
     container:
         config["singularity"]["mrtrix"]
     shell:
@@ -198,7 +198,7 @@ rule mtnormalise:
     resources:
         mem_mb=32000,
     group:
-        "subj2"
+        "subj"
     container:
         config["singularity"]["mrtrix"]
     shell:
@@ -236,7 +236,7 @@ rule dwi2response_csd:
     resources:
         mem_mb=32000,
     group:
-        "subj1"
+        "subj"
     container:
         config["singularity"]["mrtrix"]
     shell:
@@ -261,7 +261,7 @@ rule dwi2fod_csd:
     resources:
         mem_mb=32000,
     group:
-        "subj2"
+        "subj"
     container:
         config["singularity"]["mrtrix"]
     shell:
@@ -279,7 +279,7 @@ rule dwi2tensor:
             **config["subj_wildcards"],
         ),
     group:
-        "subj1"
+        "subj"
     threads: 8
     resources:
         mem_mb=32000,
@@ -301,7 +301,7 @@ rule tensor2metrics:
             **config["subj_wildcards"],
         ),
     group:
-        "subj1"
+        "subj"
     threads: 8
     resources:
         mem_mb=32000,
@@ -331,7 +331,7 @@ rule create_seed:
     resources:
         mem_mb=32000,
     group:
-        "subj2"
+        "subj"
     container:
         config["singularity"]["mrtrix"]
     shell:
@@ -361,7 +361,7 @@ rule tckgen:
         mem_mb=128000,
         time=1440,
     group:
-        "subj2"
+        "subj"
     container:
         config["singularity"]["mrtrix"]
     shell:
