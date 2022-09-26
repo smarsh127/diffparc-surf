@@ -288,7 +288,7 @@ rule set_structure_conn_metric:
             **config["subj_wildcards"],
         ),
     params:
-        structure=lambda wildcards: config['hemi_to_structure'][wildcards.hemi]
+        structure=lambda wildcards: config["hemi_to_structure"][wildcards.hemi],
     output:
         gii_metric=bids(
             root="work",
@@ -338,13 +338,12 @@ rule create_cifti_conn_dscalar:
             **config["subj_wildcards"],
         ),
     shell:
-        'wb_command -cifti-create-dense-scalar {output} -left-metric {input.left_metric} -right-metric {input.right_metric}'
+        "wb_command -cifti-create-dense-scalar {output} -left-metric {input.left_metric} -right-metric {input.right_metric}"
 
-    
 
 rule create_cifti_conn_dscalar_maxprob:
     input:
-       cifti_dscalar=bids(
+        cifti_dscalar=bids(
             root="work",
             datatype="surftrack",
             desc="{targets}",
@@ -354,7 +353,7 @@ rule create_cifti_conn_dscalar_maxprob:
             **config["subj_wildcards"],
         ),
     output:
-       cifti_dscalar=bids(
+        cifti_dscalar=bids(
             root="work",
             datatype="surftrack",
             desc="{targets}",
@@ -363,9 +362,73 @@ rule create_cifti_conn_dscalar_maxprob:
             suffix="maxprob.dscalar.nii",
             **config["subj_wildcards"],
         ),
-
     shell:
-        'wb_command -cifti-reduce {input} INDEXMAX {output}'
+        "wb_command -cifti-reduce {input} INDEXMAX {output}"
 
-#need to then convert that into a label, then can use parcellate
 
+# need to then convert that into a label, then can use parcellate
+rule create_cifti_maxprob_dlabel:
+    input:
+        cifti_dscalar=bids(
+            root="work",
+            datatype="surftrack",
+            desc="{targets}",
+            label="{seed}",
+            seedspervertex="{seedspervertex}",
+            suffix="maxprob.dscalar.nii",
+            **config["subj_wildcards"],
+        ),
+        label_list_txt=lambda wildcards: os.path.join(
+            workflow.basedir,
+            "..",
+            config["targets"][wildcards.targets]["label_list_txt"],
+        ),
+    output:
+        cifti_dlabel=bids(
+            root="work",
+            datatype="surftrack",
+            desc="{targets}",
+            label="{seed}",
+            seedspervertex="{seedspervertex}",
+            suffix="maxprob.dlabel.nii",
+            **config["subj_wildcards"],
+        ),
+    shell:
+        "wb_command -cifti-label-import {input.cifti_dscalar} {input.label_list_txt} {output.cifti_dlabel}"
+
+
+rule parcellate_inout_displacement:
+    input:
+        cifti_dscalar=bids(
+            root="work",
+            **config["subj_wildcards"],
+            desc="inout",
+            from_="{template}",
+            datatype="morph",
+            label="{seed}",
+            suffix="surfdisp.dscalar.nii"
+        ),
+        cifti_dlabel=bids(
+            root="work",
+            datatype="surftrack",
+            desc="{targets}",
+            label="{seed}",
+            seedspervertex="{seedspervertex}",
+            suffix="maxprob.dlabel.nii",
+            **config["subj_wildcards"],
+        ),
+    output:
+        cifti_pscalar=bids(
+            root="work",
+            **config["subj_wildcards"],
+            desc="inout",
+            from_="{template}",
+            datatype="morph",
+            label="{seed}",
+            parcel="{targets}",
+            seedspervertex="{seedspervertex}",
+            suffix="surfdisp.pscalar.nii"
+        ),
+    shell:
+        "wb_command -cifti-parcellate {input.cifti_dscalar} {input.cifti_dlabel} COLUMN "
+        " {output}"

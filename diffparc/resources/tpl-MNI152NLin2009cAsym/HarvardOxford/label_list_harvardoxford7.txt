@@ -1,0 +1,14 @@
+limbic
+1 255 0 0 255
+executive
+2 255 255 0 255
+rostralmotor
+3 0 255 0 255
+caudalmotor
+4 0 0 255 255
+parietal
+5 128 64 255 255
+occipital
+6 0 128 0 255
+temporal
+7 128 64 0 255

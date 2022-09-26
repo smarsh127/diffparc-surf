@@ -282,6 +282,7 @@ targets:
       - parietal
       - occipital
       - temporal
+    label_list_txt: resources/tpl-MNI152NLin2009cAsym/HarvardOxford/label_list_harvardoxford7.txt
 
 seeds:
   striatum:

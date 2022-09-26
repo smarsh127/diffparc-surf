@@ -30,7 +30,7 @@ rule set_surface_structure:
     input:
         surf_gii="results/tpl-{template}/tpl-{template}_hemi-{hemi}_desc-nostruct_{seed}.surf.gii",
     params:
-        structure=lambda wildcards: config['hemi_to_structure'][wildcards.hemi]
+        structure=lambda wildcards: config["hemi_to_structure"][wildcards.hemi],
     output:
         surf_gii="results/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
     group:
@@ -86,7 +86,6 @@ rule rigid_shape_reg:
             datatype="morph",
             **config["subj_wildcards"]
         ),
-
         warped_target=bids(
             root="work",
             **config["subj_wildcards"],
@@ -390,3 +389,39 @@ rule calc_inout_displacement:
         " -var n1 {input.norm} -column 1  "
         " -var n2 {input.norm} -column 2  "
         " -var n3 {input.norm} -column 3  "
+
+
+rule create_cifti_inout_dscalar:
+    input:
+        left_metric=bids(
+            root="work",
+            **config["subj_wildcards"],
+            hemi="L",
+            desc="inout",
+            from_="{template}",
+            datatype="morph",
+            label="{seed}",
+            suffix="surfdisp.shape.gii"
+        ),
+        right_metric=bids(
+            root="work",
+            **config["subj_wildcards"],
+            hemi="R",
+            desc="inout",
+            from_="{template}",
+            datatype="morph",
+            label="{seed}",
+            suffix="surfdisp.shape.gii"
+        ),
+    output:
+        cifti_dscalar=bids(
+            root="work",
+            **config["subj_wildcards"],
+            desc="inout",
+            from_="{template}",
+            datatype="morph",
+            label="{seed}",
+            suffix="surfdisp.dscalar.nii"
+        ),
+    shell:
+        "wb_command -cifti-create-dense-scalar {output} -left-metric {input.left_metric} -right-metric {input.right_metric}"

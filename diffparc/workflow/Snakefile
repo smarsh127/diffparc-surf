@@ -100,7 +100,6 @@ rule all_diffparc:
             **config["input_zip_lists"]["dwi"],
         ),
 
-
 rule all_surfmorph:
     input:
         surfdisp=expand(
@@ -109,37 +108,17 @@ rule all_surfmorph:
                     root="work",
                     **config["subj_wildcards"],
                     desc="inout",
-                    hemi="{hemi}",
                     from_="{template}",
                     datatype="morph",
                     label="{seed}",
-                    suffix="surfdisp.shape.gii",
+                    parcel="{targets}",
+                    seedspervertex="{seedspervertex}",
+                    suffix="surfdisp.pscalar.nii",
                 ),
                 template=config["template"],
                 hemi=config["hemispheres"],
                 seed=config["seeds"].keys(),
-                allow_missing=True,
-            ),
-            zip,
-            **config["input_zip_lists"]["dwi"],
-        ),
-
-
-rule all_diffparc_surf:
-    input:
-        surfconn=expand(
-            expand(
-                bids(
-                    root="work",
-                    datatype="surftrack",
-                    desc="{targets}",
-                    label="{seed}",
-                    seedspervertex="{seedspervertex}",
-                    suffix="maxprob.dscalar.nii",
-                    **config["subj_wildcards"],
-                ),
-                seed=config["seeds"].keys(),
-                targets=config["targets"].keys(),
+                targets=config['targets'].keys(),
                 seedspervertex=config["seeds_per_vertex"],
                 allow_missing=True,
             ),
@@ -187,7 +166,7 @@ rule all_preprocdwi:
 
 rule all:
     input:
-        rules.all_diffparc_surf.input,
+#        rules.all_diffparc.input,
         rules.all_surfmorph.input,
     default_target: True
 
