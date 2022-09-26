@@ -273,7 +273,7 @@ rule run_topup:
             **config["subj_wildcards"]
         ),
     container:
-        config["singularity"]["prepdwi"] #fsl
+        config["singularity"]["prepdwi"]  #fsl
     log:
         bids(root="logs", suffix="topup.log", **config["subj_wildcards"]),
     group:
@@ -337,7 +337,7 @@ rule apply_topup_lsr:
             **config["subj_wildcards"]
         ),
     container:
-        config["singularity"]["prepdwi"] #fsl
+        config["singularity"]["prepdwi"]  #fsl
     shadow:
         "minimal"
     group:
@@ -413,7 +413,7 @@ rule apply_topup_jac:
             **config["input_wildcards"]["dwi"]
         ),
     container:
-        config["singularity"]["prepdwi"] #fsl
+        config["singularity"]["prepdwi"]  #fsl
     shadow:
         "minimal"
     group:
@@ -799,7 +799,7 @@ def get_dwi_ref(wildcards):
     filtered = snakebids.filter_list(config["input_zip_lists"]["dwi"], wildcards)
     num_scans = len(filtered["subject"])
 
-    if num_scans > 1 and not config["no_topup"]:
+    if num_scans > 1 and config["use_topup"]:
         return bids(
             root="work",
             suffix="b0.nii.gz",
@@ -840,7 +840,7 @@ def get_eddy_topup_input(wildcards):
     filtered = snakebids.filter_list(config["input_zip_lists"]["dwi"], wildcards)
     num_scans = len(filtered["subject"])
 
-    if num_scans > 1 and not config["no_topup"]:
+    if num_scans > 1 and config["use_topup"]:
         topup_inputs = {
             filename: bids(
                 root="work",
@@ -861,7 +861,7 @@ def get_eddy_topup_opt(wildcards, input):
     filtered = snakebids.filter_list(config["input_zip_lists"]["dwi"], wildcards)
     num_scans = len(filtered["subject"])
 
-    if num_scans > 1 and not config["no_topup"]:
+    if num_scans > 1 and config["use_topup"]:
         topup_prefix = bids(
             root="work", suffix="topup", datatype="dwi", **config["subj_wildcards"]
         ).format(**wildcards)
@@ -1108,7 +1108,7 @@ rule eddy_quad:
             **config["subj_wildcards"]
         ),
     container:
-        config["singularity"]["prepdwi"] #fsl
+        config["singularity"]["prepdwi"]  #fsl
     group:
         "subj"
     shell:

@@ -80,6 +80,7 @@ rule all_diffparc:
                 bids(
                     root="results",
                     datatype="dwi",
+                    hemi="{hemi}",
                     space="{template}",
                     desc="{targets}",
                     label="{seed}",
@@ -92,6 +93,34 @@ rule all_diffparc:
                 targets=config["targets"].keys(),
                 seed=config["seeds"].keys(),
                 seedpervox=config["seeds_per_voxel"],
+                hemi=config["hemispheres"],
+                allow_missing=True,
+            ),
+            zip,
+            **config["input_zip_lists"]["dwi"],
+        ),
+
+
+rule all_surfmorph:
+    input:
+        surfdisp=expand(
+            expand(
+                bids(
+                    root="work",
+                    **config["subj_wildcards"],
+                    desc="inout",
+                    from_="{template}",
+                    datatype="morph",
+                    label="{seed}",
+                    parcel="{targets}",
+                    seedspervertex="{seedspervertex}",
+                    suffix="surfdisp.pscalar.nii",
+                ),
+                template=config["template"],
+                hemi=config["hemispheres"],
+                seed=config["seeds"].keys(),
+                targets=config["targets"].keys(),
+                seedspervertex=config["seeds_per_vertex"],
                 allow_missing=True,
             ),
             zip,
@@ -136,6 +165,13 @@ rule all_preprocdwi:
         ),
 
 
+rule all:
+    input:
+        #        rules.all_diffparc.input,
+        rules.all_surfmorph.input,
+    default_target: True
+
+
 include: "rules/prepdwi.smk"
 include: "rules/reg_dwi_to_t1.smk"
 include: "rules/masking_bet_from-b0.smk"
@@ -145,3 +181,5 @@ include: "rules/seg_t1_brain_tissue.smk"
 include: "rules/diffparc.smk"
 include: "rules/mrtrix.smk"
 include: "rules/motioncorr.smk"
+include: "rules/surfmorph.smk"
+include: "rules/surftrack.smk"

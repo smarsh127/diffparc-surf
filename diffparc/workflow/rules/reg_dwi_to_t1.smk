@@ -496,7 +496,7 @@ rule rotate_bvecs_to_t1w:
             **config["subj_wildcards"]
         ),
     container:
-        config["singularity"]["prepdwi"] #fsl
+        config["singularity"]["prepdwi"]  #fsl
     group:
         "subj"
     shell:
@@ -573,7 +573,7 @@ rule dtifit_resampled_t1w:
             "dti_FA.nii.gz",
         ),
     container:
-        config["singularity"]["prepdwi"] #fsl
+        config["singularity"]["prepdwi"]  #fsl
     group:
         "subj"
     shell:

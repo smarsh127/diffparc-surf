@@ -13,7 +13,6 @@ derivatives: False
 analysis_levels: &analysis_levels
  - participant
 
-no_topup: False
 eddy_no_s2v: False
 eddy_no_quad: False
 no_bedpost: False
@@ -86,8 +85,8 @@ parse_args:
           participants can be specified with a space separated list.
     nargs: '+'
 
-  --no_topup:
-    help: 'Disable topup  (default: %(default)s)'
+  --use_topup:
+    help: 'Enable topup  (default: %(default)s)'
     action: 'store_true'
     default: False
 
@@ -283,26 +282,31 @@ targets:
       - parietal
       - occipital
       - temporal
+    label_list_txt: resources/tpl-MNI152NLin2009cAsym/HarvardOxford/label_list_harvardoxford7.txt
 
 seeds:
   striatum:
-    template_probseg: resources/tpl-{template}/CIT168_prob/striatum_prob.nii.gz
-    template_dseg: resources/tpl-{template}/CIT168/striatum_LR.nii.gz
+    template_probseg: resources/tpl-{template}/CIT168_prob/striatum_hemi-{hemi}_probseg.nii.gz
     probseg_threshold: 0.5
-    dseg_labels:
-      - 301
-      - 302
-      - 303
-      - 401
-      - 402
-      - 403
+
+hemispheres:
+  - 'L'
+  - 'R'
+
+hemi_to_structure:
+  L: CORTEX_LEFT
+  R: CORTEX_RIGHT
 
 #tractography parameters
 fod_algorithm: csd #msmt_csd
 resample_seed_res: 2x2x2mm
 seeds_per_voxel: 
  - 500
+seeds_per_vertex:
+ - 500
 
+surfdisp_normalization_fwhm_mm: 8
+surface_decimate_percent: 50 #reduce X% of the vertices
 
 #for test data
 participant_label: 
@@ -312,5 +316,5 @@ b0_bet_frac: 0.5
 slspec_txt: False
 eddy_no_s2v: True
 
-no_topup: True
+use_topup: False
 
