@@ -18,7 +18,7 @@ rule gen_template_surface:
         decimate_percent=config["surface_decimate_percent"],
     output:
         surf_gii=temp(
-            "results/tpl-{template}/tpl-{template}_hemi-{hemi}_desc-nostruct_{seed}.surf.gii"
+            os.path.join(workflow.basedir,'..',"resources/tpl-{template}/tpl-{template}_hemi-{hemi}_desc-nostruct_{seed}.surf.gii")
         ),
     group:
         "template"
@@ -28,11 +28,11 @@ rule gen_template_surface:
 
 rule set_surface_structure:
     input:
-        surf_gii="results/tpl-{template}/tpl-{template}_hemi-{hemi}_desc-nostruct_{seed}.surf.gii",
+        surf_gii=os.path.join(workflow.basedir,'..',"resources/tpl-{template}/tpl-{template}_hemi-{hemi}_desc-nostruct_{seed}.surf.gii")
     params:
         structure=lambda wildcards: config["hemi_to_structure"][wildcards.hemi],
     output:
-        surf_gii="results/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
+        surf_gii=os.path.join(workflow.basedir,'..',"resources/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii")
     group:
         "template"
     container:
@@ -190,7 +190,7 @@ rule convert_warpfield:
 
 rule deform_surface:
     input:
-        surf_gii="results/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
+        surf_gii=os.path.join(workflow.basedir,'..',"resources/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii"),
         warp=bids(
             root="work",
             datatype="morph",
@@ -221,7 +221,7 @@ rule deform_surface:
 
 rule compute_displacement_metrics:
     input:
-        ref_surf="results/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
+        ref_surf=os.path.join(workflow.basedir,'..',"resources/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii"),
         comp_surf=bids(
             root="work",
             hemi="{hemi}",
@@ -262,9 +262,9 @@ rule compute_displacement_metrics:
 
 rule calc_template_surf_normals:
     input:
-        ref_surf="results/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
+        ref_surf=os.path.join(workflow.basedir,'..',"resources/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii"),
     output:
-        normals="results/tpl-{template}/tpl-{template}_hemi-{hemi}_label-{seed}_normals.shape.gii",
+        normals=os.path.join(workflow.basedir,'..',"resources/tpl-{template}/tpl-{template}_hemi-{hemi}_label-{seed}_normals.shape.gii"),
     group:
         "template"
     container:
@@ -275,7 +275,7 @@ rule calc_template_surf_normals:
 
 rule smooth_displacement_vectors:
     input:
-        ref_surf="results/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
+        ref_surf=os.path.join(workflow.basedir,'..',"resources/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii"),
         vector=bids(
             root="work",
             hemi="{hemi}",
@@ -365,7 +365,7 @@ rule calc_inout_displacement:
             label="{seed}",
             suffix="surfdisp.shape.gii"
         ),
-        norm="results/tpl-{template}/tpl-{template}_hemi-{hemi}_label-{seed}_normals.shape.gii",
+        norm=os.path.join(workflow.basedir,'..',"resources/tpl-{template}/tpl-{template}_hemi-{hemi}_label-{seed}_normals.shape.gii"),
     output:
         inout=bids(
             root="work",
