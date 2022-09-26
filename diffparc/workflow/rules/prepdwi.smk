@@ -1448,7 +1448,8 @@ rule eddymotion:
     shadow:
         "minimal"
     threads: 32
-    group: 'subj'
+    group:
+        "subj"
     script:
         "../scripts/eddymotion.py"
 

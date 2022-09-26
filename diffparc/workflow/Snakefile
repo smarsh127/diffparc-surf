@@ -130,11 +130,18 @@ rule all_surfmorph:
 
 rule all_template:
     input:
-        surf_normals = expand(os.path.join(workflow.basedir,'..',"resources/tpl-{template}/tpl-{template}_hemi-{hemi}_label-{seed}_normals.shape.gii"),
-            template=config['template'],
-            hemi=config['hemispheres'],
-            seed=config['seeds'])
-        
+        surf_normals=expand(
+            os.path.join(
+                workflow.basedir,
+                "..",
+                "resources/tpl-{template}/tpl-{template}_hemi-{hemi}_label-{seed}_normals.shape.gii",
+            ),
+            template=config["template"],
+            hemi=config["hemispheres"],
+            seed=config["seeds"],
+        ),
+
+
 rule all_preprocdwi:
     input:
         **get_eddy_quad_all(),

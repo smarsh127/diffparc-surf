@@ -168,6 +168,7 @@ rule cp_brainmask_reg_b0:
             desc="brain",
             datatype="dwi",
         ),
-    group: 'subj'
+    group:
+        "subj"
     shell:
         "cp -v {input} {output}"
