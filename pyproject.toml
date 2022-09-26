@@ -20,9 +20,6 @@ pygraphviz = "^1.9"
 Pygments = "^2.11.2"
 pillow = "9.0.1"
 pyvista = "^0.36.1"
-eddymotion = "^0.1.4"
-nitransforms = "^22.0.0"
-nipype = "^1.8.4"
 
 
 [tool.poetry.dev-dependencies]
