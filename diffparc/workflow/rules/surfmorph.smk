@@ -423,5 +423,9 @@ rule create_cifti_inout_dscalar:
             label="{seed}",
             suffix="surfdisp.dscalar.nii"
         ),
+    group:
+        "subj"
+    container:
+        config["singularity"]["autotop"]
     shell:
         "wb_command -cifti-create-dense-scalar {output} -left-metric {input.left_metric} -right-metric {input.right_metric}"

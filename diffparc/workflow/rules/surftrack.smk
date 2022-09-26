@@ -98,6 +98,8 @@ rule create_surf_seed_csv:
             label="{seed}",
             suffix="seeds.csv"
         ),
+    group:
+        "subj"
     script:
         "../scripts/surf_to_seed_csv.py"
 
@@ -271,6 +273,8 @@ rule conn_csv_to_metric:
                 **config["subj_wildcards"],
             )
         ),
+    group:
+        "subj"
     script:
         "../scripts/conn_csv_to_gifti_metric.py"
 
@@ -300,6 +304,10 @@ rule set_structure_conn_metric:
             suffix="conn.shape.gii",
             **config["subj_wildcards"],
         ),
+    group:
+        "subj"
+    container:
+        config["singularity"]["autotop"]
     shell:
         "cp {input} {output} && "
         "wb_command -set-structure {output} {params.structure}"
@@ -337,6 +345,10 @@ rule create_cifti_conn_dscalar:
             suffix="conn.dscalar.nii",
             **config["subj_wildcards"],
         ),
+    group:
+        "subj"
+    container:
+        config["singularity"]["autotop"]
     shell:
         "wb_command -cifti-create-dense-scalar {output} -left-metric {input.left_metric} -right-metric {input.right_metric}"
 
@@ -362,6 +374,10 @@ rule create_cifti_conn_dscalar_maxprob:
             suffix="maxprob.dscalar.nii",
             **config["subj_wildcards"],
         ),
+    group:
+        "subj"
+    container:
+        config["singularity"]["autotop"]
     shell:
         "wb_command -cifti-reduce {input} INDEXMAX {output}"
 
@@ -393,6 +409,10 @@ rule create_cifti_maxprob_dlabel:
             suffix="maxprob.dlabel.nii",
             **config["subj_wildcards"],
         ),
+    group:
+        "subj"
+    container:
+        config["singularity"]["autotop"]
     shell:
         "wb_command -cifti-label-import {input.cifti_dscalar} {input.label_list_txt} {output.cifti_dlabel}"
 
@@ -429,6 +449,10 @@ rule parcellate_inout_displacement:
             seedspervertex="{seedspervertex}",
             suffix="surfdisp.pscalar.nii"
         ),
+    group:
+        "subj"
+    container:
+        config["singularity"]["autotop"]
     shell:
         "wb_command -cifti-parcellate {input.cifti_dscalar} {input.cifti_dlabel} COLUMN "
         " {output}"
