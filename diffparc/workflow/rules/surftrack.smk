@@ -137,7 +137,7 @@ rule track_from_vertices:
         tck_dir=temp(
             directory(
                 bids(
-                    root="work",
+                    root=config['tmp_dir'],
                     datatype="surftrack",
                     hemi="{hemi}",
                     label="{seed}",
@@ -168,7 +168,7 @@ rule connectivity_from_vertices:
     # Tournier, J.-D.; Calamante, F. & Connelly, A. Improved probabilistic streamlines tractography by 2nd order integration over fibre orientation distributions. Proceedings of the International Society for Magnetic Resonance in Medicine, 2010, 1670
     input:
         tck_dir=bids(
-            root="work",
+            root=config['tmp_dir'],
             datatype="surftrack",
             hemi="{hemi}",
             label="{seed}",
@@ -189,7 +189,7 @@ rule connectivity_from_vertices:
         conn_dir=temp(
             directory(
                 bids(
-                    root="work",
+                    root=config['tmp_dir'],
                     datatype="surftrack",
                     hemi="{hemi}",
                     desc="{targets}",
@@ -218,7 +218,7 @@ rule connectivity_from_vertices:
 rule gen_vertex_conn_csv:
     input:
         conn_dir=bids(
-            root="work",
+            root=config['tmp_dir'],
             datatype="surftrack",
             desc="{targets}",
             hemi="{hemi}",
