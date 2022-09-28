@@ -128,6 +128,19 @@ rule all_surfmorph:
             **config["input_zip_lists"]["dwi"],
         ),
 
+rule all_group_dscalar:
+    input:
+        cifti_dscalar_group=expand(bids(
+            root="work",
+            subject='group',
+            desc="inout",
+            from_="{template}",
+            datatype="morph",
+            label="{seed}",
+            suffix="surfdisp.dscalar.nii"
+        ),
+                template=config["template"],
+                seed=config["seeds"].keys())
 
 rule all_template:
     input:

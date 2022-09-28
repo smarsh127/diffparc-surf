@@ -465,3 +465,36 @@ rule create_cifti_inout_dscalar:
         config["singularity"]["autotop"]
     shell:
         "wb_command -cifti-create-dense-scalar {output} -left-metric {input.left_metric} -right-metric {input.right_metric}"
+
+
+rule merge_inout_dscalars:
+    input:
+        cifti_dscalar_subjects=sorted(expand(bids(
+            root="work",
+            **config["subj_wildcards"],
+            desc="inout",
+            from_="{template}",
+            datatype="morph",
+            label="{seed}",
+            suffix="surfdisp.dscalar.nii"
+        ),
+        zip,
+            **config["input_zip_lists"]["dwi"],allow_missing=True
+        )),
+    params:
+        merge_opt=lambda wildcards, input: ' '.join([ f'-cifti {cifti}' for cifti in input.cifti_dscalar_subjects ])
+    output:
+        cifti_dscalar_group=bids(
+            root="work",
+            subject='group',
+            desc="inout",
+            from_="{template}",
+            datatype="morph",
+            label="{seed}",
+            suffix="surfdisp.dscalar.nii"
+        ),
+    container:
+        config["singularity"]["autotop"]
+    shell:
+        'wb_command -cifti-merge {output} {params.merge_opt}'
+        
