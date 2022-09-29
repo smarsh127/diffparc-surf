@@ -468,10 +468,9 @@ rule calc_surface_area_metric:
             suffix="{seed}.surf.gii"
         ),
     output:
-        surf_warped=bids(
+        metric=bids(
             root="work",
             **config["subj_wildcards"],
-            space="individual",
             hemi="{hemi}",
             from_="{template}",
             datatype="surf",

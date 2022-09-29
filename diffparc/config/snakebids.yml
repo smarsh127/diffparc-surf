@@ -301,6 +301,11 @@ hemi_to_structure:
   L: CORTEX_LEFT
   R: CORTEX_RIGHT
 
+surface_metrics:
+  - inout
+  - surfarea
+
+
 #tractography parameters
 fod_algorithm: csd #msmt_csd
 resample_seed_res: 2x2x2mm
