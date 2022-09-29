@@ -9,7 +9,7 @@ rule convert_rigid_to_world:
             desc="rigid",
             type_="itk",
             label="{seed}",
-            datatype="morph",
+            datatype="surf",
             **config["subj_wildcards"]
         ),
     output:
@@ -22,7 +22,7 @@ rule convert_rigid_to_world:
             desc="rigid",
             type_="world",
             label="{seed}",
-            datatype="surftrack",
+            datatype="surf",
             **config["subj_wildcards"]
         ),
     group:
@@ -42,7 +42,7 @@ rule transform_template_surf_to_t1:
             **config["subj_wildcards"],
             desc="fluid",
             from_="{template}",
-            datatype="morph",
+            datatype="surf",
             suffix="{seed}.surf.gii"
         ),
         rigid_world=bids(
@@ -54,7 +54,7 @@ rule transform_template_surf_to_t1:
             desc="rigid",
             type_="world",
             label="{seed}",
-            datatype="surftrack",
+            datatype="surf",
             **config["subj_wildcards"]
         ),
     output:
@@ -64,7 +64,7 @@ rule transform_template_surf_to_t1:
             space="individual",
             hemi="{hemi}",
             from_="{template}",
-            datatype="surftrack",
+            datatype="surf",
             suffix="{seed}.surf.gii"
         ),
     group:
@@ -84,7 +84,7 @@ rule create_surf_seed_csv:
             hemi="{hemi}",
             space="individual",
             from_="{template}",
-            datatype="surftrack",
+            datatype="surf",
             suffix="{seed}.surf.gii"
         ),
     output:
@@ -94,7 +94,7 @@ rule create_surf_seed_csv:
             hemi="{hemi}",
             space="individual",
             from_="{template}",
-            datatype="surftrack",
+            datatype="surf",
             label="{seed}",
             suffix="seeds.csv"
         ),
@@ -126,7 +126,7 @@ rule track_from_vertices:
             space="individual",
             hemi="{hemi}",
             from_=config["template"],
-            datatype="surftrack",
+            datatype="surf",
             label="{seed}",
             suffix="seeds.csv"
         ),
@@ -137,8 +137,8 @@ rule track_from_vertices:
         tck_dir=temp(
             directory(
                 bids(
-                    root=config['tmp_dir'],
-                    datatype="surftrack",
+                    root=config["tmp_dir"],
+                    datatype="surf",
                     hemi="{hemi}",
                     label="{seed}",
                     seedspervertex="{seedspervertex}",
@@ -168,8 +168,8 @@ rule connectivity_from_vertices:
     # Tournier, J.-D.; Calamante, F. & Connelly, A. Improved probabilistic streamlines tractography by 2nd order integration over fibre orientation distributions. Proceedings of the International Society for Magnetic Resonance in Medicine, 2010, 1670
     input:
         tck_dir=bids(
-            root=config['tmp_dir'],
-            datatype="surftrack",
+            root=config["tmp_dir"],
+            datatype="surf",
             hemi="{hemi}",
             label="{seed}",
             seedspervertex="{seedspervertex}",
@@ -189,8 +189,8 @@ rule connectivity_from_vertices:
         conn_dir=temp(
             directory(
                 bids(
-                    root=config['tmp_dir'],
-                    datatype="surftrack",
+                    root=config["tmp_dir"],
+                    datatype="surf",
                     hemi="{hemi}",
                     desc="{targets}",
                     label="{seed}",
@@ -218,8 +218,8 @@ rule connectivity_from_vertices:
 rule gen_vertex_conn_csv:
     input:
         conn_dir=bids(
-            root=config['tmp_dir'],
-            datatype="surftrack",
+            root=config["tmp_dir"],
+            datatype="surf",
             desc="{targets}",
             hemi="{hemi}",
             label="{seed}",
@@ -234,7 +234,7 @@ rule gen_vertex_conn_csv:
     output:
         conn_csv=bids(
             root="work",
-            datatype="surftrack",
+            datatype="surf",
             hemi="{hemi}",
             desc="{targets}",
             label="{seed}",
@@ -252,7 +252,7 @@ rule conn_csv_to_metric:
     input:
         csv=bids(
             root="work",
-            datatype="surftrack",
+            datatype="surf",
             hemi="{hemi}",
             desc="{targets}",
             label="{seed}",
@@ -264,7 +264,7 @@ rule conn_csv_to_metric:
         gii_metric=temp(
             bids(
                 root="work",
-                datatype="surftrack",
+                datatype="surf",
                 hemi="{hemi}",
                 desc="{targets}",
                 label="{seed}",
@@ -283,7 +283,7 @@ rule set_structure_conn_metric:
     input:
         gii_metric=bids(
             root="work",
-            datatype="surftrack",
+            datatype="surf",
             hemi="{hemi}",
             desc="{targets}",
             label="{seed}",
@@ -296,7 +296,7 @@ rule set_structure_conn_metric:
     output:
         gii_metric=bids(
             root="work",
-            datatype="surftrack",
+            datatype="surf",
             hemi="{hemi}",
             desc="{targets}",
             label="{seed}",
@@ -317,7 +317,7 @@ rule create_cifti_conn_dscalar:
     input:
         left_metric=bids(
             root="work",
-            datatype="surftrack",
+            datatype="surf",
             hemi="L",
             desc="{targets}",
             label="{seed}",
@@ -327,7 +327,7 @@ rule create_cifti_conn_dscalar:
         ),
         right_metric=bids(
             root="work",
-            datatype="surftrack",
+            datatype="surf",
             hemi="R",
             desc="{targets}",
             label="{seed}",
@@ -338,7 +338,7 @@ rule create_cifti_conn_dscalar:
     output:
         cifti_dscalar=bids(
             root="work",
-            datatype="surftrack",
+            datatype="surf",
             desc="{targets}",
             label="{seed}",
             seedspervertex="{seedspervertex}",
@@ -357,7 +357,7 @@ rule create_cifti_conn_dscalar_maxprob:
     input:
         cifti_dscalar=bids(
             root="work",
-            datatype="surftrack",
+            datatype="surf",
             desc="{targets}",
             label="{seed}",
             seedspervertex="{seedspervertex}",
@@ -367,7 +367,7 @@ rule create_cifti_conn_dscalar_maxprob:
     output:
         cifti_dscalar=bids(
             root="work",
-            datatype="surftrack",
+            datatype="surf",
             desc="{targets}",
             label="{seed}",
             seedspervertex="{seedspervertex}",
@@ -387,7 +387,7 @@ rule create_cifti_maxprob_dlabel:
     input:
         cifti_dscalar=bids(
             root="work",
-            datatype="surftrack",
+            datatype="surf",
             desc="{targets}",
             label="{seed}",
             seedspervertex="{seedspervertex}",
@@ -402,7 +402,7 @@ rule create_cifti_maxprob_dlabel:
     output:
         cifti_dlabel=bids(
             root="work",
-            datatype="surftrack",
+            datatype="surf",
             desc="{targets}",
             label="{seed}",
             seedspervertex="{seedspervertex}",
@@ -417,20 +417,19 @@ rule create_cifti_maxprob_dlabel:
         "wb_command -cifti-label-import {input.cifti_dscalar} {input.label_list_txt} {output.cifti_dlabel}"
 
 
-rule parcellate_inout_displacement:
+rule parcellate_cifti_metric:
     input:
         cifti_dscalar=bids(
             root="work",
             **config["subj_wildcards"],
-            desc="inout",
             from_="{template}",
-            datatype="morph",
+            datatype="surf",
             label="{seed}",
-            suffix="surfdisp.dscalar.nii"
+            suffix="{metric}.dscalar.nii"
         ),
         cifti_dlabel=bids(
             root="work",
-            datatype="surftrack",
+            datatype="surf",
             desc="{targets}",
             label="{seed}",
             seedspervertex="{seedspervertex}",
@@ -441,13 +440,12 @@ rule parcellate_inout_displacement:
         cifti_pscalar=bids(
             root="work",
             **config["subj_wildcards"],
-            desc="inout",
             from_="{template}",
-            datatype="morph",
+            datatype="surf",
             label="{seed}",
             parcel="{targets}",
             seedspervertex="{seedspervertex}",
-            suffix="surfdisp.pscalar.nii"
+            suffix="{metric}.pscalar.nii"
         ),
     group:
         "subj"
@@ -456,3 +454,29 @@ rule parcellate_inout_displacement:
     shell:
         "wb_command -cifti-parcellate {input.cifti_dscalar} {input.cifti_dlabel} COLUMN "
         " {output}"
+
+
+rule calc_surface_area_metric:
+    input:
+        surf_warped=bids(
+            root="work",
+            **config["subj_wildcards"],
+            space="individual",
+            hemi="{hemi}",
+            from_="{template}",
+            datatype="surf",
+            suffix="{seed}.surf.gii"
+        ),
+    output:
+        surf_warped=bids(
+            root="work",
+            **config["subj_wildcards"],
+            space="individual",
+            hemi="{hemi}",
+            from_="{template}",
+            datatype="surf",
+            label="{seed}",
+            suffix="surfarea.shape.gii"
+        ),
+    shell:
+        "wb_command -surface-vertex-areas {input} {output}"

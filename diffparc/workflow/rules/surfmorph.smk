@@ -83,7 +83,7 @@ rule rigid_shape_reg:
             desc="rigid",
             type_="ras",
             label="{seed}",
-            datatype="morph",
+            datatype="surf",
             **config["subj_wildcards"]
         ),
         xfm_itk=bids(
@@ -95,7 +95,7 @@ rule rigid_shape_reg:
             desc="rigid",
             type_="itk",
             label="{seed}",
-            datatype="morph",
+            datatype="surf",
             **config["subj_wildcards"]
         ),
         warped_target=bids(
@@ -105,7 +105,7 @@ rule rigid_shape_reg:
             hemi="{hemi}",
             label="{seed}",
             space="{template}",
-            datatype="morph",
+            datatype="surf",
             suffix="probseg.nii.gz"
         ),
     container:
@@ -132,13 +132,13 @@ rule fluid_shape_reg:
             hemi="{hemi}",
             label="{seed}",
             space="{template}",
-            datatype="morph",
+            datatype="surf",
             suffix="probseg.nii.gz"
         ),
     output:
         warp=bids(
             root="work",
-            datatype="morph",
+            datatype="surf",
             suffix="warp.nii.gz",
             hemi="{hemi}",
             from_="subject",
@@ -153,7 +153,7 @@ rule fluid_shape_reg:
             desc="fluid",
             label="{seed}",
             space="{template}",
-            datatype="morph",
+            datatype="surf",
             suffix="probseg.nii.gz"
         ),
     threads: 8
@@ -173,7 +173,7 @@ rule convert_warpfield:
     input:
         warp=bids(
             root="work",
-            datatype="morph",
+            datatype="surf",
             suffix="warp.nii.gz",
             hemi="{hemi}",
             from_="subject",
@@ -184,7 +184,7 @@ rule convert_warpfield:
     output:
         warp=bids(
             root="work",
-            datatype="morph",
+            datatype="surf",
             hemi="{hemi}",
             suffix="surfwarp.nii.gz",
             to_="subject",
@@ -209,7 +209,7 @@ rule deform_surface:
         ),
         warp=bids(
             root="work",
-            datatype="morph",
+            datatype="surf",
             hemi="{hemi}",
             suffix="surfwarp.nii.gz",
             to_="subject",
@@ -224,7 +224,7 @@ rule deform_surface:
             **config["subj_wildcards"],
             desc="fluid",
             from_="{template}",
-            datatype="morph",
+            datatype="surf",
             suffix="{seed}.surf.gii"
         ),
     group:
@@ -248,29 +248,31 @@ rule compute_displacement_metrics:
             **config["subj_wildcards"],
             desc="fluid",
             from_="{template}",
-            datatype="morph",
+            datatype="surf",
             suffix="{seed}.surf.gii"
         ),
     output:
-        scalar=bids(
-            root="work",
-            hemi="{hemi}",
-            **config["subj_wildcards"],
-            desc="scalar",
-            from_="{template}",
-            datatype="morph",
-            label="{seed}",
-            suffix="surfdisp.shape.gii"
+        scalar=temp(
+            bids(
+                root="work",
+                hemi="{hemi}",
+                **config["subj_wildcards"],
+                from_="{template}",
+                datatype="surf",
+                label="{seed}",
+                suffix="scalardisp.shape.gii"
+            )
         ),
-        vector=bids(
-            root="work",
-            hemi="{hemi}",
-            **config["subj_wildcards"],
-            desc="vector",
-            from_="{template}",
-            datatype="morph",
-            label="{seed}",
-            suffix="surfdisp.shape.gii"
+        vector=temp(
+            bids(
+                root="work",
+                hemi="{hemi}",
+                **config["subj_wildcards"],
+                from_="{template}",
+                datatype="surf",
+                label="{seed}",
+                suffix="vectordisp.shape.gii"
+            )
         ),
     group:
         "subj"
@@ -312,11 +314,10 @@ rule smooth_displacement_vectors:
             root="work",
             hemi="{hemi}",
             **config["subj_wildcards"],
-            desc="vector",
             from_="{template}",
-            datatype="morph",
+            datatype="surf",
             label="{seed}",
-            suffix="surfdisp.shape.gii"
+            suffix="vectordisp.shape.gii"
         ),
     params:
         fwhm=config["surfdisp_normalization_fwhm_mm"],
@@ -325,11 +326,11 @@ rule smooth_displacement_vectors:
             root="work",
             **config["subj_wildcards"],
             hemi="{hemi}",
-            desc="vectorsmoothed",
+            desc="smoothed",
             from_="{template}",
-            datatype="morph",
+            datatype="surf",
             label="{seed}",
-            suffix="surfdisp.shape.gii"
+            suffix="vectordisp.shape.gii"
         ),
     group:
         "subj"
@@ -347,32 +348,31 @@ rule normalize_displacement_by_smoothed:
             root="work",
             **config["subj_wildcards"],
             hemi="{hemi}",
-            desc="vector",
             from_="{template}",
-            datatype="morph",
+            datatype="surf",
             label="{seed}",
-            suffix="surfdisp.shape.gii"
+            suffix="vectordisp.shape.gii"
         ),
         smoothed=bids(
             root="work",
             **config["subj_wildcards"],
             hemi="{hemi}",
-            desc="vectorsmoothed",
+            desc="smoothed",
             from_="{template}",
-            datatype="morph",
+            datatype="surf",
             label="{seed}",
-            suffix="surfdisp.shape.gii"
+            suffix="vectordisp.shape.gii"
         ),
     output:
         normalized=bids(
             root="work",
             **config["subj_wildcards"],
             hemi="{hemi}",
-            desc="vectornormalized",
+            desc="normalized",
             from_="{template}",
-            datatype="morph",
+            datatype="surf",
             label="{seed}",
-            suffix="surfdisp.shape.gii"
+            suffix="vectordisp.shape.gii"
         ),
     group:
         "subj"
@@ -391,11 +391,11 @@ rule calc_inout_displacement:
             root="work",
             hemi="{hemi}",
             **config["subj_wildcards"],
-            desc="vectornormalized",
+            desc="normalized",
             from_="{template}",
-            datatype="morph",
+            datatype="surf",
             label="{seed}",
-            suffix="surfdisp.shape.gii"
+            suffix="vectordisp.shape.gii"
         ),
         norm=os.path.join(
             workflow.basedir,
@@ -407,11 +407,10 @@ rule calc_inout_displacement:
             root="work",
             **config["subj_wildcards"],
             hemi="{hemi}",
-            desc="inout",
             from_="{template}",
-            datatype="morph",
+            datatype="surf",
             label="{seed}",
-            suffix="surfdisp.shape.gii"
+            suffix="inout.shape.gii"
         ),
     group:
         "subj"
@@ -427,37 +426,34 @@ rule calc_inout_displacement:
         " -var n3 {input.norm} -column 3  "
 
 
-rule create_cifti_inout_dscalar:
+rule create_cifti_metric_dscalar:
     input:
         left_metric=bids(
             root="work",
             **config["subj_wildcards"],
             hemi="L",
-            desc="inout",
             from_="{template}",
-            datatype="morph",
+            datatype="surf",
             label="{seed}",
-            suffix="surfdisp.shape.gii"
+            suffix="{metric}.shape.gii"
         ),
         right_metric=bids(
             root="work",
             **config["subj_wildcards"],
             hemi="R",
-            desc="inout",
             from_="{template}",
-            datatype="morph",
+            datatype="surf",
             label="{seed}",
-            suffix="surfdisp.shape.gii"
+            suffix="{metric}.shape.gii"
         ),
     output:
         cifti_dscalar=bids(
             root="work",
             **config["subj_wildcards"],
-            desc="inout",
             from_="{template}",
-            datatype="morph",
+            datatype="surf",
             label="{seed}",
-            suffix="surfdisp.dscalar.nii"
+            suffix="{metric}.dscalar.nii"
         ),
     group:
         "subj"
@@ -467,34 +463,37 @@ rule create_cifti_inout_dscalar:
         "wb_command -cifti-create-dense-scalar {output} -left-metric {input.left_metric} -right-metric {input.right_metric}"
 
 
-rule merge_inout_dscalars:
+rule merge_dscalar_metrics_over_subjects:
     input:
-        cifti_dscalar_subjects=sorted(expand(bids(
-            root="work",
-            **config["subj_wildcards"],
-            desc="inout",
-            from_="{template}",
-            datatype="morph",
-            label="{seed}",
-            suffix="surfdisp.dscalar.nii"
+        cifti_dscalar_subjects=sorted(
+            expand(
+                bids(
+                    root="work",
+                    **config["subj_wildcards"],
+                    from_="{template}",
+                    datatype="surf",
+                    label="{seed}",
+                    suffix="{metric}.dscalar.nii"
+                ),
+                zip,
+                **config["input_zip_lists"]["dwi"],
+                allow_missing=True
+            )
         ),
-        zip,
-            **config["input_zip_lists"]["dwi"],allow_missing=True
-        )),
     params:
-        merge_opt=lambda wildcards, input: ' '.join([ f'-cifti {cifti}' for cifti in input.cifti_dscalar_subjects ])
+        merge_opt=lambda wildcards, input: " ".join(
+            [f"-cifti {cifti}" for cifti in input.cifti_dscalar_subjects]
+        ),
     output:
         cifti_dscalar_group=bids(
             root="work",
-            subject='group',
-            desc="inout",
+            subject="group",
             from_="{template}",
-            datatype="morph",
+            datatype="surf",
             label="{seed}",
-            suffix="surfdisp.dscalar.nii"
+            suffix="{metric}.dscalar.nii",
         ),
     container:
         config["singularity"]["autotop"]
     shell:
-        'wb_command -cifti-merge {output} {params.merge_opt}'
-        
+        "wb_command -cifti-merge {output} {params.merge_opt}"

@@ -140,6 +140,14 @@ tabulate = "*"
 termcolor = "*"
 
 [[package]]
+name = "cached-property"
+version = "1.5.2"
+description = "A decorator for caching properties in classes."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "certifi"
 version = "2022.9.24"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -225,21 +233,20 @@ bokeh = ["selenium", "bokeh"]
 
 [[package]]
 name = "cookiecutter"
-version = "1.7.3"
+version = "2.1.1"
 description = "A command-line utility that creates projects from project templates, e.g. creating a Python package project from a Python package project template."
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+python-versions = ">=3.7"
 
 [package.dependencies]
 binaryornot = ">=0.4.4"
-click = ">=7.0"
+click = ">=7.0,<9.0.0"
 Jinja2 = ">=2.7,<4.0.0"
 jinja2-time = ">=0.2.0"
-poyo = ">=0.5.0"
 python-slugify = ">=4.0.0"
+pyyaml = ">=5.3.1"
 requests = ">=2.23.0"
-six = ">=1.10"
 
 [[package]]
 name = "cycler"
@@ -625,7 +632,7 @@ python-versions = "*"
 
 [[package]]
 name = "nbformat"
-version = "5.6.0"
+version = "5.6.1"
 description = "The Jupyter Notebook format"
 category = "main"
 optional = false
@@ -845,22 +852,6 @@ python-versions = ">=3.6,<4.0"
 [package.dependencies]
 pastel = ">=0.2.0,<0.3.0"
 tomlkit = ">=0.6.0,<1.0.0"
-
-[[package]]
-name = "poyo"
-version = "0.5.0"
-description = "A lightweight YAML Parser for Python. 🐓"
-category = "main"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-
-[[package]]
-name = "progress"
-version = "1.6"
-description = "Easy to use progress bars"
-category = "main"
-optional = false
-python-versions = "*"
 
 [[package]]
 name = "psutil"
@@ -1207,7 +1198,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "snakebids"
-version = "0.5.1"
+version = "0.6.2"
 description = "BIDS integration into snakemake workflows"
 category = "main"
 optional = false
@@ -1216,10 +1207,10 @@ python-versions = ">=3.7,<3.11"
 [package.dependencies]
 attrs = ">=21.2.0,<22.0.0"
 boutiques = ">=0.5.25,<0.6.0"
+cached-property = ">=1.5.2,<2.0.0"
 colorama = ">=0.4.4,<0.5.0"
-cookiecutter = ">=1.7.2,<2.0.0"
+cookiecutter = ">=2.1.1,<3.0.0"
 more-itertools = ">=8.12.0,<9.0.0"
-progress = ">=1.6,<2.0"
 pybids = ">=0.15.0,<0.16.0"
 PyYAML = ">=6,<7"
 snakemake = ">=5.28.0"
@@ -1241,7 +1232,7 @@ toml = ">=0.10.2,<0.11.0"
 
 [[package]]
 name = "snakemake"
-version = "7.14.0"
+version = "7.14.2"
 description = "Snakemake is a workflow management system that aims to reduce the complexity of creating workflows by providing a fast and comfortable execution environment, together with a clean and modern specification language in python style. Snakemake workflows are essentially Python scripts extended by declarative code to define rules. Rules describe how to create output files from input files."
 category = "main"
 optional = false
@@ -1372,7 +1363,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "tomlkit"
-version = "0.11.4"
+version = "0.11.5"
 description = "Style preserving TOML library"
 category = "dev"
 optional = false
@@ -1495,7 +1486,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8,<3.11"
-content-hash = "ef8dfe8602019bc2b8e765834a762f5ad595e9f9530e6de3f45c728c759c36b4"
+content-hash = "295bbc5d184f7b541b99fcdafe72553f6e5c756dd877abfdf142de1ecb18d3e4"
 
 [metadata.files]
 aiohttp = []
@@ -1509,6 +1500,7 @@ bids-validator = []
 binaryornot = []
 black = []
 boutiques = []
+cached-property = []
 certifi = []
 chardet = []
 charset-normalizer = []
@@ -1567,8 +1559,6 @@ plac = []
 platformdirs = []
 pluggy = []
 poethepoet = []
-poyo = []
-progress = []
 psutil = []
 pulp = []
 puremagic = []
