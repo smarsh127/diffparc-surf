@@ -163,6 +163,31 @@ rule track_from_vertices:
         " -seed_sphere {{2}},{params.radius} -seeds {params.seedspervertex} "
         " :::  `seq -w $(cat {input.csv} | wc -l)` ::: `cat {input.csv}` "
 
+def get_dseg_targets(wildcards):
+
+    if config['use_synthseg']:
+        return bids(
+            root="results",
+            **config["subj_wildcards"],
+            space="individual",
+            desc="{targets}",
+            from_='synthseg',
+            datatype="anat",
+            suffix="dseg.mif"
+        ),
+
+    else:
+        return bids(
+            root="results",
+            **config["subj_wildcards"],
+            space="individual",
+            desc="{targets}",
+            from_=config["template"],
+            datatype="anat",
+            suffix="dseg.mif"
+        ),
+
+
 
 rule connectivity_from_vertices:
     # Tournier, J.-D.; Calamante, F. & Connelly, A. Improved probabilistic streamlines tractography by 2nd order integration over fibre orientation distributions. Proceedings of the International Society for Magnetic Resonance in Medicine, 2010, 1670
@@ -176,15 +201,7 @@ rule connectivity_from_vertices:
             suffix="vertextracts",
             **config["subj_wildcards"],
         ),
-        targets=bids(
-            root="results",
-            **config["subj_wildcards"],
-            space="individual",
-            desc="{targets}",
-            from_=config["template"],
-            datatype="anat",
-            suffix="dseg.mif"
-        ),
+        targets=get_dseg_targets
     output:
         conn_dir=temp(
             directory(

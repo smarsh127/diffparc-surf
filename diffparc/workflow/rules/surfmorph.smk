@@ -7,6 +7,8 @@
 #   - (was 10mm radius cube before, now we use 8mm fwhm surf smoothing - can tune this hyperparameter)
 # 6. calculate inward/outward displacement using dot product with surface normal
 
+#note: with synthseg -> template-shape-injection, this could potentially be optimized a bit more.. 
+
 
 rule gen_template_surface:
     input:
@@ -54,13 +56,21 @@ rule set_surface_structure:
         "wb_command -set-structure {output} {params.structure} -surface-type ANATOMICAL"
 
 
-rule rigid_shape_reg:
-    """ rigidly register subj to template shape using moment-invariants """
-    input:
-        template=lambda wildcards: os.path.join(
-            workflow.basedir, "..", config["seeds"][wildcards.seed]["template_probseg"]
-        ),
-        target=bids(
+def get_subject_seg_for_shapereg(wildcards):
+    if config['use_synthseg']:
+        return bids(
+            root="results",
+            datatype="anat",
+            suffix="probseg.nii.gz",
+            space="individual",
+            hemi="{hemi}",
+            label="{seed}",
+            from_="{template}",
+            desc="shapeinject",
+            **config["subj_wildcards"]
+            ),
+    else:
+        return bids(
             root="results",
             **config["subj_wildcards"],
             hemi="{hemi}",
@@ -70,6 +80,16 @@ rule rigid_shape_reg:
             datatype="anat",
             suffix="probseg.nii.gz"
         ),
+
+
+
+rule rigid_shape_reg:
+    """ rigidly register subj to template shape using moment-invariants """
+    input:
+        template=lambda wildcards: os.path.join(
+            workflow.basedir, "..", config["seeds"][wildcards.seed]["template_probseg"]
+        ),
+        target=get_subject_seg_for_shapereg
     params:
         general_opts="-d 3",
         rigid_opts="-m SSD -moments 2 -det 1",
