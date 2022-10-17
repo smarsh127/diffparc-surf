@@ -130,12 +130,17 @@ rule template_shape_injection:
         "greedy -d 3 -threads {threads} -rf {input.ref} {params.input_moving_warped} -r {output.warp} affine.txt  &>> {log}"
 
 def get_cmd_synthseg_targets(wildcards, input, output):
-    cmd = ["c3d {input.dseg} -popas IN"]
+    cmd = [f"c3d {input.dseg} -popas IN"]
     for target in config['synthseg_targets'].keys():
         #for each target, we push the input image, retain labels, binarize, rescale, then keep that on the stack for accumulation
-        cmd.append("-push IN -retain-labels {in_labels} -binarize -scale {out_label} ".format(in_labels=config['synthseg_targets'][target]['in'],out_label=config['synthseg_targets'][target]['out'],target=target))
-    cmd.append('-accum -add -endaccum -o {output.dseg}') 
-    
+        in_labels=' '.join([str(i) for i in config['synthseg_targets'][target]['in']])
+        out_label=config['synthseg_targets'][target]['out']
+
+        cmd.append(f"-push IN -retain-labels {in_labels} -binarize -scale {out_label}")
+
+    cmd.append(f'-accum -add -endaccum -o {output.dseg}') 
+
+    print(cmd)    
     return ' '.join(cmd)
 
 
