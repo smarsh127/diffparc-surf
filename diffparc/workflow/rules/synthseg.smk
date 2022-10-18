@@ -15,12 +15,13 @@ rule run_synthseg:
             desc="synthseg",
             suffix="dseg.nii.gz"
         ),
-    container: config['singularity']['synthseg']
+    container:
+        config["singularity"]["synthseg"]
     threads: 8
     shell:
         # currently only have models for v1 in the container (onedrive link wasn't working!)
-        'python /SynthSeg/scripts/commands/SynthSeg_predict.py --i {input} --o {output} --parc --cpu --threads {threads}'
-           
+        "python /SynthSeg/scripts/commands/SynthSeg_predict.py --i {input} --o {output} --parc --cpu --threads {threads}"
+
 
 rule extract_synthseg_label:
     input:
@@ -32,8 +33,10 @@ rule extract_synthseg_label:
             **config["subj_wildcards"],
         ),
     params:
-        labels = lambda wildcards: config['synthseg_labels'][wildcards.seed][wildcards.hemi],
-        smoothing = '1x1x1mm' #sigma
+        labels=lambda wildcards: config["synthseg_labels"][wildcards.seed][
+            wildcards.hemi
+        ],
+        smoothing="1x1x1mm",  #sigma
     output:
         probseg=bids(
             root="results",
@@ -46,7 +49,7 @@ rule extract_synthseg_label:
             **config["subj_wildcards"],
         ),
     shell:
-        'c3d {input} -retain-labels {params.labels} -binarize -smooth {params.smoothing} -o {output}'
+        "c3d {input} -retain-labels {params.labels} -binarize -smooth {params.smoothing} -o {output}"
 
 
 rule template_shape_injection:
@@ -63,7 +66,7 @@ rule template_shape_injection:
             datatype="anat",
             suffix="probseg.nii.gz",
             **config["subj_wildcards"],
-        )
+        ),
     params:
         input_fixed_moving=lambda wildcards, input: f"-i {input.ref} {input.flo}",
         input_moving_warped=lambda wildcards, input, output: f"-rm {input.flo} {output.warped_flo}",
@@ -79,7 +82,7 @@ rule template_shape_injection:
             suffix="warp.nii.gz",
             hemi="{hemi}",
             label="{seed}",
-            desc='shapeinject',
+            desc="shapeinject",
             from_="{template}",
             to="subject",
             **config["subj_wildcards"]
@@ -88,7 +91,7 @@ rule template_shape_injection:
             root="work",
             datatype="anat",
             suffix="invwarp.nii.gz",
-            desc='shapeinject',
+            desc="shapeinject",
             hemi="{hemi}",
             label="{seed}",
             from_="{template}",
@@ -105,7 +108,7 @@ rule template_shape_injection:
             from_="{template}",
             desc="shapeinject",
             **config["subj_wildcards"]
-            ),
+        ),
     threads: 8
     resources:
         mem_mb=16000,  # right now these are on the high-end -- could implement benchmark rules to do this at some point..
@@ -123,26 +126,27 @@ rule template_shape_injection:
             template="{template}",
             **config["subj_wildcards"]
         ),
-    shadow: 'minimal'
+    shadow:
+        "minimal"
     shell:
         "greedy -d 3 -threads {threads} -a -moments 2 -det 1 -m SSD {params.input_fixed_moving} -o affine.txt -n {params.affine_iterations} &> {log} && "
         "greedy -d 3 -threads {threads} -it affine.txt -m SSD  {params.input_fixed_moving} -o {output.warp} -oinv {output.invwarp} -n {params.fluid_iterations} -s {params.gradient_sigma} {params.warp_sigma} -e {params.timestep} &>> {log} && "
         "greedy -d 3 -threads {threads} -rf {input.ref} {params.input_moving_warped} -r {output.warp} affine.txt  &>> {log}"
 
+
 def get_cmd_synthseg_targets(wildcards, input, output):
     cmd = [f"c3d {input.dseg} -popas IN"]
-    for target in config['synthseg_targets'].keys():
-        #for each target, we push the input image, retain labels, binarize, rescale, then keep that on the stack for accumulation
-        in_labels=' '.join([str(i) for i in config['synthseg_targets'][target]['in']])
-        out_label=config['synthseg_targets'][target]['out']
+    for target in config["synthseg_targets"].keys():
+        # for each target, we push the input image, retain labels, binarize, rescale, then keep that on the stack for accumulation
+        in_labels = " ".join([str(i) for i in config["synthseg_targets"][target]["in"]])
+        out_label = config["synthseg_targets"][target]["out"]
 
         cmd.append(f"-push IN -retain-labels {in_labels} -binarize -scale {out_label}")
 
-    cmd.append(f'-accum -add -endaccum -o {output.dseg}') 
+    cmd.append(f"-accum -add -endaccum -o {output.dseg}")
 
-    print(cmd)    
-    return ' '.join(cmd)
-
+    print(cmd)
+    return " ".join(cmd)
 
 
 rule synthseg_to_targets:
@@ -155,16 +159,16 @@ rule synthseg_to_targets:
             suffix="dseg.nii.gz"
         ),
     params:
-        cmd = get_cmd_synthseg_targets 
+        cmd=get_cmd_synthseg_targets,
     output:
-        dseg = bids(
+        dseg=bids(
             root="results",
             **config["subj_wildcards"],
             space="individual",
             desc="{targets}",
-            from_='synthseg',
+            from_="synthseg",
             datatype="anat",
             suffix="dseg.nii.gz"
         ),
     shell:
-        '{params.cmd}'
+        "{params.cmd}"
