@@ -99,6 +99,8 @@ rule map_channels_to_tissue:
         ),
     group:
         "subj"
+    container:
+        config["singularity"]["pythondeps"]
     script:
         "../scripts/map_channels_to_tissue.py"
 

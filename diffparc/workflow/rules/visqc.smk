@@ -33,6 +33,8 @@ rule qc_reg:
         ),
     group:
         "subj"
+    container:
+        config["singularity"]["pythondeps"]
     script:
         "../scripts/vis_regqc.py"
 
@@ -60,6 +62,8 @@ rule qc_probseg:
         ),
     group:
         "subj"
+    container:
+        config["singularity"]["pythondeps"]
     script:
         "../scripts/vis_qc_probseg.py"
 
@@ -97,5 +101,7 @@ rule qc_dseg:
         ),
     group:
         "subj"
+    container:
+        config["singularity"]["pythondeps"]
     script:
         "../scripts/vis_qc_dseg.py"

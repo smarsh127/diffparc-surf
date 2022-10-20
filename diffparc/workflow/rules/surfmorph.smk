@@ -28,6 +28,8 @@ rule gen_template_surface:
         ),
     group:
         "template"
+    container:
+        config["singularity"]["pythondeps"]
     script:
         "../scripts/gen_isosurface.py"
 

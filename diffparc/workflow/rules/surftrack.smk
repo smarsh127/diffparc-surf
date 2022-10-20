@@ -100,6 +100,8 @@ rule create_surf_seed_csv:
         ),
     group:
         "subj"
+    container:
+        config["singularity"]["pythondeps"]
     script:
         "../scripts/surf_to_seed_csv.py"
 
@@ -265,6 +267,8 @@ rule gen_vertex_conn_csv:
         ),
     group:
         "subj"
+    container:
+        config["singularity"]["pythondeps"]
     script:
         "../scripts/gather_csv_files.py"
 
@@ -296,6 +300,8 @@ rule conn_csv_to_metric:
         ),
     group:
         "subj"
+    container:
+        config["singularity"]["pythondeps"]
     script:
         "../scripts/conn_csv_to_gifti_metric.py"
 
