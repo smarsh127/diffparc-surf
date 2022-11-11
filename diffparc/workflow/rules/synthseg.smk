@@ -1,7 +1,7 @@
 rule run_synthseg:
     input:
         t1=bids(
-            root="results",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             desc="preproc",
@@ -9,7 +9,7 @@ rule run_synthseg:
         ),
     output:
         dseg=bids(
-            root="results",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             desc="synthseg",
@@ -26,7 +26,7 @@ rule run_synthseg:
 rule extract_synthseg_label:
     input:
         dseg=bids(
-            root="results",
+            root=root,
             datatype="anat",
             desc="synthseg",
             suffix="dseg.nii.gz",
@@ -39,7 +39,7 @@ rule extract_synthseg_label:
         smoothing="1x1x1mm",  #sigma
     output:
         probseg=bids(
-            root="results",
+            root=root,
             hemi="{hemi}",
             space="individual",
             label="{seed}",
@@ -58,7 +58,7 @@ rule template_shape_injection:
             workflow.basedir, "..", config["seeds"][wildcards.seed]["template_probseg"]
         ),
         ref=bids(
-            root="results",
+            root=root,
             hemi="{hemi}",
             space="individual",
             label="{seed}",
@@ -77,7 +77,7 @@ rule template_shape_injection:
         timestep="1.0",  #default 1.0
     output:
         warp=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="warp.nii.gz",
             hemi="{hemi}",
@@ -88,7 +88,7 @@ rule template_shape_injection:
             **subj_wildcards
         ),
         invwarp=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="invwarp.nii.gz",
             desc="shapeinject",
@@ -99,7 +99,7 @@ rule template_shape_injection:
             **subj_wildcards
         ),
         warped_flo=bids(
-            root="results",
+            root=root,
             datatype="anat",
             suffix="probseg.nii.gz",
             space="individual",
@@ -152,7 +152,7 @@ def get_cmd_synthseg_targets(wildcards, input, output):
 rule synthseg_to_targets:
     input:
         dseg=bids(
-            root="results",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             desc="synthseg",
@@ -162,7 +162,7 @@ rule synthseg_to_targets:
         cmd=get_cmd_synthseg_targets,
     output:
         dseg=bids(
-            root="results",
+            root=root,
             **subj_wildcards,
             space="individual",
             desc="{targets}",

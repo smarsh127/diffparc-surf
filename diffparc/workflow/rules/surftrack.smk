@@ -1,7 +1,7 @@
 rule convert_rigid_to_world:
     input:
         xfm_itk=bids(
-            root="work",
+            root=root,
             suffix="xfm.txt",
             hemi="{hemi}",
             from_="{template}",
@@ -14,7 +14,7 @@ rule convert_rigid_to_world:
         ),
     output:
         rigid_world=bids(
-            root="work",
+            root=root,
             suffix="xfm.txt",
             hemi="{hemi}",
             from_="{template}",
@@ -37,7 +37,7 @@ rule transform_template_surf_to_t1:
     """ transforms the template surface to the subject T1 """
     input:
         surf_gii=bids(
-            root="work",
+            root=root,
             hemi="{hemi}",
             **subj_wildcards,
             desc="fluid",
@@ -46,7 +46,7 @@ rule transform_template_surf_to_t1:
             suffix="{seed}.surf.gii"
         ),
         rigid_world=bids(
-            root="work",
+            root=root,
             suffix="xfm.txt",
             hemi="{hemi}",
             from_="{template}",
@@ -59,7 +59,7 @@ rule transform_template_surf_to_t1:
         ),
     output:
         surf_warped=bids(
-            root="work",
+            root=root,
             **subj_wildcards,
             space="individual",
             hemi="{hemi}",
@@ -79,7 +79,7 @@ rule transform_template_surf_to_t1:
 rule create_surf_seed_csv:
     input:
         surf=bids(
-            root="work",
+            root=root,
             **subj_wildcards,
             hemi="{hemi}",
             space="individual",
@@ -89,7 +89,7 @@ rule create_surf_seed_csv:
         ),
     output:
         csv=bids(
-            root="work",
+            root=root,
             **subj_wildcards,
             hemi="{hemi}",
             space="individual",
@@ -111,19 +111,19 @@ rule track_from_vertices:
     input:
         wm_fod=get_fod_for_tracking,
         dwi=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             suffix="dwi.mif",
             **subj_wildcards,
         ),
         mask=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             suffix="mask.mif",
             **subj_wildcards,
         ),
         csv=bids(
-            root="work",
+            root=root,
             **subj_wildcards,
             space="individual",
             hemi="{hemi}",
@@ -171,7 +171,7 @@ def get_dseg_targets(wildcards):
     if config["use_synthseg"]:
         return (
             bids(
-                root="results",
+                root=root,
                 **subj_wildcards,
                 space="individual",
                 desc="{targets}",
@@ -184,7 +184,7 @@ def get_dseg_targets(wildcards):
     else:
         return (
             bids(
-                root="results",
+                root=root,
                 **subj_wildcards,
                 space="individual",
                 desc="{targets}",
@@ -256,7 +256,7 @@ rule gen_vertex_conn_csv:
         ),
     output:
         conn_csv=bids(
-            root="work",
+            root=root,
             datatype="surf",
             hemi="{hemi}",
             desc="{targets}",
@@ -276,7 +276,7 @@ rule gen_vertex_conn_csv:
 rule conn_csv_to_metric:
     input:
         csv=bids(
-            root="work",
+            root=root,
             datatype="surf",
             hemi="{hemi}",
             desc="{targets}",
@@ -288,7 +288,7 @@ rule conn_csv_to_metric:
     output:
         gii_metric=temp(
             bids(
-                root="work",
+                root=root,
                 datatype="surf",
                 hemi="{hemi}",
                 desc="{targets}",
@@ -309,7 +309,7 @@ rule conn_csv_to_metric:
 rule set_structure_conn_metric:
     input:
         gii_metric=bids(
-            root="work",
+            root=root,
             datatype="surf",
             hemi="{hemi}",
             desc="{targets}",
@@ -322,7 +322,7 @@ rule set_structure_conn_metric:
         structure=lambda wildcards: config["hemi_to_structure"][wildcards.hemi],
     output:
         gii_metric=bids(
-            root="work",
+            root=root,
             datatype="surf",
             hemi="{hemi}",
             desc="{targets}",
@@ -343,7 +343,7 @@ rule set_structure_conn_metric:
 rule create_cifti_conn_dscalar:
     input:
         left_metric=bids(
-            root="work",
+            root=root,
             datatype="surf",
             hemi="L",
             desc="{targets}",
@@ -353,7 +353,7 @@ rule create_cifti_conn_dscalar:
             **subj_wildcards,
         ),
         right_metric=bids(
-            root="work",
+            root=root,
             datatype="surf",
             hemi="R",
             desc="{targets}",
@@ -364,7 +364,7 @@ rule create_cifti_conn_dscalar:
         ),
     output:
         cifti_dscalar=bids(
-            root="work",
+            root=root,
             datatype="surf",
             desc="{targets}",
             label="{seed}",
@@ -383,7 +383,7 @@ rule create_cifti_conn_dscalar:
 rule create_cifti_conn_dscalar_maxprob:
     input:
         cifti_dscalar=bids(
-            root="work",
+            root=root,
             datatype="surf",
             desc="{targets}",
             label="{seed}",
@@ -393,7 +393,7 @@ rule create_cifti_conn_dscalar_maxprob:
         ),
     output:
         cifti_dscalar=bids(
-            root="work",
+            root=root,
             datatype="surf",
             desc="{targets}",
             label="{seed}",
@@ -413,7 +413,7 @@ rule create_cifti_conn_dscalar_maxprob:
 rule create_cifti_maxprob_dlabel:
     input:
         cifti_dscalar=bids(
-            root="work",
+            root=root,
             datatype="surf",
             desc="{targets}",
             label="{seed}",
@@ -428,7 +428,7 @@ rule create_cifti_maxprob_dlabel:
         ),
     output:
         cifti_dlabel=bids(
-            root="work",
+            root=root,
             datatype="surf",
             desc="{targets}",
             label="{seed}",
@@ -447,7 +447,7 @@ rule create_cifti_maxprob_dlabel:
 rule parcellate_cifti_metric:
     input:
         cifti_dscalar=bids(
-            root="work",
+            root=root,
             **subj_wildcards,
             from_="{template}",
             datatype="surf",
@@ -455,7 +455,7 @@ rule parcellate_cifti_metric:
             suffix="{metric}.dscalar.nii"
         ),
         cifti_dlabel=bids(
-            root="work",
+            root=root,
             datatype="surf",
             desc="{targets}",
             label="{seed}",
@@ -465,7 +465,7 @@ rule parcellate_cifti_metric:
         ),
     output:
         cifti_pscalar=bids(
-            root="work",
+            root=root,
             **subj_wildcards,
             from_="{template}",
             datatype="surf",
@@ -486,7 +486,7 @@ rule parcellate_cifti_metric:
 rule calc_surface_area_metric:
     input:
         surf_warped=bids(
-            root="work",
+            root=root,
             **subj_wildcards,
             space="individual",
             hemi="{hemi}",
@@ -496,7 +496,7 @@ rule calc_surface_area_metric:
         ),
     output:
         metric=bids(
-            root="work",
+            root=root,
             **subj_wildcards,
             hemi="{hemi}",
             from_="{template}",

@@ -1,21 +1,21 @@
 rule moco_dwi:
     input:
         dwi=bids(
-            root="work",
+            root=root,
             suffix="dwi.nii.gz",
             datatype="dwi",
             desc="degibbs",
             **subj_wildcards
         ),
         bval=bids(
-            root="work",
+            root=root,
             suffix="dwi.bval",
             datatype="dwi",
             desc="degibbs",
             **subj_wildcards
         ),
         json=bids(
-            root="work",
+            root=root,
             suffix="dwi.json",
             datatype="dwi",
             desc="degibbs",
@@ -25,7 +25,7 @@ rule moco_dwi:
     output:
         affine_dir=directory(
             bids(
-                root="work",
+                root=root,
                 suffix="transforms",
                 desc="moco",
                 datatype="dwi",
@@ -33,25 +33,17 @@ rule moco_dwi:
             )
         ),
         dwi=bids(
-            root="work",
+            root=root,
             suffix="dwi.nii.gz",
             desc="moco",
             datatype="dwi",
             **subj_wildcards
         ),
         json=bids(
-            root="work",
-            suffix="dwi.json",
-            datatype="dwi",
-            desc="moco",
-            **subj_wildcards
+            root=root, suffix="dwi.json", datatype="dwi", desc="moco", **subj_wildcards
         ),
         bval=bids(
-            root="work",
-            suffix="dwi.bval",
-            datatype="dwi",
-            desc="moco",
-            **subj_wildcards
+            root=root, suffix="dwi.bval", datatype="dwi", desc="moco", **subj_wildcards
         ),
     threads: 32
     shadow:
@@ -75,14 +67,14 @@ rule moco_dwi:
 rule rotate_bvecs_moco:
     input:
         affine_dir=bids(
-            root="work",
+            root=root,
             suffix="transforms",
             desc="moco",
             datatype="dwi",
             **subj_wildcards
         ),
         bvec=bids(
-            root="work",
+            root=root,
             suffix="dwi.bvec",
             datatype="dwi",
             desc="degibbs",
@@ -90,11 +82,7 @@ rule rotate_bvecs_moco:
         ),
     output:
         bvec=bids(
-            root="work",
-            suffix="dwi.bvec",
-            datatype="dwi",
-            desc="moco",
-            **subj_wildcards
+            root=root, suffix="dwi.bvec", datatype="dwi", desc="moco", **subj_wildcards
         ),
     params:
         script=os.path.join(workflow.basedir, "scripts/rotate_bvecs_multi.sh"),

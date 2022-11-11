@@ -9,14 +9,14 @@ def get_k_tissue_classes(wildcards):
 rule tissue_seg_kmeans_init:
     input:
         t1=bids(
-            root="results",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             desc="preproc",
             suffix="T1w.nii.gz"
         ),
         mask=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="mask.nii.gz",
@@ -30,14 +30,14 @@ rule tissue_seg_kmeans_init:
         posterior_glob="posteriors_*.nii.gz",
     output:
         seg=bids(
-            root="work",
+            root=root,
             **subj_wildcards,
             suffix="dseg.nii.gz",
             desc="atroposKseg",
             datatype="anat",
         ),
         posteriors=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="probseg.nii.gz",
@@ -59,7 +59,7 @@ rule map_channels_to_tissue:
     input:
         tissue_priors=expand(
             bids(
-                root="work",
+                root=root,
                 datatype="anat",
                 **subj_wildcards,
                 suffix="probseg.nii.gz",
@@ -71,7 +71,7 @@ rule map_channels_to_tissue:
             allow_missing=True,
         ),
         seg_channels_4d=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="probseg.nii.gz",
@@ -79,7 +79,7 @@ rule map_channels_to_tissue:
         ),
     output:
         mapping_json=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="mapping.json",
@@ -87,7 +87,7 @@ rule map_channels_to_tissue:
         ),
         tissue_segs=expand(
             bids(
-                root="work",
+                root=root,
                 datatype="anat",
                 **subj_wildcards,
                 suffix="probseg.nii.gz",
@@ -109,7 +109,7 @@ rule tissue_seg_to_4d:
     input:
         tissue_segs=expand(
             bids(
-                root="work",
+                root=root,
                 datatype="anat",
                 **subj_wildcards,
                 suffix="probseg.nii.gz",
@@ -121,7 +121,7 @@ rule tissue_seg_to_4d:
         ),
     output:
         tissue_seg=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="probseg.nii.gz",
@@ -138,7 +138,7 @@ rule tissue_seg_to_4d:
 rule brainmask_from_tissue:
     input:
         tissue_seg=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="probseg.nii.gz",
@@ -148,7 +148,7 @@ rule brainmask_from_tissue:
         threshold=0.5,
     output:
         mask=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="mask.nii.gz",
