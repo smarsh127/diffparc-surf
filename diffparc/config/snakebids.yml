@@ -167,7 +167,7 @@ singularity:
   itksnap:  'docker://pyushkevich/itksnap:v3.8.2'
   mrtrix: 'docker://mrtrix3/mrtrix3:3.0.3'
   diffparc_deps: 'docker://akhanf/diffparc-deps:main' #this currently has mrtrix 3.0.3 and GNU parallel
-
+  pythondeps: 'docker://ghcr.io/khanlab/pythondeps-diffparc-app:v0.1.1'
 
 # Options for resampling dwi in T1w space
 #  1. can resample as T1w resolution

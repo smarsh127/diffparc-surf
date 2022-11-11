@@ -250,6 +250,8 @@ rule create_voxel_seed_images:
         ),
     group:
         "subj"
+    container:
+        config["singularity"]["pythondeps"]
     script:
         "../scripts/create_voxel_seed_images.py"
 
@@ -406,6 +408,8 @@ rule gen_conn_csv:
         ),
     group:
         "subj"
+    container:
+        config["singularity"]["pythondeps"]
     script:
         "../scripts/gather_csv_files.py"
 
@@ -445,6 +449,8 @@ rule conn_csv_to_image:
         ),
     group:
         "subj"
+    container:
+        config["singularity"]["pythondeps"]
     script:
         "../scripts/conn_csv_to_image.py"
 
