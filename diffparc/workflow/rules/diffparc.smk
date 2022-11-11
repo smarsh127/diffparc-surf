@@ -237,7 +237,7 @@ rule create_voxel_seed_images:
         voxseeds_dir=temp(
             directory(
                 bids(
-                    root="results",
+                    root=config["tmp_dir"],
                     **config["subj_wildcards"],
                     hemi="{hemi}",
                     space="individual",
@@ -273,7 +273,7 @@ rule track_from_voxels:
             **config["subj_wildcards"],
         ),
         vox_seeds_dir=bids(
-            root="results",
+            root=config["tmp_dir"],
             **config["subj_wildcards"],
             hemi="{hemi}",
             space="individual",
@@ -288,7 +288,7 @@ rule track_from_voxels:
         tck_dir=temp(
             directory(
                 bids(
-                    root="results",
+                    root=config["tmp_dir"],
                     datatype="dwi",
                     hemi="{hemi}",
                     label="{seed}",
@@ -319,7 +319,7 @@ rule connectivity_from_voxels:
     # Tournier, J.-D.; Calamante, F. & Connelly, A. Improved probabilistic streamlines tractography by 2nd order integration over fibre orientation distributions. Proceedings of the International Society for Magnetic Resonance in Medicine, 2010, 1670
     input:
         tck_dir=bids(
-            root="results",
+            root=config["tmp_dir"],
             datatype="dwi",
             hemi="{hemi}",
             label="{seed}",
@@ -340,7 +340,7 @@ rule connectivity_from_voxels:
         conn_dir=temp(
             directory(
                 bids(
-                    root="results",
+                    root=config["tmp_dir"],
                     datatype="dwi",
                     hemi="{hemi}",
                     desc="{targets}",
@@ -382,7 +382,7 @@ rule dseg_nii2mif:
 rule gen_conn_csv:
     input:
         conn_dir=bids(
-            root="results",
+            root=config["tmp_dir"],
             datatype="dwi",
             hemi="{hemi}",
             desc="{targets}",

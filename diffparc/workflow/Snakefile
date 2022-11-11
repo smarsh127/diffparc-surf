@@ -15,6 +15,7 @@ config.update(
         derivatives=config["derivatives"],
         participant_label=config["participant_label"],
         exclude_participant_label=config["exclude_participant_label"],
+        use_bids_inputs=False,
     )
 )
 
@@ -108,23 +109,39 @@ rule all_surfmorph:
                 bids(
                     root="work",
                     **config["subj_wildcards"],
-                    desc="inout",
                     from_="{template}",
-                    datatype="morph",
+                    datatype="surf",
                     label="{seed}",
                     parcel="{targets}",
                     seedspervertex="{seedspervertex}",
-                    suffix="surfdisp.pscalar.nii",
+                    suffix="{metric}.pscalar.nii",
                 ),
                 template=config["template"],
                 hemi=config["hemispheres"],
                 seed=config["seeds"].keys(),
                 targets=config["targets"].keys(),
                 seedspervertex=config["seeds_per_vertex"],
+                metric=config["surface_metrics"],
                 allow_missing=True,
             ),
             zip,
             **config["input_zip_lists"]["dwi"],
+        ),
+
+
+rule all_group_dscalar:
+    input:
+        cifti_dscalar_group=expand(
+            bids(
+                root="work",
+                subject="group",
+                from_="{template}",
+                datatype="surf",
+                label="{seed}",
+                suffix="inout.dscalar.nii",
+            ),
+            template=config["template"],
+            seed=config["seeds"].keys(),
         ),
 
 
