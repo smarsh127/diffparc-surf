@@ -72,12 +72,7 @@ rule convert_template_xfm_ras2itk:
 rule warp_brainmask_from_template_affine:
     input:
         mask=os.path.join(workflow.basedir, "..", config["template_mask"]),
-        ref=bids(
-            root="work",
-            datatype="anat",
-            **subj_wildcards,
-            suffix="T1w.nii.gz"
-        ),
+        ref=bids(root="work", datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
         xfm=bids(
             root="work",
             datatype="anat",
@@ -110,12 +105,7 @@ rule warp_brainmask_from_template_affine:
 rule warp_tissue_probseg_from_template_affine:
     input:
         probseg=os.path.join(workflow.basedir, "..", config["template_tissue_probseg"]),
-        ref=bids(
-            root="work",
-            datatype="anat",
-            **subj_wildcards,
-            suffix="T1w.nii.gz"
-        ),
+        ref=bids(root="work", datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
         xfm=bids(
             root="work",
             datatype="anat",
@@ -151,12 +141,7 @@ rule warp_tissue_probseg_from_template_affine:
 
 rule n4_t1_withmask:
     input:
-        t1=bids(
-            root="work",
-            datatype="anat",
-            **subj_wildcards,
-            suffix="T1w.nii.gz"
-        ),
+        t1=bids(root="work", datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
         mask=bids(
             root="work",
             datatype="anat",
@@ -353,12 +338,7 @@ rule greedy_affine_init:
     group:
         "subj"
     log:
-        bids(
-            root="logs",
-            suffix="greedy.log",
-            template="{template}",
-            **subj_wildcards
-        ),
+        bids(root="logs", suffix="greedy.log", template="{template}", **subj_wildcards),
     shell:
         #affine first
         "greedy -d 3 -threads {threads} -a -m NCC 2x2x2 {params.input_fixed_moving} -o {output.affine_xfm_ras} -ia-image-centers -n {params.affine_iterations} &> {log} && "
@@ -483,12 +463,7 @@ rule warp_dseg_from_template:
         dseg=lambda wildcards: workflow.source_path(
             os.path.join("..", "..", config["template_atlas_dseg"])
         ).format(**wildcards),
-        ref=bids(
-            root="work",
-            datatype="anat",
-            **subj_wildcards,
-            suffix="T1w.nii.gz"
-        ),
+        ref=bids(root="work", datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
         inv_warp=bids(
             root="work",
             datatype="anat",
@@ -535,12 +510,7 @@ rule warp_tissue_probseg_from_template:
         probseg=lambda wildcards: workflow.source_path(
             os.path.join("..", "..", config["template_tissue_probseg"])
         ).format(**wildcards),
-        ref=bids(
-            root="work",
-            datatype="anat",
-            **subj_wildcards,
-            suffix="T1w.nii.gz"
-        ),
+        ref=bids(root="work", datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
         inv_warp=bids(
             root="work",
             datatype="anat",
@@ -587,12 +557,7 @@ rule warp_brainmask_from_template:
         mask=lambda wildcards: workflow.source_path(
             os.path.join("..", "..", config["template_mask"])
         ).format(**wildcards),
-        ref=bids(
-            root="work",
-            datatype="anat",
-            **subj_wildcards,
-            suffix="T1w.nii.gz"
-        ),
+        ref=bids(root="work", datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
         inv_composite=bids(
             root="work",
             datatype="anat",

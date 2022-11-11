@@ -7,12 +7,7 @@ rule import_t1:
             **snakebids.filter_list(input_zip_lists["T1w"], wildcards)
         )[0],
     output:
-        bids(
-            root="work",
-            datatype="anat",
-            **subj_wildcards,
-            suffix="T1w.nii.gz"
-        ),
+        bids(root="work", datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
     group:
         "subj"
     shell:
@@ -21,12 +16,7 @@ rule import_t1:
 
 rule n4_t1:
     input:
-        t1=bids(
-            root="work",
-            datatype="anat",
-            **subj_wildcards,
-            suffix="T1w.nii.gz"
-        ),
+        t1=bids(root="work", datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
     output:
         t1=bids(
             root="work",
@@ -87,12 +77,7 @@ rule reg_dwi_to_t1:
     group:
         "subj"
     log:
-        bids(
-            root="logs",
-            suffix="reg_b0_to_t1.txt",
-            datatype="dwi",
-            **subj_wildcards
-        ),
+        bids(root="logs", suffix="reg_b0_to_t1.txt", datatype="dwi", **subj_wildcards),
     threads: 8
     shell:
         "greedy -threads {threads} {params.general_opts} {params.rigid_opts}  -i {input.t1w} {input.avgb0} -o {output.xfm_ras}  &> {log}  && "
@@ -119,21 +104,13 @@ rule qc_reg_dwi_t1:
     output:
         png=report(
             bids(
-                root="qc",
-                suffix="reg.png",
-                **subj_wildcards,
-                from_="dwiref",
-                to="T1w"
+                root="qc", suffix="reg.png", **subj_wildcards, from_="dwiref", to="T1w"
             ),
             caption="../report/reg_dwi_t1.rst",
             category="B0 T1w registration",
         ),
         html=bids(
-            root="qc",
-            suffix="reg.html",
-            from_="dwiref",
-            to="T1w",
-            **subj_wildcards
+            root="qc", suffix="reg.html", from_="dwiref", to="T1w", **subj_wildcards
         ),
     group:
         "subj"
