@@ -167,6 +167,7 @@ singularity:
   itksnap:  'docker://pyushkevich/itksnap:v3.8.2'
   mrtrix: 'docker://mrtrix3/mrtrix3:3.0.3'
   diffparc_deps: 'docker://akhanf/diffparc-deps:main' #this currently has mrtrix 3.0.3 and GNU parallel
+  synthseg: '/srv/containers/synthseg_v2.0.sif'
   pythondeps: 'docker://ghcr.io/khanlab/pythondeps-diffparc-app:v0.1.1'
 
 # Options for resampling dwi in T1w space
@@ -293,6 +294,103 @@ seeds:
     template_probseg: resources/tpl-{template}/CIT168_prob/striatum_hemi-{hemi}_probseg.nii.gz
     probseg_threshold: 0.5
 
+synthseg_labels:
+  striatum:
+    L:
+      - 11
+      - 12
+      - 26
+    R:
+      - 50
+      - 51
+      - 58
+
+synthseg_targets:
+  limbic:
+    in:
+      - 1012
+      - 1014
+      - 1019
+      - 2012
+      - 2014
+      - 2019
+    out: 1
+  executive:
+    in: 
+      - 1027
+      - 1028
+      - 1032
+      - 2027
+      - 2028
+      - 2032
+    out: 2
+  rostralmotor:
+    in:
+      - 1018
+      - 1020
+      - 1003
+      - 2018
+      - 2020
+      - 2003
+    out: 3
+  caudalmotor:
+    in:
+      - 1024
+      - 2024
+    out: 4
+  parietal:
+    in:
+      - 1022
+      - 1029
+      - 1008
+      - 1031
+      - 1025
+      - 2022
+      - 2029
+      - 2008
+      - 2031
+      - 2025
+    out: 5
+  occipital: 
+    in:
+      - 1011
+      - 1013
+      - 1005
+      - 1021
+      - 2011
+      - 2013
+      - 2005
+      - 2021
+
+    out: 6
+  temporal:
+    in: 
+      - 1030
+      - 1015
+      - 1009
+      - 1001
+      - 1007
+      - 1034
+      - 1006
+      - 1033
+      - 1016
+      - 2030
+      - 2015
+      - 2009
+      - 2001
+      - 2007
+      - 2034
+      - 2006
+      - 2033
+      - 2016
+    out: 7
+
+
+
+       
+
+
+
 hemispheres:
   - 'L'
   - 'R'
@@ -326,4 +424,4 @@ slspec_txt: False
 eddy_no_s2v: True
 
 use_topup: False
-
+use_synthseg: True
