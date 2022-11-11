@@ -5,21 +5,21 @@ rule moco_dwi:
             suffix="dwi.nii.gz",
             datatype="dwi",
             desc="degibbs",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         bval=bids(
             root="work",
             suffix="dwi.bval",
             datatype="dwi",
             desc="degibbs",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         json=bids(
             root="work",
             suffix="dwi.json",
             datatype="dwi",
             desc="degibbs",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     #        brainmask=get_dwi_mask(),
     output:
@@ -29,7 +29,7 @@ rule moco_dwi:
                 suffix="transforms",
                 desc="moco",
                 datatype="dwi",
-                **config["subj_wildcards"]
+                **subj_wildcards
             )
         ),
         dwi=bids(
@@ -37,21 +37,21 @@ rule moco_dwi:
             suffix="dwi.nii.gz",
             desc="moco",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         json=bids(
             root="work",
             suffix="dwi.json",
             datatype="dwi",
             desc="moco",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         bval=bids(
             root="work",
             suffix="dwi.bval",
             datatype="dwi",
             desc="moco",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     threads: 32
     shadow:
@@ -79,14 +79,14 @@ rule rotate_bvecs_moco:
             suffix="transforms",
             desc="moco",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         bvec=bids(
             root="work",
             suffix="dwi.bvec",
             datatype="dwi",
             desc="degibbs",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     output:
         bvec=bids(
@@ -94,7 +94,7 @@ rule rotate_bvecs_moco:
             suffix="dwi.bvec",
             datatype="dwi",
             desc="moco",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     params:
         script=os.path.join(workflow.basedir, "scripts/rotate_bvecs_multi.sh"),

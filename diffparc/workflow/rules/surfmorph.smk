@@ -70,14 +70,14 @@ def get_subject_seg_for_shapereg(wildcards):
                 label="{seed}",
                 from_="{template}",
                 desc="shapeinject",
-                **config["subj_wildcards"]
+                **subj_wildcards
             ),
         )
     else:
         return (
             bids(
                 root="results",
-                **config["subj_wildcards"],
+                **subj_wildcards,
                 hemi="{hemi}",
                 space="individual",
                 label="{seed}",
@@ -109,7 +109,7 @@ rule rigid_shape_reg:
             type_="ras",
             label="{seed}",
             datatype="surf",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         xfm_itk=bids(
             root="work",
@@ -121,11 +121,11 @@ rule rigid_shape_reg:
             type_="itk",
             label="{seed}",
             datatype="surf",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         warped_target=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             desc="rigid",
             hemi="{hemi}",
             label="{seed}",
@@ -152,7 +152,7 @@ rule fluid_shape_reg:
         ),
         target=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             desc="rigid",
             hemi="{hemi}",
             label="{seed}",
@@ -169,11 +169,11 @@ rule fluid_shape_reg:
             from_="subject",
             to="{template}",
             label="{seed}",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         warped=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             desc="fluid",
             label="{seed}",
@@ -204,7 +204,7 @@ rule convert_warpfield:
             from_="subject",
             to="{template}",
             label="{seed}",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     output:
         warp=bids(
@@ -215,7 +215,7 @@ rule convert_warpfield:
             to_="subject",
             from_="{template}",
             label="{seed}",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     group:
         "subj"
@@ -240,13 +240,13 @@ rule deform_surface:
             to_="subject",
             from_="{template}",
             label="{seed}",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     output:
         surf_warped=bids(
             root="work",
             hemi="{hemi}",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             desc="fluid",
             from_="{template}",
             datatype="surf",
@@ -270,7 +270,7 @@ rule compute_displacement_metrics:
         comp_surf=bids(
             root="work",
             hemi="{hemi}",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             desc="fluid",
             from_="{template}",
             datatype="surf",
@@ -281,7 +281,7 @@ rule compute_displacement_metrics:
             bids(
                 root="work",
                 hemi="{hemi}",
-                **config["subj_wildcards"],
+                **subj_wildcards,
                 from_="{template}",
                 datatype="surf",
                 label="{seed}",
@@ -292,7 +292,7 @@ rule compute_displacement_metrics:
             bids(
                 root="work",
                 hemi="{hemi}",
-                **config["subj_wildcards"],
+                **subj_wildcards,
                 from_="{template}",
                 datatype="surf",
                 label="{seed}",
@@ -338,7 +338,7 @@ rule smooth_displacement_vectors:
         vector=bids(
             root="work",
             hemi="{hemi}",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             from_="{template}",
             datatype="surf",
             label="{seed}",
@@ -349,7 +349,7 @@ rule smooth_displacement_vectors:
     output:
         vector=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             desc="smoothed",
             from_="{template}",
@@ -371,7 +371,7 @@ rule normalize_displacement_by_smoothed:
     input:
         vector=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             from_="{template}",
             datatype="surf",
@@ -380,7 +380,7 @@ rule normalize_displacement_by_smoothed:
         ),
         smoothed=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             desc="smoothed",
             from_="{template}",
@@ -391,7 +391,7 @@ rule normalize_displacement_by_smoothed:
     output:
         normalized=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             desc="normalized",
             from_="{template}",
@@ -415,7 +415,7 @@ rule calc_inout_displacement:
         vec=bids(
             root="work",
             hemi="{hemi}",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             desc="normalized",
             from_="{template}",
             datatype="surf",
@@ -430,7 +430,7 @@ rule calc_inout_displacement:
     output:
         inout=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             from_="{template}",
             datatype="surf",
@@ -455,7 +455,7 @@ rule create_cifti_metric_dscalar:
     input:
         left_metric=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="L",
             from_="{template}",
             datatype="surf",
@@ -464,7 +464,7 @@ rule create_cifti_metric_dscalar:
         ),
         right_metric=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="R",
             from_="{template}",
             datatype="surf",
@@ -474,7 +474,7 @@ rule create_cifti_metric_dscalar:
     output:
         cifti_dscalar=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             from_="{template}",
             datatype="surf",
             label="{seed}",
@@ -494,14 +494,14 @@ rule merge_dscalar_metrics_over_subjects:
             expand(
                 bids(
                     root="work",
-                    **config["subj_wildcards"],
+                    **subj_wildcards,
                     from_="{template}",
                     datatype="surf",
                     label="{seed}",
                     suffix="{metric}.dscalar.nii"
                 ),
                 zip,
-                **config["input_zip_lists"]["dwi"],
+                **input_zip_lists["dwi"],
                 allow_missing=True
             )
         ),

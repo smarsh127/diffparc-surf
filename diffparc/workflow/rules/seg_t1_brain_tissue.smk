@@ -11,14 +11,14 @@ rule tissue_seg_kmeans_init:
         t1=bids(
             root="results",
             datatype="anat",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             desc="preproc",
             suffix="T1w.nii.gz"
         ),
         mask=bids(
             root="work",
             datatype="anat",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             suffix="mask.nii.gz",
             from_="{template}".format(template=config["template"]),
             reg="affine",
@@ -31,7 +31,7 @@ rule tissue_seg_kmeans_init:
     output:
         seg=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             suffix="dseg.nii.gz",
             desc="atroposKseg",
             datatype="anat",
@@ -39,7 +39,7 @@ rule tissue_seg_kmeans_init:
         posteriors=bids(
             root="work",
             datatype="anat",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             suffix="probseg.nii.gz",
             desc="atroposKseg"
         ),
@@ -61,7 +61,7 @@ rule map_channels_to_tissue:
             bids(
                 root="work",
                 datatype="anat",
-                **config["subj_wildcards"],
+                **subj_wildcards,
                 suffix="probseg.nii.gz",
                 label="{tissue}",
                 from_="{template}".format(template=config["template"]),
@@ -73,7 +73,7 @@ rule map_channels_to_tissue:
         seg_channels_4d=bids(
             root="work",
             datatype="anat",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             suffix="probseg.nii.gz",
             desc="atroposKseg"
         ),
@@ -81,7 +81,7 @@ rule map_channels_to_tissue:
         mapping_json=bids(
             root="work",
             datatype="anat",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             suffix="mapping.json",
             desc="atropos3seg"
         ),
@@ -89,7 +89,7 @@ rule map_channels_to_tissue:
             bids(
                 root="work",
                 datatype="anat",
-                **config["subj_wildcards"],
+                **subj_wildcards,
                 suffix="probseg.nii.gz",
                 label="{tissue}",
                 desc="atropos3seg"
@@ -111,7 +111,7 @@ rule tissue_seg_to_4d:
             bids(
                 root="work",
                 datatype="anat",
-                **config["subj_wildcards"],
+                **subj_wildcards,
                 suffix="probseg.nii.gz",
                 label="{tissue}",
                 desc="atropos3seg"
@@ -123,7 +123,7 @@ rule tissue_seg_to_4d:
         tissue_seg=bids(
             root="work",
             datatype="anat",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             suffix="probseg.nii.gz",
             desc="atropos3seg"
         ),
@@ -140,7 +140,7 @@ rule brainmask_from_tissue:
         tissue_seg=bids(
             root="work",
             datatype="anat",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             suffix="probseg.nii.gz",
             desc="atropos3seg"
         ),
@@ -150,7 +150,7 @@ rule brainmask_from_tissue:
         mask=bids(
             root="work",
             datatype="anat",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             suffix="mask.nii.gz",
             from_="atropos3seg",
             desc="brain"

@@ -8,16 +8,16 @@ configfile: "config/snakebids.yml"
 
 
 # writes inputs_config.yml and updates config dict
-config.update(
-    snakebids.generate_inputs(
+inputs = snakebids.generate_inputs(
         bids_dir=config["bids_dir"],
         pybids_inputs=config["pybids_inputs"],
+        pybids_database_dir=config.get("pybids_db_dir"),
+        pybids_reset_database=config.get("pybids_db_reset"),
         derivatives=config["derivatives"],
         participant_label=config["participant_label"],
         exclude_participant_label=config["exclude_participant_label"],
-        use_bids_inputs=False,
+        use_bids_inputs=True,
     )
-)
 
 
 # this adds constraints to the bids naming
@@ -31,8 +31,10 @@ wildcard_constraints:
 report: "../workflow/report/workflow.rst"
 
 
-subj_wildcards = config["subj_wildcards"]
-input_zip_lists = config["input_zip_lists"]
+subj_wildcards = inputs.subj_wildcards
+input_wildcards = inputs.input_wildcards
+input_zip_lists = inputs.input_zip_lists
+input_path = inputs.input_path
 
 
 def get_eddy_quad_all():
@@ -45,10 +47,10 @@ def get_eddy_quad_all():
                     root="work",
                     datatype="dwi",
                     suffix="eddy.qc_pages",
-                    **config["subj_wildcards"]
+                    **subj_wildcards
                 ),
                 zip,
-                **config["input_zip_lists"]["dwi"]
+                **input_zip_lists["dwi"]
             )
         }
 
@@ -66,10 +68,10 @@ def get_bedpost_all():
                     desc="eddy",
                     space="T1w",
                     res=config["resample_dwi"]["resample_scheme"],
-                    **config["subj_wildcards"]
+                    **subj_wildcards
                 ),
                 zip,
-                **config["input_zip_lists"]["dwi"]
+                **input_zip_lists["dwi"]
             )
         }
 
@@ -88,7 +90,7 @@ rule all_diffparc:
                     seedpervox="{seedpervox}",
                     segtype="maxprob",
                     suffix="dseg.nii.gz",
-                    **config["subj_wildcards"],
+                    **subj_wildcards,
                 ),
                 template=config["template"],
                 targets=config["targets"].keys(),
@@ -98,7 +100,7 @@ rule all_diffparc:
                 allow_missing=True,
             ),
             zip,
-            **config["input_zip_lists"]["dwi"],
+            **input_zip_lists["dwi"],
         ),
 
 
@@ -108,7 +110,7 @@ rule all_surfmorph:
             expand(
                 bids(
                     root="work",
-                    **config["subj_wildcards"],
+                    **subj_wildcards,
                     from_="{template}",
                     datatype="surf",
                     label="{seed}",
@@ -125,7 +127,7 @@ rule all_surfmorph:
                 allow_missing=True,
             ),
             zip,
-            **config["input_zip_lists"]["dwi"],
+            **input_zip_lists["dwi"],
         ),
 
 
@@ -165,10 +167,10 @@ rule all_preprocdwi:
         **get_bedpost_all(),
         mask_qc=expand(
             bids(
-                root="qc", suffix="mask.png", desc="brain", **config["subj_wildcards"]
+                root="qc", suffix="mask.png", desc="brain", **subj_wildcards
             ),
             zip,
-            **config["input_zip_lists"]["dwi"]
+            **input_zip_lists["dwi"]
         ),
         reg_qc=expand(
             bids(
@@ -176,10 +178,10 @@ rule all_preprocdwi:
                 suffix="reg.png",
                 from_="dwiref",
                 to="T1w",
-                **config["subj_wildcards"]
+                **subj_wildcards
             ),
             zip,
-            **config["input_zip_lists"]["dwi"]
+            **input_zip_lists["dwi"]
         ),
         dtifit=expand(
             bids(
@@ -189,10 +191,10 @@ rule all_preprocdwi:
                 desc="eddy",
                 space="T1w",
                 res=config["resample_dwi"]["resample_scheme"],
-                **config["subj_wildcards"]
+                **subj_wildcards
             ),
             zip,
-            **config["input_zip_lists"]["dwi"]
+            **input_zip_lists["dwi"]
         ),
 
 
