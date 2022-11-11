@@ -4,6 +4,7 @@ output_dir: 'test_output'
 #enable printing debug statements during parsing -- disable if generating dag visualization
 debug: False
 
+root: 'results'
 tmp_dir: '/tmp'
 
 # boilerplate above

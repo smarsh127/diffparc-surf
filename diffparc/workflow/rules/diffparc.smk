@@ -1,7 +1,7 @@
 rule create_upsampled_cropped_seed_ref:
     input:
         ref=bids(
-            root="results",
+            root=root,
             suffix="mask.nii.gz",
             desc="brain",
             space="T1w",
@@ -13,7 +13,7 @@ rule create_upsampled_cropped_seed_ref:
         resample_res=config["resample_seed_res"],
     output:
         ref=bids(
-            root="results",
+            root=root,
             suffix="mask.nii.gz",
             desc="brain",
             space="T1w",
@@ -35,7 +35,7 @@ rule transform_seed_to_subject:
             workflow.basedir, "..", config["seeds"][wildcards.seed]["template_probseg"]
         ),
         ref=bids(
-            root="results",
+            root=root,
             suffix="mask.nii.gz",
             desc="brain",
             space="T1w",
@@ -44,7 +44,7 @@ rule transform_seed_to_subject:
             **subj_wildcards
         ),
         inv_warp=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="invwarp.nii.gz",
             from_="subject",
@@ -52,7 +52,7 @@ rule transform_seed_to_subject:
             **subj_wildcards
         ),
         affine_xfm_itk=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="affine.txt",
             from_="subject",
@@ -62,7 +62,7 @@ rule transform_seed_to_subject:
         ),
     output:
         seed=bids(
-            root="results",
+            root=root,
             **subj_wildcards,
             hemi="{hemi}",
             space="individual",
@@ -100,7 +100,7 @@ rule transform_targets_to_subject:
             config["targets"][wildcards.targets]["template_dseg"],
         ),
         ref=bids(
-            root="results",
+            root=root,
             suffix="mask.nii.gz",
             desc="brain",
             space="T1w",
@@ -109,7 +109,7 @@ rule transform_targets_to_subject:
             **subj_wildcards
         ),
         inv_warp=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="invwarp.nii.gz",
             from_="subject",
@@ -117,7 +117,7 @@ rule transform_targets_to_subject:
             **subj_wildcards
         ),
         affine_xfm_itk=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="affine.txt",
             from_="subject",
@@ -127,7 +127,7 @@ rule transform_targets_to_subject:
         ),
     output:
         targets=bids(
-            root="results",
+            root=root,
             **subj_wildcards,
             space="individual",
             desc="{targets}",
@@ -157,7 +157,7 @@ rule transform_targets_to_subject:
 rule binarize_trim_subject_seed:
     input:
         seed_res=bids(
-            root="results",
+            root=root,
             **subj_wildcards,
             hemi="{hemi}",
             space="individual",
@@ -170,7 +170,7 @@ rule binarize_trim_subject_seed:
         threshold=lambda wildcards: config["seeds"][wildcards.seed]["probseg_threshold"],
     output:
         seed_thr=bids(
-            root="results",
+            root=root,
             **subj_wildcards,
             hemi="{hemi}",
             space="individual",
@@ -200,7 +200,7 @@ def get_fod_for_tracking(wildcards):
     if config["fod_algorithm"] == "csd":
         return (
             bids(
-                root="results",
+                root=root,
                 datatype="dwi",
                 alg="csd",
                 desc="wm",
@@ -211,7 +211,7 @@ def get_fod_for_tracking(wildcards):
     elif config["fod_algorithm"] == "msmt_csd":
         return (
             bids(
-                root="results",
+                root=root,
                 datatype="dwi",
                 desc="wmnorm",
                 alg="msmt",
@@ -224,7 +224,7 @@ def get_fod_for_tracking(wildcards):
 rule create_voxel_seed_images:
     input:
         seed=bids(
-            root="results",
+            root=root,
             **subj_wildcards,
             hemi="{hemi}",
             space="individual",
@@ -261,13 +261,13 @@ rule track_from_voxels:
     input:
         wm_fod=get_fod_for_tracking,
         dwi=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             suffix="dwi.mif",
             **subj_wildcards,
         ),
         mask=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             suffix="mask.mif",
             **subj_wildcards,
@@ -328,7 +328,7 @@ rule connectivity_from_voxels:
             **subj_wildcards,
         ),
         targets=bids(
-            root="results",
+            root=root,
             **subj_wildcards,
             space="individual",
             desc="{targets}",
@@ -397,7 +397,7 @@ rule gen_conn_csv:
         ),
     output:
         conn_csv=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             hemi="{hemi}",
             desc="{targets}",
@@ -417,7 +417,7 @@ rule gen_conn_csv:
 rule conn_csv_to_image:
     input:
         conn_csv=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             hemi="{hemi}",
             desc="{targets}",
@@ -427,7 +427,7 @@ rule conn_csv_to_image:
             **subj_wildcards,
         ),
         seed_nii=bids(
-            root="results",
+            root=root,
             **subj_wildcards,
             hemi="{hemi}",
             space="individual",
@@ -438,7 +438,7 @@ rule conn_csv_to_image:
         ),
     output:
         conn_nii=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             hemi="{hemi}",
             desc="{targets}",
@@ -458,7 +458,7 @@ rule conn_csv_to_image:
 rule transform_conn_to_template:
     input:
         conn_nii=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             hemi="{hemi}",
             desc="{targets}",
@@ -468,7 +468,7 @@ rule transform_conn_to_template:
             **subj_wildcards,
         ),
         warp=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="warp.nii.gz",
             from_="subject",
@@ -476,7 +476,7 @@ rule transform_conn_to_template:
             **subj_wildcards
         ),
         affine_xfm_itk=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="affine.txt",
             from_="subject",
@@ -487,7 +487,7 @@ rule transform_conn_to_template:
         ref=os.path.join(workflow.basedir, "..", config["template_t1w"]),
     output:
         conn_nii=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             hemi="{hemi}",
             space="{template}",
@@ -524,7 +524,7 @@ rule maxprob_conn:
     """ generate maxprob connectivity, adding outside striatum, and inside striatum (at a particular "streamline count" threshold) to identify unlabelled regions """
     input:
         conn_nii=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             hemi="{hemi}",
             space="{template}",
@@ -536,7 +536,7 @@ rule maxprob_conn:
         ),
     output:
         conn_nii=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             hemi="{hemi}",
             space="{template}",

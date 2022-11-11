@@ -4,7 +4,7 @@
 rule affine_to_template:
     input:
         flo=bids(
-            root="work",
+            root=root,
             suffix="T1w.nii.gz",
             desc="n4",
             datatype="anat",
@@ -13,7 +13,7 @@ rule affine_to_template:
         ref=os.path.join(workflow.basedir, "..", config["template_t1w"]),
     output:
         warped_subj=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="T1w.nii.gz",
@@ -21,7 +21,7 @@ rule affine_to_template:
             desc="affine"
         ),
         xfm_ras=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="xfm.txt",
@@ -41,7 +41,7 @@ rule affine_to_template:
 rule convert_template_xfm_ras2itk:
     input:
         bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="xfm.txt",
@@ -52,7 +52,7 @@ rule convert_template_xfm_ras2itk:
         ),
     output:
         bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="xfm.txt",
@@ -72,9 +72,9 @@ rule convert_template_xfm_ras2itk:
 rule warp_brainmask_from_template_affine:
     input:
         mask=os.path.join(workflow.basedir, "..", config["template_mask"]),
-        ref=bids(root="work", datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
+        ref=bids(root=root, datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
         xfm=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="xfm.txt",
@@ -85,7 +85,7 @@ rule warp_brainmask_from_template_affine:
         ),
     output:
         mask=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="mask.nii.gz",
@@ -105,9 +105,9 @@ rule warp_brainmask_from_template_affine:
 rule warp_tissue_probseg_from_template_affine:
     input:
         probseg=os.path.join(workflow.basedir, "..", config["template_tissue_probseg"]),
-        ref=bids(root="work", datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
+        ref=bids(root=root, datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
         xfm=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="xfm.txt",
@@ -118,7 +118,7 @@ rule warp_tissue_probseg_from_template_affine:
         ),
     output:
         probseg=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="probseg.nii.gz",
@@ -141,9 +141,9 @@ rule warp_tissue_probseg_from_template_affine:
 
 rule n4_t1_withmask:
     input:
-        t1=bids(root="work", datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
+        t1=bids(root=root, datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
         mask=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="mask.nii.gz",
@@ -153,7 +153,7 @@ rule n4_t1_withmask:
         ),
     output:
         t1=bids(
-            root="results",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             desc="preproc",
@@ -175,7 +175,7 @@ rule mask_template_t1w:
         mask=os.path.join(workflow.basedir, "..", config["template_mask"]),
     output:
         t1=bids(
-            root="work",
+            root=root,
             prefix="tpl-{template}/anat/tpl-{template}",
             desc="masked",
             suffix="T1w.nii.gz",
@@ -191,14 +191,14 @@ rule mask_template_t1w:
 rule mask_subject_t1w:
     input:
         t1=bids(
-            root="results",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             desc="preproc",
             suffix="T1w.nii.gz"
         ),
         mask=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="mask.nii.gz",
@@ -207,7 +207,7 @@ rule mask_subject_t1w:
         ),
     output:
         t1=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="T1w.nii.gz",
@@ -226,7 +226,7 @@ rule greedy_affine_init:
     input:
         flo=[
             bids(
-                root="work",
+                root=root,
                 datatype="anat",
                 **subj_wildcards,
                 suffix="T1w.nii.gz",
@@ -235,7 +235,7 @@ rule greedy_affine_init:
             ),
             expand(
                 bids(
-                    root="work",
+                    root=root,
                     datatype="anat",
                     **subj_wildcards,
                     suffix="probseg.nii.gz",
@@ -248,7 +248,7 @@ rule greedy_affine_init:
         ],
         ref=[
             bids(
-                root="work",
+                root=root,
                 prefix="tpl-{template}/anat/tpl-{template}",
                 desc="masked",
                 suffix="T1w.nii.gz",
@@ -262,7 +262,7 @@ rule greedy_affine_init:
             ),
         ],
         init_xfm=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="xfm.txt",
@@ -286,7 +286,7 @@ rule greedy_affine_init:
         timestep="1.0",  #default 1.0
     output:
         warp=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="warp.nii.gz",
             from_="subject",
@@ -294,7 +294,7 @@ rule greedy_affine_init:
             **subj_wildcards
         ),
         invwarp=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="invwarp.nii.gz",
             from_="subject",
@@ -303,7 +303,7 @@ rule greedy_affine_init:
         ),
         warped_flo=[
             bids(
-                root="work",
+                root=root,
                 datatype="anat",
                 suffix="T1w.nii.gz",
                 space="{template}",
@@ -312,7 +312,7 @@ rule greedy_affine_init:
             )
         ],
         affine=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="affine.txt",
             from_="subject",
@@ -321,7 +321,7 @@ rule greedy_affine_init:
             **subj_wildcards
         ),
         affine_xfm_ras=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="affine.txt",
             from_="subject",
@@ -357,7 +357,7 @@ rule greedy_affine_init:
 rule ants_syn_affine_init:
     input:
         flo=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="T1w.nii.gz",
@@ -365,14 +365,14 @@ rule ants_syn_affine_init:
             desc="masked"
         ),
         ref=bids(
-            root="work",
+            root=root,
             datatype="anat",
             prefix="tpl-{template}/tpl-{template}",
             desc="masked",
             suffix="T1w.nii.gz",
         ),
         init_xfm=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="xfm.txt",
@@ -383,7 +383,7 @@ rule ants_syn_affine_init:
         ),
     params:
         out_prefix=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="",
             from_="subject",
@@ -418,7 +418,7 @@ rule ants_syn_affine_init:
         ),
     output:
         out_composite=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="Composite.h5",
             from_="subject",
@@ -426,7 +426,7 @@ rule ants_syn_affine_init:
             **subj_wildcards
         ),
         out_inv_composite=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="InverseComposite.h5",
             from_="subject",
@@ -434,7 +434,7 @@ rule ants_syn_affine_init:
             **subj_wildcards
         ),
         warped_flo=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="T1w.nii.gz",
             space="{template}",
@@ -463,9 +463,9 @@ rule warp_dseg_from_template:
         dseg=lambda wildcards: workflow.source_path(
             os.path.join("..", "..", config["template_atlas_dseg"])
         ).format(**wildcards),
-        ref=bids(root="work", datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
+        ref=bids(root=root, datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
         inv_warp=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="invwarp.nii.gz",
             from_="subject",
@@ -473,7 +473,7 @@ rule warp_dseg_from_template:
             **subj_wildcards
         ),
         affine_xfm_ras=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="affine.txt",
             from_="subject",
@@ -483,7 +483,7 @@ rule warp_dseg_from_template:
         ),
     output:
         dseg=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="dseg.nii.gz",
@@ -510,9 +510,9 @@ rule warp_tissue_probseg_from_template:
         probseg=lambda wildcards: workflow.source_path(
             os.path.join("..", "..", config["template_tissue_probseg"])
         ).format(**wildcards),
-        ref=bids(root="work", datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
+        ref=bids(root=root, datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
         inv_warp=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="invwarp.nii.gz",
             from_="subject",
@@ -520,7 +520,7 @@ rule warp_tissue_probseg_from_template:
             **subj_wildcards
         ),
         affine_xfm_ras=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="affine.txt",
             from_="subject",
@@ -530,7 +530,7 @@ rule warp_tissue_probseg_from_template:
         ),
     output:
         probseg=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="probseg.nii.gz",
@@ -557,9 +557,9 @@ rule warp_brainmask_from_template:
         mask=lambda wildcards: workflow.source_path(
             os.path.join("..", "..", config["template_mask"])
         ).format(**wildcards),
-        ref=bids(root="work", datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
+        ref=bids(root=root, datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
         inv_composite=bids(
-            root="work",
+            root=root,
             datatype="anat",
             suffix="InverseComposite.h5",
             from_="subject",
@@ -568,7 +568,7 @@ rule warp_brainmask_from_template:
         ),
     output:
         mask=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="mask.nii.gz",
@@ -593,7 +593,7 @@ rule warp_brainmask_from_template:
 rule dilate_brainmask:
     input:
         mask=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="mask.nii.gz",
@@ -607,7 +607,7 @@ rule dilate_brainmask:
         ),
     output:
         mask=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="mask.nii.gz",
@@ -627,7 +627,7 @@ rule dilate_brainmask:
 rule dilate_atlas_labels:
     input:
         dseg=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="dseg.nii.gz",
@@ -640,7 +640,7 @@ rule dilate_atlas_labels:
         ),
     output:
         dseg=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="dseg.nii.gz",
@@ -659,7 +659,7 @@ rule dilate_atlas_labels:
 rule resample_mask_to_dwi:
     input:
         mask=bids(
-            root="work",
+            root=root,
             datatype="anat",
             **subj_wildcards,
             suffix="mask.nii.gz",
@@ -668,7 +668,7 @@ rule resample_mask_to_dwi:
             desc="brain"
         ),
         ref=bids(
-            root="work",
+            root=root,
             desc="topup",
             datatype="dwi",
             method="jac",
@@ -679,7 +679,7 @@ rule resample_mask_to_dwi:
         interpolation="NearestNeighbor",
     output:
         mask=bids(
-            root="work",
+            root=root,
             **subj_wildcards,
             desc="brain",
             suffix="mask.nii.gz",

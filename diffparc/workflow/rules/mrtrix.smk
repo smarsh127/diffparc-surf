@@ -2,7 +2,7 @@
 rule nii2mif:
     input:
         dwi=bids(
-            root="results",
+            root=root,
             suffix="dwi.nii.gz",
             desc="preproc",
             space="T1w",
@@ -11,7 +11,7 @@ rule nii2mif:
             **subj_wildcards
         ),
         bval=bids(
-            root="results",
+            root=root,
             suffix="dwi.bval",
             desc="preproc",
             space="T1w",
@@ -20,7 +20,7 @@ rule nii2mif:
             **subj_wildcards
         ),
         bvec=bids(
-            root="results",
+            root=root,
             suffix="dwi.bvec",
             desc="preproc",
             space="T1w",
@@ -29,7 +29,7 @@ rule nii2mif:
             **subj_wildcards
         ),
         mask=bids(
-            root="results",
+            root=root,
             suffix="mask.nii.gz",
             desc="brain",
             space="T1w",
@@ -39,13 +39,13 @@ rule nii2mif:
         ),
     output:
         dwi=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             suffix="dwi.mif",
             **subj_wildcards,
         ),
         mask=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             suffix="mask.mif",
             **subj_wildcards,
@@ -68,14 +68,14 @@ rule dwi2response_msmt:
         dwi=rules.nii2mif.output.dwi,
         mask=rules.nii2mif.output.mask,
         bvec=bids(
-            root="results",
+            root=root,
             suffix="dwi.bvec",
             desc="preproc",
             datatype="dwi",
             **subj_wildcards
         ),
         bval=bids(
-            root="results",
+            root=root,
             suffix="dwi.bval",
             desc="preproc",
             datatype="dwi",
@@ -83,7 +83,7 @@ rule dwi2response_msmt:
         ),
     output:
         wm_rf=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             alg="msmt",
             desc="wm",
@@ -91,7 +91,7 @@ rule dwi2response_msmt:
             **subj_wildcards,
         ),
         gm_rf=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             alg="msmt",
             desc="gm",
@@ -99,7 +99,7 @@ rule dwi2response_msmt:
             **subj_wildcards,
         ),
         csf_rf=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             alg="msmt",
             desc="csf",
@@ -127,7 +127,7 @@ rule dwi2fod_msmt:
         csf_rf=rules.dwi2response_msmt.output.csf_rf,
     output:
         wm_fod=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             alg="msmt",
             desc="wm",
@@ -135,7 +135,7 @@ rule dwi2fod_msmt:
             **subj_wildcards,
         ),
         gm_fod=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             alg="msmt",
             desc="gm",
@@ -143,7 +143,7 @@ rule dwi2fod_msmt:
             **subj_wildcards,
         ),
         csf_fod=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             alg="msmt",
             desc="csf",
@@ -171,7 +171,7 @@ rule mtnormalise:
         mask=rules.nii2mif.output.mask,
     output:
         wm_fod=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             alg="msmt",
             desc="wmnorm",
@@ -179,7 +179,7 @@ rule mtnormalise:
             **subj_wildcards,
         ),
         gm_fod=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             alg="msmt",
             desc="normalized",
@@ -187,7 +187,7 @@ rule mtnormalise:
             **subj_wildcards,
         ),
         csf_fod=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             alg="msmt",
             desc="normalized",
@@ -210,14 +210,14 @@ rule dwi2response_csd:
         dwi=rules.nii2mif.output.dwi,
         mask=rules.nii2mif.output.mask,
         bvec=bids(
-            root="results",
+            root=root,
             suffix="dwi.bvec",
             desc="preproc",
             datatype="dwi",
             **subj_wildcards
         ),
         bval=bids(
-            root="results",
+            root=root,
             suffix="dwi.bval",
             desc="preproc",
             datatype="dwi",
@@ -225,7 +225,7 @@ rule dwi2response_csd:
         ),
     output:
         wm_rf=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             alg="csd",
             desc="wm",
@@ -250,7 +250,7 @@ rule dwi2fod_csd:
         wm_rf=rules.dwi2response_csd.output.wm_rf,
     output:
         wm_fod=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             alg="csd",
             desc="wm",
@@ -273,7 +273,7 @@ rule dwi2tensor:
         rules.nii2mif.output.dwi,
     output:
         tensor=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             suffix="tensor.mif",
             **subj_wildcards,
@@ -295,7 +295,7 @@ rule tensor2metrics:
         mask=rules.nii2mif.output.mask,
     output:
         fa=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             suffix="fa.mif",
             **subj_wildcards,
@@ -322,7 +322,7 @@ rule create_seed:
         threshold=0.15,
     output:
         seed=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             suffix="seed.mif",
             **subj_wildcards,
@@ -350,7 +350,7 @@ rule tckgen:
         seed_strategy=lambda wildcards, input: f"-seed_image {input.seed}",
     output:
         tck=bids(
-            root="results",
+            root=root,
             datatype="dwi",
             desc="iFOD2",
             suffix="tractography.tck",
