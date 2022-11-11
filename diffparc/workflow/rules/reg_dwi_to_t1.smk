@@ -2,17 +2,12 @@
 rule import_t1:
     input:
         lambda wildcards: expand(
-            config["input_path"]["T1w"],
+            input_path["T1w"],
             zip,
-            **snakebids.filter_list(config["input_zip_lists"]["T1w"], wildcards)
+            **snakebids.filter_list(input_zip_lists["T1w"], wildcards)
         )[0],
     output:
-        bids(
-            root="work",
-            datatype="anat",
-            **config["subj_wildcards"],
-            suffix="T1w.nii.gz"
-        ),
+        bids(root="work", datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
     group:
         "subj"
     shell:
@@ -21,17 +16,12 @@ rule import_t1:
 
 rule n4_t1:
     input:
-        t1=bids(
-            root="work",
-            datatype="anat",
-            **config["subj_wildcards"],
-            suffix="T1w.nii.gz"
-        ),
+        t1=bids(root="work", datatype="anat", **subj_wildcards, suffix="T1w.nii.gz"),
     output:
         t1=bids(
             root="work",
             datatype="anat",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             desc="n4",
             suffix="T1w.nii.gz"
         ),
@@ -52,14 +42,14 @@ rule reg_dwi_to_t1:
             suffix="T1w.nii.gz",
             desc="preproc",
             datatype="anat",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         avgb0=bids(
             root="work",
             suffix="b0.nii.gz",
             desc="dwiref",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     params:
         general_opts="-d 3",
@@ -71,7 +61,7 @@ rule reg_dwi_to_t1:
             space="T1w",
             desc="dwiref",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         xfm_ras=bids(
             root="work",
@@ -80,19 +70,14 @@ rule reg_dwi_to_t1:
             to="T1w",
             type_="ras",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     container:
         config["singularity"]["autotop"]
     group:
         "subj"
     log:
-        bids(
-            root="logs",
-            suffix="reg_b0_to_t1.txt",
-            datatype="dwi",
-            **config["subj_wildcards"]
-        ),
+        bids(root="logs", suffix="reg_b0_to_t1.txt", datatype="dwi", **subj_wildcards),
     threads: 8
     shell:
         "greedy -threads {threads} {params.general_opts} {params.rigid_opts}  -i {input.t1w} {input.avgb0} -o {output.xfm_ras}  &> {log}  && "
@@ -107,33 +92,25 @@ rule qc_reg_dwi_t1:
             space="T1w",
             desc="dwiref",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         flo=bids(
             root="results",
             suffix="T1w.nii.gz",
             desc="preproc",
             datatype="anat",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     output:
         png=report(
             bids(
-                root="qc",
-                suffix="reg.png",
-                **config["subj_wildcards"],
-                from_="dwiref",
-                to="T1w"
+                root="qc", suffix="reg.png", **subj_wildcards, from_="dwiref", to="T1w"
             ),
             caption="../report/reg_dwi_t1.rst",
             category="B0 T1w registration",
         ),
         html=bids(
-            root="qc",
-            suffix="reg.html",
-            from_="dwiref",
-            to="T1w",
-            **config["subj_wildcards"]
+            root="qc", suffix="reg.html", from_="dwiref", to="T1w", **subj_wildcards
         ),
     group:
         "subj"
@@ -152,7 +129,7 @@ rule convert_xfm_ras2itk:
             to="T1w",
             type_="ras",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     output:
         xfm_itk=bids(
@@ -162,7 +139,7 @@ rule convert_xfm_ras2itk:
             to="T1w",
             type_="itk",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     container:
         config["singularity"]["itksnap"]
@@ -179,14 +156,14 @@ rule convert_xfm_ras2fsl:
             suffix="T1w.nii.gz",
             desc="preproc",
             datatype="anat",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         avgb0=bids(
             root="work",
             suffix="b0.nii.gz",
             desc="dwiref",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         xfm_ras=bids(
             root="work",
@@ -195,7 +172,7 @@ rule convert_xfm_ras2fsl:
             to="T1w",
             type_="ras",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     output:
         xfm_fsl=bids(
@@ -205,7 +182,7 @@ rule convert_xfm_ras2fsl:
             to="T1w",
             type_="fsl",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     container:
         config["singularity"]["itksnap"]
@@ -224,7 +201,7 @@ rule create_cropped_ref:
             space="T1w",
             desc="dwiref",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     output:
         cropped_avgb0=bids(
@@ -234,7 +211,7 @@ rule create_cropped_ref:
             desc="dwiref",
             proc="crop",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     container:
         config["singularity"]["itksnap"]
@@ -268,7 +245,7 @@ rule create_cropped_ref_t1_resolution:
             desc="dwiref",
             proc="crop",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     output:
         avgb0_crop_resample=bids(
@@ -279,7 +256,7 @@ rule create_cropped_ref_t1_resolution:
             proc="crop",
             res="T1w",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     group:
         "subj"
@@ -296,14 +273,14 @@ rule create_cropped_ref_dwi_resolution:
             desc="dwiref",
             proc="crop",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         res_txt_orig=bids(
             root="work",
             suffix="b0.resolution_mm.txt",
             desc="dwiref",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     output:
         resampled=bids(
@@ -314,7 +291,7 @@ rule create_cropped_ref_dwi_resolution:
             proc="crop",
             res="orig",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     container:
         config["singularity"]["itksnap"]
@@ -333,7 +310,7 @@ rule create_cropped_ref_custom_resolution:
             desc="dwiref",
             proc="crop",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     params:
         resolution="x".join(
@@ -349,7 +326,7 @@ rule create_cropped_ref_custom_resolution:
             proc="crop",
             res="custom",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     container:
         config["singularity"]["itksnap"]
@@ -369,14 +346,14 @@ rule resample_dwi_to_t1w:
             proc="crop",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         dwi=bids(
             root="results",
             suffix="dwi.nii.gz",
             desc="preproc",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         xfm_itk=bids(
             root="work",
@@ -385,7 +362,7 @@ rule resample_dwi_to_t1w:
             to="T1w",
             type_="itk",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     params:
         interpolation="Linear",
@@ -397,7 +374,7 @@ rule resample_dwi_to_t1w:
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     container:
         config["singularity"]["ants"]
@@ -419,7 +396,7 @@ rule resample_brainmask_to_t1w:
             proc="crop",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         brainmask=get_dwi_mask(),
         xfm_itk=bids(
@@ -429,7 +406,7 @@ rule resample_brainmask_to_t1w:
             to="T1w",
             type_="itk",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     params:
         interpolation="NearestNeighbor",
@@ -441,7 +418,7 @@ rule resample_brainmask_to_t1w:
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     container:
         config["singularity"]["ants"]
@@ -460,7 +437,7 @@ rule rotate_bvecs_to_t1w:
             suffix="dwi.bvec",
             desc="preproc",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         xfm_fsl=bids(
             root="work",
@@ -469,14 +446,14 @@ rule rotate_bvecs_to_t1w:
             to="T1w",
             type_="fsl",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         bvals=bids(
             root="results",
             suffix="dwi.bval",
             desc="preproc",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     params:
         script=os.path.join(workflow.basedir, "scripts/rotate_bvecs.sh"),
@@ -488,7 +465,7 @@ rule rotate_bvecs_to_t1w:
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         bvals=bids(
             root="results",
@@ -497,7 +474,7 @@ rule rotate_bvecs_to_t1w:
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     container:
         config["singularity"]["prepdwi"]  #fsl
@@ -519,7 +496,7 @@ rule dtifit_resampled_t1w:
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         bvals=bids(
             root="results",
@@ -528,7 +505,7 @@ rule dtifit_resampled_t1w:
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         bvecs=bids(
             root="results",
@@ -537,7 +514,7 @@ rule dtifit_resampled_t1w:
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         brainmask=bids(
             root="results",
@@ -546,7 +523,7 @@ rule dtifit_resampled_t1w:
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     params:
         out_basename=lambda wildcards, output: os.path.join(output.out_folder, "dti"),
@@ -559,7 +536,7 @@ rule dtifit_resampled_t1w:
                 space="T1w",
                 res=config["resample_dwi"]["resample_scheme"],
                 datatype="dwi",
-                **config["subj_wildcards"]
+                **subj_wildcards
             )
         ),
         out_fa=os.path.join(
@@ -571,7 +548,7 @@ rule dtifit_resampled_t1w:
                     space="T1w",
                     res=config["resample_dwi"]["resample_scheme"],
                     datatype="dwi",
-                    **config["subj_wildcards"]
+                    **subj_wildcards
                 )
             ),
             "dti_FA.nii.gz",

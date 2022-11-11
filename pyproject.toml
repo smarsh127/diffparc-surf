@@ -7,7 +7,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.8,<3.11"
-snakebids = "^0.6.2"
+snakebids = "^0.7.0"
 snakemake = "^7.0.0"
 
 [tool.poetry.dev-dependencies]

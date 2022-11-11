@@ -7,7 +7,7 @@ rule create_upsampled_cropped_seed_ref:
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     params:
         resample_res=config["resample_seed_res"],
@@ -19,7 +19,7 @@ rule create_upsampled_cropped_seed_ref:
             space="T1w",
             res="upsampled",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     container:
         config["singularity"]["itksnap"]
@@ -41,7 +41,7 @@ rule transform_seed_to_subject:
             space="T1w",
             res="upsampled",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         inv_warp=bids(
             root="work",
@@ -49,7 +49,7 @@ rule transform_seed_to_subject:
             suffix="invwarp.nii.gz",
             from_="subject",
             to="{template}",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         affine_xfm_itk=bids(
             root="work",
@@ -58,12 +58,12 @@ rule transform_seed_to_subject:
             from_="subject",
             to="{template}",
             desc="itk",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     output:
         seed=bids(
             root="results",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             space="individual",
             label="{seed}",
@@ -78,7 +78,7 @@ rule transform_seed_to_subject:
     log:
         bids(
             root="logs",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             space="individual",
             label="{seed}",
@@ -106,7 +106,7 @@ rule transform_targets_to_subject:
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         inv_warp=bids(
             root="work",
@@ -114,7 +114,7 @@ rule transform_targets_to_subject:
             suffix="invwarp.nii.gz",
             from_="subject",
             to="{template}",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         affine_xfm_itk=bids(
             root="work",
@@ -123,12 +123,12 @@ rule transform_targets_to_subject:
             from_="subject",
             to="{template}",
             desc="itk",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     output:
         targets=bids(
             root="results",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             space="individual",
             desc="{targets}",
             from_="{template}",
@@ -142,7 +142,7 @@ rule transform_targets_to_subject:
     log:
         bids(
             root="logs",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             desc="{targets}",
             from_="{template}",
             suffix="transformtargetstosubjects.log"
@@ -158,7 +158,7 @@ rule binarize_trim_subject_seed:
     input:
         seed_res=bids(
             root="results",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             space="individual",
             label="{seed}",
@@ -171,7 +171,7 @@ rule binarize_trim_subject_seed:
     output:
         seed_thr=bids(
             root="results",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             space="individual",
             label="{seed}",
@@ -182,7 +182,7 @@ rule binarize_trim_subject_seed:
     log:
         bids(
             root="logs",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             label="{seed}",
             from_="{template}",
@@ -205,7 +205,7 @@ def get_fod_for_tracking(wildcards):
                 alg="csd",
                 desc="wm",
                 suffix="fod.mif",
-                **config["subj_wildcards"],
+                **subj_wildcards,
             ),
         )
     elif config["fod_algorithm"] == "msmt_csd":
@@ -216,7 +216,7 @@ def get_fod_for_tracking(wildcards):
                 desc="wmnorm",
                 alg="msmt",
                 suffix="fod.mif",
-                **config["subj_wildcards"],
+                **subj_wildcards,
             ),
         )
 
@@ -225,7 +225,7 @@ rule create_voxel_seed_images:
     input:
         seed=bids(
             root="results",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             space="individual",
             label="{seed}",
@@ -238,7 +238,7 @@ rule create_voxel_seed_images:
             directory(
                 bids(
                     root=config["tmp_dir"],
-                    **config["subj_wildcards"],
+                    **subj_wildcards,
                     hemi="{hemi}",
                     space="individual",
                     label="{seed}",
@@ -264,17 +264,17 @@ rule track_from_voxels:
             root="results",
             datatype="dwi",
             suffix="dwi.mif",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         mask=bids(
             root="results",
             datatype="dwi",
             suffix="mask.mif",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         vox_seeds_dir=bids(
             root=config["tmp_dir"],
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             space="individual",
             label="{seed}",
@@ -294,7 +294,7 @@ rule track_from_voxels:
                     label="{seed}",
                     seedpervox="{seedpervox}",
                     suffix="voxtracts",
-                    **config["subj_wildcards"],
+                    **subj_wildcards,
                 )
             )
         ),
@@ -325,11 +325,11 @@ rule connectivity_from_voxels:
             label="{seed}",
             seedpervox="{seedpervox}",
             suffix="voxtracts",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         targets=bids(
             root="results",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             space="individual",
             desc="{targets}",
             from_=config["template"],
@@ -347,7 +347,7 @@ rule connectivity_from_voxels:
                     label="{seed}",
                     seedpervox="{seedpervox}",
                     suffix="voxconn",
-                    **config["subj_wildcards"],
+                    **subj_wildcards,
                 )
             )
         ),
@@ -389,7 +389,7 @@ rule gen_conn_csv:
             label="{seed}",
             seedpervox="{seedpervox}",
             suffix="voxconn",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     params:
         header_line=lambda wildcards: ",".join(
@@ -404,7 +404,7 @@ rule gen_conn_csv:
             label="{seed}",
             seedpervox="{seedpervox}",
             suffix="conn.csv",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     group:
         "subj"
@@ -424,11 +424,11 @@ rule conn_csv_to_image:
             label="{seed}",
             seedpervox="{seedpervox}",
             suffix="conn.csv",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         seed_nii=bids(
             root="results",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             space="individual",
             label="{seed}",
@@ -445,7 +445,7 @@ rule conn_csv_to_image:
             label="{seed}",
             seedpervox="{seedpervox}",
             suffix="conn.nii.gz",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     group:
         "subj"
@@ -465,7 +465,7 @@ rule transform_conn_to_template:
             label="{seed}",
             seedpervox="{seedpervox}",
             suffix="conn.nii.gz",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         warp=bids(
             root="work",
@@ -473,7 +473,7 @@ rule transform_conn_to_template:
             suffix="warp.nii.gz",
             from_="subject",
             to="{template}",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         affine_xfm_itk=bids(
             root="work",
@@ -482,7 +482,7 @@ rule transform_conn_to_template:
             from_="subject",
             to="{template}",
             desc="itk",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         ref=os.path.join(workflow.basedir, "..", config["template_t1w"]),
     output:
@@ -495,7 +495,7 @@ rule transform_conn_to_template:
             label="{seed}",
             seedpervox="{seedpervox}",
             suffix="conn.nii.gz",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     container:
         config["singularity"]["ants"]
@@ -511,7 +511,7 @@ rule transform_conn_to_template:
             label="{seed}",
             seedpervox="{seedpervox}",
             suffix="transformconntotemplate.log",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     group:
         "subj"
@@ -532,7 +532,7 @@ rule maxprob_conn:
             label="{seed}",
             seedpervox="{seedpervox}",
             suffix="conn.nii.gz",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     output:
         conn_nii=bids(
@@ -545,7 +545,7 @@ rule maxprob_conn:
             seedpervox="{seedpervox}",
             segtype="maxprob",
             suffix="dseg.nii.gz",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     container:
         config["singularity"]["itksnap"]

@@ -3,7 +3,7 @@ rule run_synthseg:
         t1=bids(
             root="results",
             datatype="anat",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             desc="preproc",
             suffix="T1w.nii.gz"
         ),
@@ -11,7 +11,7 @@ rule run_synthseg:
         dseg=bids(
             root="results",
             datatype="anat",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             desc="synthseg",
             suffix="dseg.nii.gz"
         ),
@@ -30,7 +30,7 @@ rule extract_synthseg_label:
             datatype="anat",
             desc="synthseg",
             suffix="dseg.nii.gz",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     params:
         labels=lambda wildcards: config["synthseg_labels"][wildcards.seed][
@@ -46,7 +46,7 @@ rule extract_synthseg_label:
             from_="synthseg",
             datatype="anat",
             suffix="probseg.nii.gz",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     shell:
         "c3d {input} -retain-labels {params.labels} -binarize -smooth {params.smoothing} -o {output}"
@@ -65,7 +65,7 @@ rule template_shape_injection:
             from_="synthseg",
             datatype="anat",
             suffix="probseg.nii.gz",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     params:
         input_fixed_moving=lambda wildcards, input: f"-i {input.ref} {input.flo}",
@@ -85,7 +85,7 @@ rule template_shape_injection:
             desc="shapeinject",
             from_="{template}",
             to="subject",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         invwarp=bids(
             root="work",
@@ -96,7 +96,7 @@ rule template_shape_injection:
             label="{seed}",
             from_="{template}",
             to="subject",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         warped_flo=bids(
             root="results",
@@ -107,7 +107,7 @@ rule template_shape_injection:
             label="{seed}",
             from_="{template}",
             desc="shapeinject",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     threads: 8
     resources:
@@ -124,7 +124,7 @@ rule template_shape_injection:
             hemi="{hemi}",
             label="{seed}",
             template="{template}",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     shadow:
         "minimal"
@@ -154,7 +154,7 @@ rule synthseg_to_targets:
         dseg=bids(
             root="results",
             datatype="anat",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             desc="synthseg",
             suffix="dseg.nii.gz"
         ),
@@ -163,7 +163,7 @@ rule synthseg_to_targets:
     output:
         dseg=bids(
             root="results",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             space="individual",
             desc="{targets}",
             from_="synthseg",

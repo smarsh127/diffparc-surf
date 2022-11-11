@@ -10,7 +10,7 @@ rule convert_rigid_to_world:
             type_="itk",
             label="{seed}",
             datatype="surf",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     output:
         rigid_world=bids(
@@ -23,7 +23,7 @@ rule convert_rigid_to_world:
             type_="world",
             label="{seed}",
             datatype="surf",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     group:
         "subj"
@@ -39,7 +39,7 @@ rule transform_template_surf_to_t1:
         surf_gii=bids(
             root="work",
             hemi="{hemi}",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             desc="fluid",
             from_="{template}",
             datatype="surf",
@@ -55,12 +55,12 @@ rule transform_template_surf_to_t1:
             type_="world",
             label="{seed}",
             datatype="surf",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     output:
         surf_warped=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             space="individual",
             hemi="{hemi}",
             from_="{template}",
@@ -80,7 +80,7 @@ rule create_surf_seed_csv:
     input:
         surf=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             space="individual",
             from_="{template}",
@@ -90,7 +90,7 @@ rule create_surf_seed_csv:
     output:
         csv=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             space="individual",
             from_="{template}",
@@ -114,17 +114,17 @@ rule track_from_vertices:
             root="results",
             datatype="dwi",
             suffix="dwi.mif",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         mask=bids(
             root="results",
             datatype="dwi",
             suffix="mask.mif",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         csv=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             space="individual",
             hemi="{hemi}",
             from_=config["template"],
@@ -145,7 +145,7 @@ rule track_from_vertices:
                     label="{seed}",
                     seedspervertex="{seedspervertex}",
                     suffix="vertextracts",
-                    **config["subj_wildcards"],
+                    **subj_wildcards,
                 )
             )
         ),
@@ -172,7 +172,7 @@ def get_dseg_targets(wildcards):
         return (
             bids(
                 root="results",
-                **config["subj_wildcards"],
+                **subj_wildcards,
                 space="individual",
                 desc="{targets}",
                 from_="synthseg",
@@ -185,7 +185,7 @@ def get_dseg_targets(wildcards):
         return (
             bids(
                 root="results",
-                **config["subj_wildcards"],
+                **subj_wildcards,
                 space="individual",
                 desc="{targets}",
                 from_=config["template"],
@@ -205,7 +205,7 @@ rule connectivity_from_vertices:
             label="{seed}",
             seedspervertex="{seedspervertex}",
             suffix="vertextracts",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         targets=get_dseg_targets,
     output:
@@ -219,7 +219,7 @@ rule connectivity_from_vertices:
                     label="{seed}",
                     seedspervertex="{seedspervertex}",
                     suffix="vertexconn",
-                    **config["subj_wildcards"],
+                    **subj_wildcards,
                 )
             )
         ),
@@ -248,7 +248,7 @@ rule gen_vertex_conn_csv:
             label="{seed}",
             seedspervertex="{seedspervertex}",
             suffix="vertexconn",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     params:
         header_line=lambda wildcards: ",".join(
@@ -263,7 +263,7 @@ rule gen_vertex_conn_csv:
             label="{seed}",
             seedspervertex="{seedspervertex}",
             suffix="conn.csv",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     group:
         "subj"
@@ -283,7 +283,7 @@ rule conn_csv_to_metric:
             label="{seed}",
             seedspervertex="{seedspervertex}",
             suffix="conn.csv",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     output:
         gii_metric=temp(
@@ -295,7 +295,7 @@ rule conn_csv_to_metric:
                 label="{seed}",
                 seedspervertex="{seedspervertex}",
                 suffix="nostructconn.shape.gii",
-                **config["subj_wildcards"],
+                **subj_wildcards,
             )
         ),
     group:
@@ -316,7 +316,7 @@ rule set_structure_conn_metric:
             label="{seed}",
             seedspervertex="{seedspervertex}",
             suffix="nostructconn.shape.gii",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     params:
         structure=lambda wildcards: config["hemi_to_structure"][wildcards.hemi],
@@ -329,7 +329,7 @@ rule set_structure_conn_metric:
             label="{seed}",
             seedspervertex="{seedspervertex}",
             suffix="conn.shape.gii",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     group:
         "subj"
@@ -350,7 +350,7 @@ rule create_cifti_conn_dscalar:
             label="{seed}",
             seedspervertex="{seedspervertex}",
             suffix="conn.shape.gii",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         right_metric=bids(
             root="work",
@@ -360,7 +360,7 @@ rule create_cifti_conn_dscalar:
             label="{seed}",
             seedspervertex="{seedspervertex}",
             suffix="conn.shape.gii",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     output:
         cifti_dscalar=bids(
@@ -370,7 +370,7 @@ rule create_cifti_conn_dscalar:
             label="{seed}",
             seedspervertex="{seedspervertex}",
             suffix="conn.dscalar.nii",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     group:
         "subj"
@@ -389,7 +389,7 @@ rule create_cifti_conn_dscalar_maxprob:
             label="{seed}",
             seedspervertex="{seedspervertex}",
             suffix="conn.dscalar.nii",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     output:
         cifti_dscalar=bids(
@@ -399,7 +399,7 @@ rule create_cifti_conn_dscalar_maxprob:
             label="{seed}",
             seedspervertex="{seedspervertex}",
             suffix="maxprob.dscalar.nii",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     group:
         "subj"
@@ -419,7 +419,7 @@ rule create_cifti_maxprob_dlabel:
             label="{seed}",
             seedspervertex="{seedspervertex}",
             suffix="maxprob.dscalar.nii",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         label_list_txt=lambda wildcards: os.path.join(
             workflow.basedir,
@@ -434,7 +434,7 @@ rule create_cifti_maxprob_dlabel:
             label="{seed}",
             seedspervertex="{seedspervertex}",
             suffix="maxprob.dlabel.nii",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     group:
         "subj"
@@ -448,7 +448,7 @@ rule parcellate_cifti_metric:
     input:
         cifti_dscalar=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             from_="{template}",
             datatype="surf",
             label="{seed}",
@@ -461,12 +461,12 @@ rule parcellate_cifti_metric:
             label="{seed}",
             seedspervertex="{seedspervertex}",
             suffix="maxprob.dlabel.nii",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     output:
         cifti_pscalar=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             from_="{template}",
             datatype="surf",
             label="{seed}",
@@ -487,7 +487,7 @@ rule calc_surface_area_metric:
     input:
         surf_warped=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             space="individual",
             hemi="{hemi}",
             from_="{template}",
@@ -497,7 +497,7 @@ rule calc_surface_area_metric:
     output:
         metric=bids(
             root="work",
-            **config["subj_wildcards"],
+            **subj_wildcards,
             hemi="{hemi}",
             from_="{template}",
             datatype="surf",

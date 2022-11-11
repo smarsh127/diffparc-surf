@@ -8,7 +8,7 @@ rule nii2mif:
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         bval=bids(
             root="results",
@@ -17,7 +17,7 @@ rule nii2mif:
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         bvec=bids(
             root="results",
@@ -26,7 +26,7 @@ rule nii2mif:
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         mask=bids(
             root="results",
@@ -35,20 +35,20 @@ rule nii2mif:
             space="T1w",
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     output:
         dwi=bids(
             root="results",
             datatype="dwi",
             suffix="dwi.mif",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         mask=bids(
             root="results",
             datatype="dwi",
             suffix="mask.mif",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     threads: 4
     resources:
@@ -72,14 +72,14 @@ rule dwi2response_msmt:
             suffix="dwi.bvec",
             desc="preproc",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         bval=bids(
             root="results",
             suffix="dwi.bval",
             desc="preproc",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     output:
         wm_rf=bids(
@@ -88,7 +88,7 @@ rule dwi2response_msmt:
             alg="msmt",
             desc="wm",
             suffix="response.txt",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         gm_rf=bids(
             root="results",
@@ -96,7 +96,7 @@ rule dwi2response_msmt:
             alg="msmt",
             desc="gm",
             suffix="response.txt",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         csf_rf=bids(
             root="results",
@@ -104,7 +104,7 @@ rule dwi2response_msmt:
             alg="msmt",
             desc="csf",
             suffix="response.txt",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     threads: 8
     resources:
@@ -132,7 +132,7 @@ rule dwi2fod_msmt:
             alg="msmt",
             desc="wm",
             suffix="fod.mif",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         gm_fod=bids(
             root="results",
@@ -140,7 +140,7 @@ rule dwi2fod_msmt:
             alg="msmt",
             desc="gm",
             suffix="fod.mif",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         csf_fod=bids(
             root="results",
@@ -148,7 +148,7 @@ rule dwi2fod_msmt:
             alg="msmt",
             desc="csf",
             suffix="fod.mif",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     threads: 8
     resources:
@@ -176,7 +176,7 @@ rule mtnormalise:
             alg="msmt",
             desc="wmnorm",
             suffix="fod.mif",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         gm_fod=bids(
             root="results",
@@ -184,7 +184,7 @@ rule mtnormalise:
             alg="msmt",
             desc="normalized",
             suffix="gm_fod.mif",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
         csf_fod=bids(
             root="results",
@@ -192,7 +192,7 @@ rule mtnormalise:
             alg="msmt",
             desc="normalized",
             suffix="csf_fod.mif",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     threads: 8
     resources:
@@ -214,14 +214,14 @@ rule dwi2response_csd:
             suffix="dwi.bvec",
             desc="preproc",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
         bval=bids(
             root="results",
             suffix="dwi.bval",
             desc="preproc",
             datatype="dwi",
-            **config["subj_wildcards"]
+            **subj_wildcards
         ),
     output:
         wm_rf=bids(
@@ -230,7 +230,7 @@ rule dwi2response_csd:
             alg="csd",
             desc="wm",
             suffix="response.txt",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     threads: 8
     resources:
@@ -255,7 +255,7 @@ rule dwi2fod_csd:
             alg="csd",
             desc="wm",
             suffix="fod.mif",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     threads: 8
     resources:
@@ -276,7 +276,7 @@ rule dwi2tensor:
             root="results",
             datatype="dwi",
             suffix="tensor.mif",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     group:
         "subj"
@@ -298,7 +298,7 @@ rule tensor2metrics:
             root="results",
             datatype="dwi",
             suffix="fa.mif",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     group:
         "subj"
@@ -325,7 +325,7 @@ rule create_seed:
             root="results",
             datatype="dwi",
             suffix="seed.mif",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     threads: 8
     resources:
@@ -354,7 +354,7 @@ rule tckgen:
             datatype="dwi",
             desc="iFOD2",
             suffix="tractography.tck",
-            **config["subj_wildcards"],
+            **subj_wildcards,
         ),
     threads: 32
     resources:
