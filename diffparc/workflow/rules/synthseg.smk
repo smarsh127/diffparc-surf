@@ -145,7 +145,6 @@ def get_cmd_synthseg_targets(wildcards, input, output):
 
     cmd.append(f"-accum -add -endaccum -o {output.dseg}")
 
-    print(cmd)
     return " ".join(cmd)
 
 

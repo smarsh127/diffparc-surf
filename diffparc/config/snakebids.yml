@@ -155,7 +155,9 @@ parse_args:
     default: 
       - 500
 
-   
+  --surface_decimate_percent:
+    help: 'Target percentage of original mesh vertices to remove, e.g. higher values result in lower number of vertices in template surface (default: %(default)s)'
+    default: 80
 
 #---- to update below this
 
@@ -168,8 +170,9 @@ singularity:
   itksnap:  'docker://pyushkevich/itksnap:v3.8.2'
   mrtrix: 'docker://mrtrix3/mrtrix3:3.0.3'
   diffparc_deps: 'docker://akhanf/diffparc-deps:main' #this currently has mrtrix 3.0.3 and GNU parallel
-  synthseg: '/srv/containers/synthseg_v2.0.sif'
+  synthseg: 'docker://ghcr.io/akhanf/synthseg:master'
   pythondeps: 'docker://ghcr.io/khanlab/pythondeps-diffparc-app:v0.1.1'
+  pyvista: 'docker://ghcr.io/pyvista/pyvista:latest-slim'
 
 # Options for resampling dwi in T1w space
 #  1. can resample as T1w resolution
@@ -414,7 +417,7 @@ seeds_per_vertex:
  - 500
 
 surfdisp_normalization_fwhm_mm: 8
-surface_decimate_percent: 50 #reduce X% of the vertices
+surface_decimate_percent: 90 #reduce X% of the vertices
 
 #for test data
 participant_label: 

@@ -199,6 +199,7 @@ rule all:
     default_target: True
 
 
+include: "rules/common.smk"
 include: "rules/prepdwi.smk"
 include: "rules/reg_dwi_to_t1.smk"
 include: "rules/masking_bet_from-b0.smk"
