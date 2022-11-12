@@ -155,7 +155,9 @@ parse_args:
     default: 
       - 500
 
-   
+  --surface_decimate_percent:
+    help: 'Target percentage of original mesh vertices to remove, e.g. higher values result in lower number of vertices in template surface (default: %(default)s)'
+    default: 80
 
 #---- to update below this
 
