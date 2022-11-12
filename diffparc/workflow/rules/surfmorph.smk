@@ -28,7 +28,7 @@ rule gen_template_surface:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["pyvista"]
     script:
         "../scripts/gen_isosurface.py"
 
