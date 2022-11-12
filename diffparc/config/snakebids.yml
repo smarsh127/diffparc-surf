@@ -414,7 +414,7 @@ seeds_per_vertex:
  - 500
 
 surfdisp_normalization_fwhm_mm: 8
-surface_decimate_percent: 50 #reduce X% of the vertices
+surface_decimate_percent: 80 #reduce X% of the vertices
 
 #for test data
 participant_label: 

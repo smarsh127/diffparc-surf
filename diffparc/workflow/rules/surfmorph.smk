@@ -20,14 +20,13 @@ rule gen_template_surface:
         decimate_percent=config["surface_decimate_percent"],
     output:
         surf_gii=temp(
-            os.path.join(
-                workflow.basedir,
-                "..",
-                "resources/tpl-{template}/tpl-{template}_hemi-{hemi}_desc-nostruct_{seed}.surf.gii",
+            get_template_prefix(
+                root=root, subj_wildcards=subj_wildcards, template="{template}"
             )
+            + "_hemi-{hemi}_desc-nostruct_{seed}.surf.gii"
         ),
     group:
-        "template"
+        "subj"
     container:
         config["singularity"]["pythondeps"]
     script:
@@ -36,21 +35,19 @@ rule gen_template_surface:
 
 rule set_surface_structure:
     input:
-        surf_gii=os.path.join(
-            workflow.basedir,
-            "..",
-            "resources/tpl-{template}/tpl-{template}_hemi-{hemi}_desc-nostruct_{seed}.surf.gii",
-        ),
+        surf_gii=get_template_prefix(
+            root=root, subj_wildcards=subj_wildcards, template="{template}"
+        )
+        + "_hemi-{hemi}_desc-nostruct_{seed}.surf.gii",
     params:
         structure=lambda wildcards: config["hemi_to_structure"][wildcards.hemi],
     output:
-        surf_gii=os.path.join(
-            workflow.basedir,
-            "..",
-            "resources/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
-        ),
+        surf_gii=get_template_prefix(
+            root=root, subj_wildcards=subj_wildcards, template="{template}"
+        )
+        + "_hemi-{hemi}_{seed}.surf.gii",
     group:
-        "template"
+        "subj"
     container:
         config["singularity"]["autotop"]
     shell:
@@ -227,11 +224,7 @@ rule convert_warpfield:
 
 rule deform_surface:
     input:
-        surf_gii=os.path.join(
-            workflow.basedir,
-            "..",
-            "resources/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
-        ),
+        surf_gii=rules.set_surface_structure.output,
         warp=bids(
             root=root,
             datatype="surf",
@@ -262,11 +255,7 @@ rule deform_surface:
 
 rule compute_displacement_metrics:
     input:
-        ref_surf=os.path.join(
-            workflow.basedir,
-            "..",
-            "resources/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
-        ),
+        ref_surf=rules.set_surface_structure.output,
         comp_surf=bids(
             root=root,
             hemi="{hemi}",
@@ -309,19 +298,14 @@ rule compute_displacement_metrics:
 
 rule calc_template_surf_normals:
     input:
-        ref_surf=os.path.join(
-            workflow.basedir,
-            "..",
-            "resources/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
-        ),
+        ref_surf=rules.set_surface_structure.output,
     output:
-        normals=os.path.join(
-            workflow.basedir,
-            "..",
-            "resources/tpl-{template}/tpl-{template}_hemi-{hemi}_label-{seed}_normals.shape.gii",
-        ),
+        normals=get_template_prefix(
+            root=root, subj_wildcards=subj_wildcards, template="{template}"
+        )
+        + "_hemi-{hemi}_label-{seed}_normals.shape.gii",
     group:
-        "template"
+        "subj"
     container:
         config["singularity"]["autotop"]
     shell:
@@ -330,11 +314,7 @@ rule calc_template_surf_normals:
 
 rule smooth_displacement_vectors:
     input:
-        ref_surf=os.path.join(
-            workflow.basedir,
-            "..",
-            "resources/tpl-{template}/tpl-{template}_hemi-{hemi}_{seed}.surf.gii",
-        ),
+        ref_surf=rules.set_surface_structure.output,
         vector=bids(
             root=root,
             hemi="{hemi}",
@@ -422,11 +402,7 @@ rule calc_inout_displacement:
             label="{seed}",
             suffix="vectordisp.shape.gii"
         ),
-        norm=os.path.join(
-            workflow.basedir,
-            "..",
-            "resources/tpl-{template}/tpl-{template}_hemi-{hemi}_label-{seed}_normals.shape.gii",
-        ),
+        norm=rules.calc_template_surf_normals.output,
     output:
         inout=bids(
             root=root,
