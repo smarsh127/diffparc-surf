@@ -464,23 +464,37 @@ rule create_cifti_metric_dscalar:
         "wb_command -cifti-create-dense-scalar {output} -left-metric {input.left_metric} -right-metric {input.right_metric}"
 
 
-rule merge_dscalar_metrics_over_subjects:
-    input:
-        cifti_dscalar_subjects=sorted(
+def get_cifti_dscalar_subjects(wildcards):
+    filename = (
+        bids(
+            root=root,
+            **subj_wildcards,
+            from_="{template}",
+            datatype="surf",
+            label="{seed}",
+            suffix="{metric}.dscalar.nii"
+        ),
+    )
+
+    if "session" in subj_wildcards:
+        return sorted(
             expand(
-                bids(
-                    root=root,
-                    **subj_wildcards,
-                    from_="{template}",
-                    datatype="surf",
-                    label="{seed}",
-                    suffix="{metric}.dscalar.nii"
-                ),
-                zip,
-                **input_zip_lists["dwi"],
+                filename,
+                subject=inputs.subjects,
+                session=inputs.sessions,
+                **wildcards,
                 allow_missing=True
             )
-        ),
+        )
+    else:
+        return sorted(
+            expand(filename, subject=inputs.subjects, **wildcards, allow_missing=True)
+        )
+
+
+rule merge_dscalar_metrics_over_subjects:
+    input:
+        cifti_dscalar_subjects=get_cifti_dscalar_subjects,
     params:
         merge_opt=lambda wildcards, input: " ".join(
             [f"-cifti {cifti}" for cifti in input.cifti_dscalar_subjects]
