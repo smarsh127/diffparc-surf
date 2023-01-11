@@ -168,16 +168,6 @@ parse_args:
       - 'msmt_csd '
     default: 'csd'
 
-  --seeds_per_vertex:
-    help: 'Number of streamline seeds per vertex  (default: %(default)s)'
-    nargs: '+'
-    default: 
-      - 500
-
-  --surface_decimate_percent:
-    help: 'Target percentage of original mesh vertices to remove, e.g. higher values result in lower number of vertices in template surface (default: %(default)s)'
-    default: 80
-
   --stat_along_tcks:
     help: 'Statistic to use aggregating DTI metrics along each streamline (default: %(default)s)'
     nargs: '?'
@@ -204,6 +194,7 @@ parse_args:
 singularity:
   prepdwi: 'docker://khanlab/prepdwi:latest' 
   ants: 'docker://kaczmarj/ants:2.3.4'
+  fsl: 'docker://brainlife/fsl:6.0.4-patched2' 
   fsl_603: '/project/6050199/akhanf/singularity/bids-apps/fsl_6.0.3_cuda9.1.sif' 
   fsl_604: '/project/6050199/akhanf/singularity/bids-apps/fsl_6.0.4_cuda9.1.sif'  #eddy seems to fail with 6.0.4
   autotop: 'docker://khanlab/autotop_deps:v0.4.1'
@@ -368,13 +359,15 @@ seeds:
   striatum:
     template_probseg: resources/tpl-MNI152NLin2009cAsym/CIT168_prob/striatum_hemi-{hemi}_probseg.nii.gz
     probseg_threshold: 0.5
-    surface_decimate_percent: 80
+    surface_decimate_percent: 0
     use_synthseg: True 
     targets:
       - harvardoxford6
-    streamline_threshold: 50
+    streamline_threshold_percent: 10
     seeds_per_vertex:
-      - 500
+      - 1000
+    seeds_per_voxel:
+      - 1000
     normalize_percentile: False
   vtasnc:
     template_probseg: resources/tpl-MNI152NLin2009cAsym/CIT168_prob/vtasnc_hemi-{hemi}_probseg.nii.gz
@@ -383,9 +376,11 @@ seeds:
     use_synthseg: False
     targets: 
       - harvardoxford4
-    streamline_threshold: 20
+    streamline_threshold_percent: 4
     seeds_per_vertex:
-      - 500
+      - 1000
+    seeds_per_voxel:
+      - 1000
     normalize_percentile: 95 #normalize connectivity to each target before maxprob
 
 synthseg_labels:
@@ -409,6 +404,10 @@ hemi_to_structure:
   R: CORTEX_RIGHT
   LR: CORTEX
 
+volume_metrics:
+  - vol
+  - volmni
+  
 surface_metrics:
   - inout
   - surfarea
@@ -416,21 +415,21 @@ surface_metrics:
   - FA
   - MD
 
+
 methods:
   - mrtrix
-    #  - fslprobtrack
+  - fsl
 
 
 #tractography parameters
 fod_algorithm: csd #msmt_csd
-resample_seed_res: 2x2x2mm
-seeds_per_voxel: 
- - 500
-seeds_per_vertex:
- - 500
+
+
+resample_seed_res: '1x1x1mm' #for resampling seeds/targets
+
+#voxel-based-seeding tractography (can move these to structure-specific config later..)
 
 surfdisp_normalization_fwhm_mm: 8
-surface_decimate_percent: 90 #reduce X% of the vertices
 
 #for test data
 participant_label: 

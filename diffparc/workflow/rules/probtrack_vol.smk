@@ -1,139 +1,94 @@
-# TODO: add FSL containers
-
-
-rule extract_target_mask:
+rule binarize_upsampled_subject_seed:
     input:
-        targets=bids(
-            root=root,
-            **subj_wildcards,
-            desc="{targets}",
-            datatype="anat",
-            suffix="dseg.nii.gz"
-        ),
+        seed_nii=get_subject_seed_upsampled_probseg,
     params:
-        label_num=lambda wildcards: config["targets"][wildcards.targets][
-            "labels"
-        ].index(wildcards.desc)
-        + 1,
+        threshold=lambda wildcards: config["seeds"][wildcards.seed]["probseg_threshold"],
     output:
-        temp(
-            bids(
-                root=root,
-                **subj_wildcards,
-                targets="{targets}",
-                desc="{desc}",
-                datatype="anat",
-                suffix="mask.nii.gz"
-            )
+        seed_nii=bids(
+            root=root,
+            datatype="tracts",
+            suffix="mask.nii.gz",
+            hemi="{hemi}",
+            label="{seed}",
+            desc="seed",
+            **subj_wildcards
         ),
     container:
         config["singularity"]["itksnap"]
     group:
         "subj"
     shell:
-        "c3d {input} -retain-labels {params.label_num} -binarize -o {output}"
+        "c3d {input} -threshold 0.5 inf 1 0  -type uchar -o {output}"
 
 
-rule fix_sform_mask:
+rule fix_sform_seed:
     input:
-        brain_mask=bids(
+        seed_nii=bids(
             root=root,
+            datatype="tracts",
             suffix="mask.nii.gz",
-            desc="brain",
-            space="T1w",
-            res="{res}",
-            datatype="dwi",
+            hemi="{hemi}",
+            label="{seed}",
+            desc="seed",
             **subj_wildcards
         ),
     output:
-        brain_mask=temp(
+        seed_nii=temp(
             bids(
                 root=root,
+                datatype="tracts",
                 suffix="mask.nii.gz",
-                desc="brain",
-                space="T1w",
-                res="{res}",
+                hemi="{hemi}",
+                label="{seed}",
+                desc="seed",
                 fix="sform",
-                datatype="dwi",
                 **subj_wildcards
             )
         ),
-    container:
-        config["singularity"]["fsl"]
     group:
         "subj"
+    container:
+        config["singularity"]["fsl"]
     shell:
         "cp {input} {output} && "
         "QFORM=`fslorient -getqform {output}` && "
         "fslorient -setsform $QFORM {output}"
 
 
-rule fix_sform_target:
+rule create_seed_bg:
     input:
-        bids(
+        seed_nii=bids(
             root=root,
-            **subj_wildcards,
-            targets="{targets}",
-            desc="{desc}",
-            datatype="anat",
-            suffix="mask.nii.gz"
+            datatype="tracts",
+            suffix="mask.nii.gz",
+            hemi="{hemi}",
+            label="{seed}",
+            desc="seed",
+            fix="sform",
+            **subj_wildcards
         ),
     output:
-        temp(
+        seed_nii=temp(
             bids(
                 root=root,
-                **subj_wildcards,
-                targets="{targets}",
-                desc="{desc}",
+                datatype="tracts",
+                suffix="mask.nii.gz",
+                hemi="{hemi}",
+                label="{seed}",
+                desc="seedbg",
                 fix="sform",
-                datatype="anat",
-                suffix="mask.nii.gz"
+                **subj_wildcards
             )
         ),
+    group:
+        "subj"
     container:
-        config["singularity"]["fsl"]
-    group:
-        "subj"
+        config["singularity"]["itksnap"]
     shell:
-        "cp {input} {output} && "
-        "QFORM=`fslorient -getqform {output}` && "
-        "fslorient -setsform $QFORM {output}"
+        "c3d {input} -replace 1 0 0 1 -o {output}"
 
 
-rule gen_targets_txt:
-    input:
-        targets=lambda wildcards: expand(
-            bids(
-                root=root,
-                **subj_wildcards,
-                targets="{targets}",
-                desc="{desc}",
-                fix="sform",
-                datatype="anat",
-                suffix="mask.nii.gz"
-            ),
-            desc=config["targets"][wildcards.targets]["labels"],
-            allow_missing=True,
-        ),
-    output:
-        target_txt=bids(
-            root=root,
-            **subj_wildcards,
-            targets="{targets}",
-            datatype="tracts",
-            desc="probtrack",
-            suffix="targets.txt"
-        ),
-    group:
-        "subj"
-    run:
-        f = open(output.target_txt, "w")
-        for s in input.targets:
-            f.write(f"{s}\n")
-        f.close()
-
-
-rule run_probtrack_surface:
+rule run_probtrack_volume:
     input:
         bedpost_dir=bids(
             root=root,
@@ -152,12 +107,15 @@ rule run_probtrack_surface:
             desc="probtrack",
             suffix="targets.txt"
         ),
-        surf_gii=bids(
+        seed_nii=bids(
             root=root,
-            **subj_wildcards,
+            suffix="mask.nii.gz",
+            datatype="tracts",
             hemi="{hemi}",
-            datatype="surf",
-            suffix="{seed}.surf.gii"
+            label="{seed}",
+            desc="seed",
+            fix="sform",
+            **subj_wildcards
         ),
         dwi_brain_mask=bids(
             root=root,
@@ -193,7 +151,7 @@ rule run_probtrack_surface:
             allow_missing=True,
         ),
     params:
-        seeds_per_vertex="{seedspervertex}",
+        seedspervoxel="{seedspervoxel}",
     output:
         out_tract_dir=directory(
             bids(
@@ -202,7 +160,7 @@ rule run_probtrack_surface:
                 hemi="{hemi}",
                 label="{seed}",
                 desc="{targets}",
-                seedspervertex="{seedspervertex}",
+                seedspervoxel="{seedspervoxel}",
                 datatype="tracts",
                 suffix="probtrack"
             )
@@ -213,31 +171,31 @@ rule run_probtrack_surface:
             hemi="{hemi}",
             label="{seed}",
             desc="{targets}",
-            seedspervertex="{seedspervertex}",
+            seedspervoxel="{seedspervoxel}",
             datatype="tracts",
             suffix="probtrack/matrix_seeds_to_all_targets"
         ),
     group:
         "subj"
-    container:
-        config["singularity"]["fsl"]
     threads: 1
     resources:
         mem_mb=4000,
-        time=lambda wildcards: int(0.2 * float(wildcards.seedspervertex)),  # 15 minutes for 100 seedspervertex for undecimated striatum, so set at 0.20 minutes per seed (this will need to go up if a larger seed region is used)
+        time=lambda wildcards: int(0.2 * float(wildcards.seedspervoxel)),  # 15 minutes for 100 seedspervertex for undecimated striatum, so set at 0.20 minutes per seed (this will need to go up if a larger seed region is used)
     benchmark:
         bids(
             root="benchmarks",
             hemi="{hemi}",
             label="{seed}",
             desc="{targets}",
-            seedspervertex="{seedspervertex}",
-            suffix="probtracksurf.tsv",
+            seedspervoxel="{seedspervoxel}",
+            suffix="probtrackvol.tsv",
             **subj_wildcards,
         )
+    container:
+        config["singularity"]["fsl"]
     shell:
         "probtrackx2 "
-        " -x {input.surf_gii} "
+        " -x {input.seed_nii} "
         " -m {input.dwi_brain_mask} "
         " -s {input.bedpost_dir}/merged "
         " --dir={output.out_tract_dir} "
@@ -250,38 +208,63 @@ rule run_probtrack_surface:
         " --randfib=2 "
         " -V 0 "
         " -l  --onewaycondition -c 0.2 -S 2000 --steplength=0.5 "
-        " -P {params.seeds_per_vertex} --fibthresh=0.01 --distthresh=0.0 --sampvox=0.0 "
+        " -P {params.seedspervoxel} --fibthresh=0.01 --distthresh=0.0 --sampvox=0.0 "
 
 
-rule create_conn_csv_probtrack:
+rule merge_seed_conn_files:
     input:
-        conn_txt=bids(
+        tract_dir=bids(
             root=root,
             **subj_wildcards,
             hemi="{hemi}",
             label="{seed}",
             desc="{targets}",
-            seedspervertex="{seedspervertex}",
+            seedspervoxel="{seedspervoxel}",
             datatype="tracts",
-            suffix="probtrack/matrix_seeds_to_all_targets"
+            suffix="probtrack"
+        ),
+        seed_bg=bids(
+            root=root,
+            datatype="tracts",
+            suffix="mask.nii.gz",
+            hemi="{hemi}",
+            label="{seed}",
+            desc="seedbg",
+            fix="sform",
+            **subj_wildcards
         ),
     params:
-        col_headers=lambda wildcards: config["targets"][wildcards.targets]["labels"],
+        seed_conn_files=lambda wildcards, input: [
+            f"{input.tract_dir}/seeds_to_{fname}"
+            for fname in expand(
+                bids(
+                    include_subject_dir=False,
+                    include_session_dir=False,
+                    **subj_wildcards,
+                    targets="{targets}",
+                    desc="{desc}",
+                    fix="sform",
+                    suffix="mask.nii.gz",
+                ),
+                desc=config["targets"][wildcards.targets]["labels"],
+                **wildcards,
+            )
+        ],
     output:
-        conn_csv=bids(
+        conn_nii=bids(
             root=root,
-            **subj_wildcards,
+            datatype="tracts",
             hemi="{hemi}",
             desc="{targets}",
             label="{seed}",
-            seedspervertex="{seedspervertex}",
+            seedspervoxel="{seedspervoxel}",
             method="fsl",
-            datatype="tracts",
-            suffix="conn.csv"
+            suffix="conn.nii.gz",
+            **subj_wildcards,
         ),
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
-    script:
-        "../scripts/probtrack_matrix_to_csv.py"
+        config["singularity"]["fsl"]
+    shell:
+        "fslmerge -t {output} {input.seed_bg} {params.seed_conn_files}"

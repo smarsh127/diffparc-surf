@@ -150,6 +150,15 @@ rule track_from_vertices:
         "subj"
     container:
         config["singularity"]["diffparc_deps"]
+    benchmark:
+        bids(
+            root="benchmarks",
+            hemi="{hemi}",
+            label="{seed}",
+            seedspervertex="{seedspervertex}",
+            suffix="mrtrixsurftrack.tsv",
+            **subj_wildcards,
+        )
     shell:
         "mkdir -p {output.tck_dir} && "
         "parallel --bar --link --jobs {threads} "
@@ -203,7 +212,7 @@ rule connectivity_from_vertices:
         config["singularity"]["diffparc_deps"]
     shell:
         "mkdir -p {output.conn_dir} && "
-        "parallel --eta --jobs {threads} "
+        "parallel --bar --jobs {threads} "
         "tck2connectome -nthreads 0 -quiet {input.tck_dir}/vertex_{{1}}.tck {input.targets} {output.conn_dir}/conn_{{1}}.csv -vector"
         " ::: `ls {input.tck_dir} | grep -Po '(?<=vertex_)[0-9]+'`"
 
@@ -454,9 +463,10 @@ rule mask_maxprob_by_sumconn_threshold:
             **subj_wildcards,
         ),
     params:
-        threshold=lambda wildcards: config["seeds"][wildcards.seed][
-            "streamline_threshold"
-        ],
+        threshold=lambda wildcards: float(
+            config["seeds"][wildcards.seed]["streamline_threshold_percent"]
+        )
+        / float(wildcards.seedspervertex),
     output:
         masked=temp(
             bids(
@@ -602,13 +612,10 @@ rule parcellate_cifti_metric:
 
 rule calc_surface_area_metric:
     input:
-        surf_warped=bids(
-            root=root,
-            **subj_wildcards,
-            hemi="{hemi}",
-            datatype="surf",
-            suffix="{seed}.surf.gii"
-        ),
+        template_surf=get_template_prefix(
+            root=root, subj_wildcards=subj_wildcards, template=config["template"]
+        )
+        + "_hemi-{hemi}_{seed}.surf.gii",
     output:
         metric=bids(
             root=root,
