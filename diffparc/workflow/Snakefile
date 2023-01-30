@@ -187,6 +187,8 @@ rule all_preprocdwi:
 
 def get_vol_subj_tables_legacy():
     csvs = []
+    if config["volume_metrics"] == None:
+        return []
     for seed in config["select_seeds"]:
         csvs.extend(
             expand(
@@ -220,6 +222,9 @@ def get_vol_subj_tables_legacy():
 
 def get_surf_subj_tables_legacy():
     csvs = []
+    if config["surface_metrics"] == None:
+        return []
+
     for seed in config["select_seeds"]:
         # dti metrics (currently only mrtrix):
         csvs.extend(
@@ -243,7 +248,9 @@ def get_surf_subj_tables_legacy():
                     method=list(set(config["methods"]).intersection({"mrtrix"})),
                     form=["legacy"],
                     suffix=list(
-                        set(config["surface_metrics"]).intersection({"FA", "MD"})
+                        set(config["surface_metrics"]).intersection(
+                            {"bundleFA", "bundleMD"}
+                        )
                     ),
                     allow_missing=True,
                 ),
@@ -273,7 +280,9 @@ def get_surf_subj_tables_legacy():
                     method=config["methods"],
                     form=["legacy"],
                     suffix=list(
-                        set(config["surface_metrics"]).difference({"FA", "MD"})
+                        set(config["surface_metrics"]).difference(
+                            {"bundleFA", "bundleMD"}
+                        )
                     ),
                     allow_missing=True,
                 ),
@@ -287,6 +296,8 @@ def get_surf_subj_tables_legacy():
 
 def get_subj_spec():
     specs = []
+    if config["surface_metrics"] == None:
+        return []
     for seed in config["select_seeds"]:
         specs.extend(
             expand(
@@ -305,6 +316,28 @@ def get_subj_spec():
             )
         )
     return specs
+
+
+def get_synthseg_subj_tables_legacy():
+    if config["volume_metrics"] == None:
+        return []
+    else:
+        return expand(
+            expand(
+                bids(
+                    root=root,
+                    datatype="tabular",
+                    method="synthseg",
+                    form="legacy",
+                    suffix="{metric}.csv",
+                    **subj_wildcards,
+                ),
+                metric=config["volume_metrics"],
+                allow_missing=True,
+            ),
+            zip,
+            **subj_zip_list,
+        )
 
 
 def get_subj_qc():
@@ -337,9 +370,10 @@ def get_subj_qc():
 
 rule all:
     input:
-        get_surf_subj_tables_legacy(),
         get_subj_spec(),
+        get_surf_subj_tables_legacy(),
         get_vol_subj_tables_legacy(),
+        get_synthseg_subj_tables_legacy(),
         get_subj_qc(),
     default_target: True
 
@@ -357,11 +391,13 @@ include: "rules/bedpost.smk"
 include: "rules/synthseg.smk"
 include: "rules/prop_seeds_targets.smk"
 include: "rules/surfmorph.smk"
+include: "rules/surfarea.smk"
 include: "rules/mrtrix_vol.smk"
 include: "rules/mrtrix_surf.smk"
 include: "rules/probtrack_surf.smk"
 include: "rules/probtrack_vol.smk"
-include: "rules/volparc_postproc.smk"
+include: "rules/postproc_surf.smk"
+include: "rules/postproc_vol.smk"
 include: "rules/parcbundles.smk"
 include: "rules/cifti.smk"
 include: "rules/tables.smk"

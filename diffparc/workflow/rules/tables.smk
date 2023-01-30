@@ -1,6 +1,6 @@
 def get_dscalar_nii(wildcards):
     metric = wildcards.metric
-    if metric == "surfarea" or metric == "inout":
+    if metric == "surfarea" or metric == "inout" or metric == "surfarearatio":
         dscalar = bids(
             root=root,
             datatype="surf",
@@ -8,7 +8,7 @@ def get_dscalar_nii(wildcards):
             suffix="{metric}.dscalar.nii",
             **subj_wildcards,
         )
-    elif metric == "FA" or metric == "MD":
+    elif metric == "bundleFA" or metric == "bundleMD":
         dscalar = bids(
             root=root,
             datatype="surf",
@@ -19,6 +19,15 @@ def get_dscalar_nii(wildcards):
             suffix="{metric}.dscalar.nii",
             **subj_wildcards,
         )
+    elif metric == "surfFA" or metric == "surfMD":
+        dscalar = bids(
+            root=root,
+            datatype="surf",
+            label="{seed}",
+            suffix="{metric}.dscalar.nii",
+            **subj_wildcards,
+        )
+
     return dscalar.format(**wildcards)
 
 
@@ -96,6 +105,58 @@ def get_maxprob_dsegs(wildcards):
                 **subj_wildcards,
             ).format(**wildcards)
     return out_dict
+
+
+def get_synthseg_dseg_for_metrics(wildcards):
+    if wildcards.metric == "vol":
+        return bids(
+            root=root,
+            datatype="anat",
+            desc="synthseg",
+            suffix="dseg.nii.gz",
+            **subj_wildcards,
+        ).format(**wildcards)
+    elif wildcards.metric == "volmni":
+        return bids(
+            root=root,
+            datatype="anat",
+            desc="synthseg",
+            space=config["template"],
+            warp="linear",
+            suffix="dseg.nii.gz",
+            **subj_wildcards,
+        ).format(**wildcards)
+
+
+rule write_synthseg_vol_metrics_legacy_csv:
+    """ for backwards compatiblity with old diffparc - 
+    separate file for each metric, using identical column names (parcels), 
+    and index column as "subj", formatted as sub-{subject}_ses-{session} """
+    input:
+        dseg=get_synthseg_dseg_for_metrics,
+        labels_tsv=os.path.join(
+            workflow.basedir, "..", "resources", "synthseg_simple_labels.tsv"
+        ),
+    params:
+        index_col_value=bids(
+            **subj_wildcards, include_subject_dir=False, include_session_dir=False
+        ),
+        index_col_name="subj",
+    output:
+        csv=bids(
+            root=root,
+            datatype="tabular",
+            method="synthseg",
+            form="legacy",
+            suffix="{metric,vol|volmni}.csv",
+            **subj_wildcards,
+        ),
+    container:
+        config["singularity"]["pythondeps"]
+    group:
+        "subj"
+    script:
+        "../scripts/write_synthseg_vol_metrics_legacy.py"
 
 
 rule write_vol_metrics_legacy_csv:
