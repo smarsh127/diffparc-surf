@@ -106,12 +106,12 @@ def get_maxprob_dsegs(wildcards):
     return out_dict
 
 
-def get_synthseg_dseg_for_metrics(wildcards):
+def get_aux_dseg_for_metrics(wildcards):
     if wildcards.metric == "vol":
         return bids(
             root=root,
             datatype="anat",
-            desc="synthseg",
+            desc="{dseg_method}",
             suffix="dseg.nii.gz",
             **subj_wildcards,
         ).format(**wildcards)
@@ -119,7 +119,7 @@ def get_synthseg_dseg_for_metrics(wildcards):
         return bids(
             root=root,
             datatype="anat",
-            desc="synthseg",
+            desc="{dseg_method}",
             space=config["template"],
             warp="linear",
             suffix="dseg.nii.gz",
@@ -127,14 +127,16 @@ def get_synthseg_dseg_for_metrics(wildcards):
         ).format(**wildcards)
 
 
-rule write_synthseg_vol_metrics_csv:
+rule write_dseg_vol_metrics_csv:
     """ for backwards compatiblity with old diffparc - 
     separate file for each metric, using identical column names (parcels), 
     and index column as "subj", formatted as sub-{subject}_ses-{session} """
     input:
-        dseg=get_synthseg_dseg_for_metrics,
-        labels_tsv=os.path.join(
-            workflow.basedir, "..", "resources", "synthseg_simple_labels.tsv"
+        dseg=get_aux_dseg_for_metrics,
+        labels_tsv=lambda wildcards: os.path.join(
+            workflow.basedir,
+            "..",
+            config["aux_dseg"][wildcards.dseg_method]["label_tsv"],
         ),
     params:
         index_col_value=bids(
@@ -145,7 +147,7 @@ rule write_synthseg_vol_metrics_csv:
         csv=bids(
             root=root,
             datatype="tabular",
-            method="synthseg",
+            method="{dseg_method}",
             suffix="{metric,vol|volmni}.csv",
             **subj_wildcards,
         ),
@@ -154,7 +156,50 @@ rule write_synthseg_vol_metrics_csv:
     group:
         "subj"
     script:
-        "../scripts/write_synthseg_vol_metrics.py"
+        "../scripts/write_aux_dseg_vol_metrics.py"
+
+
+rule write_dseg_dti_metrics_csv:
+    """ calcs mean dti metric in each dseg label """
+    input:
+        dseg=bids(
+            root=root,
+            datatype="anat",
+            desc="{dseg_method}",
+            suffix="dseg.nii.gz",
+            **subj_wildcards
+        ),
+        metric=bids(
+            root=root,
+            datatype="dwi",
+            resliced="{dseg_method}",
+            suffix="{metric}.nii.gz",
+            **subj_wildcards,
+        ),
+        labels_tsv=lambda wildcards: os.path.join(
+            workflow.basedir,
+            "..",
+            config["aux_dseg"][wildcards.dseg_method]["label_tsv"],
+        ),
+    params:
+        index_col_value=bids(
+            **subj_wildcards, include_subject_dir=False, include_session_dir=False
+        ),
+        index_col_name="subj",
+    output:
+        csv=bids(
+            root=root,
+            datatype="tabular",
+            method="{dseg_method}",
+            suffix="{metric,FA|MD}.csv",
+            **subj_wildcards,
+        ),
+    container:
+        config["singularity"]["pythondeps"]
+    group:
+        "subj"
+    script:
+        "../scripts/write_aux_dseg_dti_metrics.py"
 
 
 rule write_vol_metrics_csv:

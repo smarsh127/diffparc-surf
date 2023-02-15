@@ -391,6 +391,19 @@ seeds:
       - 250
     normalize_percentile: 95 #normalize connectivity to each target before maxprob
 
+aux_dseg:
+  synthseg:
+    label_tsv: 'resources/synthseg_simple_labels.tsv'
+  synthsegcortparc:
+    label_tsv: 'resources/synthseg_cortparc_labels.tsv'
+
+
+aux_metrics:
+  - vol
+  - volmni
+  - FA
+  - MD
+
 synthseg_labels:
   striatum:
     L:
