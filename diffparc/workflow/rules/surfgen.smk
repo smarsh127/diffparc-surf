@@ -161,3 +161,77 @@ rule linear_transform_surf_to_template:
         config["singularity"]["autotop"]
     shell:
         "wb_command -surface-apply-affine {input.surf} {input.xfm_world} {output.surf}"
+
+
+rule convert_rigid_to_world:
+    input:
+        xfm_itk=bids(
+            root=root,
+            suffix="xfm.txt",
+            hemi="{hemi}",
+            from_=config["template"],
+            to="subj",
+            desc="rigid",
+            type_="itk",
+            label="{seed}",
+            datatype="warps",
+            **subj_wildcards
+        ),
+    output:
+        rigid_world=bids(
+            root=root,
+            suffix="xfm.txt",
+            hemi="{hemi}",
+            from_=config["template"],
+            to="subj",
+            desc="rigid",
+            type_="world",
+            label="{seed}",
+            datatype="warps",
+            **subj_wildcards
+        ),
+    group:
+        "subj"
+    container:
+        config["singularity"]["autotop"]
+    shell:
+        "wb_command -convert-affine -from-itk {input} -to-world {output} -inverse"
+
+
+rule transform_template_surf_to_t1:
+    """ transforms the template surface to the subject T1 """
+    input:
+        surf_gii=bids(
+            root=root,
+            hemi="{hemi}",
+            **subj_wildcards,
+            desc="fluid",
+            datatype="morph",
+            suffix="{seed}.surf.gii"
+        ),
+        rigid_world=bids(
+            root=root,
+            suffix="xfm.txt",
+            hemi="{hemi}",
+            from_=config["template"],
+            to="subj",
+            desc="rigid",
+            type_="world",
+            label="{seed}",
+            datatype="warps",
+            **subj_wildcards
+        ),
+    output:
+        surf_warped=bids(
+            root=root,
+            **subj_wildcards,
+            hemi="{hemi}",
+            datatype="surf",
+            suffix="{seed}.surf.gii"
+        ),
+    group:
+        "subj"
+    container:
+        config["singularity"]["autotop"]
+    shell:
+        "wb_command -surface-apply-affine {input.surf_gii} {input.rigid_world} {output.surf_warped}"

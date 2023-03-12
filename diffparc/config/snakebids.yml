@@ -193,6 +193,11 @@ parse_args:
     action: 'store_true'
     default: False
 
+  --anat_only:
+    help: 'Run variant of the workflow that only uses anatomical (T1w) data. Uses a pre-computed parcellation for surface-based connectivity parcellation. Does not produce volumetric parcellations, or any connectivity or DTI metric features. (default: %(default)s)'
+    action: 'store_true'
+    default: False
+
 #---- to update below this
 
 singularity:
@@ -447,6 +452,7 @@ surface_metrics:
 
 
 
+
 methods:
   - mrtrix
 
@@ -482,3 +488,6 @@ in_prepdwi_dir: False
 in_snakedwi_dir: False
 
 show_parallel_eta: False
+
+anat_only: False
+

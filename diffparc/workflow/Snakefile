@@ -7,6 +7,9 @@ from snakebids import bids
 configfile: "config/snakebids.yml"
 
 
+if config["anat_only"]:
+    del config["pybids_inputs"]["dwi"]
+
 # writes inputs_config.yml and updates config dict
 inputs = snakebids.generate_inputs(
     bids_dir=config["bids_dir"],
@@ -83,6 +86,7 @@ else:
     subj_zip_list = {"subject": list(subj_set_intersection)}
 
 # ------------------------------------------------------------------------------
+
 
 # set the default bids root for output files
 root = config["root"]
@@ -398,27 +402,31 @@ rule all:
 
 
 include: "rules/common.smk"
-include: "rules/preproc_dwi.smk"
-include: "rules/motioncorr.smk"
 include: "rules/preproc_t1.smk"
-include: "rules/masking_bet_from-b0.smk"
-include: "rules/masking_b0_to_template.smk"
-include: "rules/reg_dwi_to_t1.smk"
 include: "rules/reg_t1_to_template.smk"
-include: "rules/mrtrix.smk"
-include: "rules/bedpost.smk"
 include: "rules/synthseg.smk"
-include: "rules/prop_seeds_targets.smk"
 include: "rules/surfgen.smk"
+include: "rules/prop_seeds_targets.smk"
 include: "rules/surfdisp.smk"
 include: "rules/surfarea.smk"
-include: "rules/mrtrix_vol.smk"
-include: "rules/mrtrix_surf.smk"
-include: "rules/probtrack_surf.smk"
-include: "rules/probtrack_vol.smk"
 include: "rules/postproc_surf.smk"
 include: "rules/postproc_vol.smk"
-include: "rules/parcbundles.smk"
 include: "rules/cifti.smk"
 include: "rules/tables.smk"
 include: "rules/visqc.smk"
+
+
+if not config["anat_only"]:
+
+    include: "rules/preproc_dwi.smk"
+    include: "rules/motioncorr.smk"
+    include: "rules/masking_bet_from-b0.smk"
+    include: "rules/masking_b0_to_template.smk"
+    include: "rules/reg_dwi_to_t1.smk"
+    include: "rules/mrtrix.smk"
+    include: "rules/bedpost.smk"
+    include: "rules/mrtrix_vol.smk"
+    include: "rules/mrtrix_surf.smk"
+    include: "rules/probtrack_surf.smk"
+    include: "rules/probtrack_vol.smk"
+    include: "rules/parcbundles.smk"

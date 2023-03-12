@@ -31,13 +31,21 @@ def get_dscalar_nii(wildcards):
     return dscalar.format(**wildcards)
 
 
-rule write_surf_metrics_csv:
-    """ for backwards compatiblity with old diffparc - 
-    separate file for each metric, using identical column names (parcels), 
-    and index column as "subj", formatted as sub-{subject}_ses-{session} """
-    input:
-        dscalar=get_dscalar_nii,
-        dlabel=bids(
+def get_dlabel_nii(wildcards):
+    if config["anat_only"]:
+        return bids(
+            root=os.path.join(workflow.basedir, "..", "resources", "tpl-ctrlavg"),
+            prefix="tpl-ctrlavg",
+            datatype="surf",
+            desc="{targets}",
+            label="{seed}",
+            seedspervertex="{seedspervertex}",
+            method="{method}",
+            suffix="maxprob.dlabel.nii",
+        ).format(**wildcards)
+
+    else:
+        return bids(
             root=root,
             datatype="surf",
             desc="{targets}",
@@ -46,7 +54,16 @@ rule write_surf_metrics_csv:
             method="{method}",
             suffix="maxprob.dlabel.nii",
             **subj_wildcards,
-        ),
+        ).format(**wildcards)
+
+
+rule write_surf_metrics_csv:
+    """ for backwards compatiblity with old diffparc - 
+    separate file for each metric, using identical column names (parcels), 
+    and index column as "subj", formatted as sub-{subject}_ses-{session} """
+    input:
+        dscalar=get_dscalar_nii,
+        dlabel=get_dlabel_nii,
     params:
         index_col_value=bids(
             **subj_wildcards, include_subject_dir=False, include_session_dir=False
