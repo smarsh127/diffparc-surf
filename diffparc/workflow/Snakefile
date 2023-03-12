@@ -8,7 +8,15 @@ configfile: "config/snakebids.yml"
 
 
 if config["anat_only"]:
+
+    # remove dwi from bids inputs:
     del config["pybids_inputs"]["dwi"]
+
+    # restrict to set of valid metrics
+    config["volume_metrics"] = config["anat_only_metrics"]["volume_metrics"]
+    config["surface_metrics"] = config["anat_only_metrics"]["surface_metrics"]
+    config["aux_metrics"] = config["anat_only_metrics"]["aux_metrics"]
+
 
 # writes inputs_config.yml and updates config dict
 inputs = snakebids.generate_inputs(

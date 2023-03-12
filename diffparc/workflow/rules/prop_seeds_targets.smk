@@ -1,6 +1,14 @@
-rule create_upsampled_cropped_seed_ref:
-    input:
-        ref=bids(
+def get_ref_mask(wildcards):
+    if config["anat_only"]:
+        return bids(
+            root=root,
+            datatype="anat",
+            **subj_wildcards,
+            desc="brain",
+            suffix="mask.nii.gz"
+        ).format(**wildcards)
+    else:
+        return bids(
             root=root,
             suffix="mask.nii.gz",
             desc="brain",
@@ -8,7 +16,12 @@ rule create_upsampled_cropped_seed_ref:
             res=config["resample_dwi"]["resample_scheme"],
             datatype="dwi",
             **subj_wildcards
-        ),
+        ).format(**wildcards)
+
+
+rule create_upsampled_cropped_seed_ref:
+    input:
+        ref=get_ref_mask,
     params:
         resample_res=config["resample_seed_res"],
     output:

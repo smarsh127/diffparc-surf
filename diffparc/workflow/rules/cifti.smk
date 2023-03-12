@@ -173,67 +173,83 @@ def get_inputs_spec_file(wildcards):
         )
     )
 
-    conn_suffixes = ["maxprob.dlabel.nii", "conn.dscalar.nii"]
+    if not config["anat_only"]:
+        conn_suffixes = ["maxprob.dlabel.nii", "conn.dscalar.nii"]
 
-    inputs_dict["LR"].extend(
-        expand(
-            bids(
-                root=root,
-                datatype="surf",
-                desc="{targets}",
-                label="{seed}",
-                seedspervertex="{seedspervertex}",
-                method="{method}",
-                suffix="{suffix}",
-                **subj_wildcards,
-            ),
-            targets=config["seeds"][wildcards.seed]["targets"],
-            seedspervertex=config["seeds"][wildcards.seed]["seeds_per_vertex"],
-            method=config["methods"],
-            suffix=conn_suffixes,
-            **wildcards,
+        inputs_dict["LR"].extend(
+            expand(
+                bids(
+                    root=root,
+                    datatype="surf",
+                    desc="{targets}",
+                    label="{seed}",
+                    seedspervertex="{seedspervertex}",
+                    method="{method}",
+                    suffix="{suffix}",
+                    **subj_wildcards,
+                ),
+                targets=config["seeds"][wildcards.seed]["targets"],
+                seedspervertex=config["seeds"][wildcards.seed]["seeds_per_vertex"],
+                method=config["methods"],
+                suffix=conn_suffixes,
+                **wildcards,
+            )
         )
-    )
 
-    bundle_dti_suffixes = [f"{dti}.dscalar.nii" for dti in bundle_dti_metrics]
-    methods_bundle_dti = sorted(list(set(config["methods"]).intersection({"mrtrix"})))
-
-    surf_dti_suffixes = [f"surf{dti}.dscalar.nii" for dti in dti_metrics]
-
-    inputs_dict["LR"].extend(
-        expand(
-            bids(
-                root=root,
-                datatype="surf",
-                desc="{targets}",
-                label="{seed}",
-                seedspervertex="{seedspervertex}",
-                method="{method}",
-                suffix="{suffix}",
-                **subj_wildcards,
-            ),
-            targets=config["seeds"][wildcards.seed]["targets"],
-            seedspervertex=config["seeds"][wildcards.seed]["seeds_per_vertex"],
-            method=methods_bundle_dti,
-            suffix=bundle_dti_suffixes,
-            **wildcards,
+        bundle_dti_suffixes = [f"{dti}.dscalar.nii" for dti in bundle_dti_metrics]
+        methods_bundle_dti = sorted(
+            list(set(config["methods"]).intersection({"mrtrix"}))
         )
-    )
 
-    inputs_dict["LR"].extend(
-        expand(
-            bids(
-                root=root,
-                datatype="surf",
-                label="{seed}",
-                suffix="{suffix}",
-                **subj_wildcards,
-            ),
-            method=config["methods"],
-            suffix=surf_dti_suffixes,
-            **wildcards,
+        surf_dti_suffixes = [f"surf{dti}.dscalar.nii" for dti in dti_metrics]
+
+        inputs_dict["LR"].extend(
+            expand(
+                bids(
+                    root=root,
+                    datatype="surf",
+                    desc="{targets}",
+                    label="{seed}",
+                    seedspervertex="{seedspervertex}",
+                    method="{method}",
+                    suffix="{suffix}",
+                    **subj_wildcards,
+                ),
+                targets=config["seeds"][wildcards.seed]["targets"],
+                seedspervertex=config["seeds"][wildcards.seed]["seeds_per_vertex"],
+                method=methods_bundle_dti,
+                suffix=bundle_dti_suffixes,
+                **wildcards,
+            )
         )
-    )
+
+        inputs_dict["LR"].extend(
+            expand(
+                bids(
+                    root=root,
+                    datatype="surf",
+                    label="{seed}",
+                    suffix="{suffix}",
+                    **subj_wildcards,
+                ),
+                method=config["methods"],
+                suffix=surf_dti_suffixes,
+                **wildcards,
+            )
+        )
+
+        inputs_dict["other"].extend(
+            expand(
+                bids(
+                    root=root,
+                    datatype="dwi",
+                    suffix="{dti}.nii.gz",
+                    **subj_wildcards,
+                ),
+                dti=dti_metrics,
+                **wildcards,
+            )
+        )
 
     inputs_dict["other"].extend(
         expand(
@@ -244,19 +260,6 @@ def get_inputs_spec_file(wildcards):
                 suffix="T1w.nii.gz",
                 **subj_wildcards,
             ),
-            **wildcards,
-        )
-    )
-
-    inputs_dict["other"].extend(
-        expand(
-            bids(
-                root=root,
-                datatype="dwi",
-                suffix="{dti}.nii.gz",
-                **subj_wildcards,
-            ),
-            dti=dti_metrics,
             **wildcards,
         )
     )

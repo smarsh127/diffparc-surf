@@ -450,6 +450,18 @@ surface_metrics:
   - surfvol
   - surfvolmni
 
+anat_only_metrics:
+  surface_metrics:
+    - inout
+    - surfarea
+    - surfarearatio
+    - surfvol
+    - surfvolmni
+  volume_metrics: null
+  aux_metrics:
+    - vol
+    - volmni
+
 
 
 
