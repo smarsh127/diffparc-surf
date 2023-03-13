@@ -41,6 +41,7 @@ def get_dlabel_nii(wildcards):
             label="{seed}",
             seedspervertex="{seedspervertex}",
             method="{method}",
+            reduce="median",
             suffix="maxprob.dlabel.nii",
         ).format(**wildcards)
 
