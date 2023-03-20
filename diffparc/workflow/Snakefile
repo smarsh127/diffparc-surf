@@ -16,7 +16,7 @@ if config["anat_only"]:
     config["volume_metrics"] = config["anat_only_metrics"]["volume_metrics"]
     config["surface_metrics"] = config["anat_only_metrics"]["surface_metrics"]
     config["aux_metrics"] = config["anat_only_metrics"]["aux_metrics"]
-
+    config["vbm"]["dti_metrics"] = []
 
 # writes inputs_config.yml and updates config dict
 inputs = snakebids.generate_inputs(
@@ -369,6 +369,50 @@ def get_aux_dseg_subj_tables():
         )
 
 
+def get_subj_vbm():
+
+    return expand(
+        expand(
+            bids(
+                root=root,
+                datatype="anat",
+                space=config["template"],
+                desc="synthseg{tissue}",
+                fwhm="{fwhm}",
+                suffix="density.nii.gz",
+                **subj_wildcards,
+            ),
+            tissue=config["vbm"]["tissue_lut"].keys(),
+            fwhm=config["vbm"]["fwhm"],
+            allow_missing=True,
+        ),
+        zip,
+        **subj_zip_list,
+    )
+
+
+def get_subj_dti_vba():
+
+    return expand(
+        expand(
+            bids(
+                root=root,
+                datatype="dwi",
+                space=config["template"],
+                desc="dti",
+                fwhm="{fwhm}",
+                suffix="{metric}.nii.gz",
+                **subj_wildcards,
+            ),
+            metric=config["vbm"]["dti_metrics"],
+            fwhm=config["vbm"]["fwhm"],
+            allow_missing=True,
+        ),
+        zip,
+        **subj_zip_list,
+    )
+
+
 def get_subj_qc():
     qc_snaps = []
     if config["volume_metrics"] == None or config["surface_metrics"] == None:
@@ -406,6 +450,8 @@ rule all:
         get_vol_subj_tables(),
         get_aux_dseg_subj_tables(),
         get_subj_qc(),
+        get_subj_vbm(),
+        get_subj_dti_vba(),
     default_target: True
 
 
@@ -422,6 +468,7 @@ include: "rules/postproc_vol.smk"
 include: "rules/cifti.smk"
 include: "rules/tables.smk"
 include: "rules/visqc.smk"
+include: "rules/vbm.smk"
 
 
 if not config["anat_only"]:
