@@ -453,7 +453,6 @@ surface_metrics:
 anat_only_metrics:
   surface_metrics:
     - inout
-    - surfarea
     - surfarearatio
     - surfvol
     - surfvolmni
