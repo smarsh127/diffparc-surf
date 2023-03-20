@@ -9,14 +9,31 @@ configfile: "config/snakebids.yml"
 
 if config["anat_only"]:
 
+    # force use of template parcellation
+    config["use_template_parcellation"] = True
+
     # remove dwi from bids inputs:
     del config["pybids_inputs"]["dwi"]
 
-    # restrict to set of valid metrics
-    config["volume_metrics"] = config["anat_only_metrics"]["volume_metrics"]
-    config["surface_metrics"] = config["anat_only_metrics"]["surface_metrics"]
-    config["aux_metrics"] = config["anat_only_metrics"]["aux_metrics"]
-    config["vbm"]["dti_metrics"] = []
+    # remove any metrics involving FA or MD:
+    config["surface_metrics"] = list(
+        set(config["surface_metrics"]).difference(["surfFA", "surfMD"])
+    )
+    config["aux_metrics"] = list(set(config["aux_metrics"]).difference(["FA", "MD"]))
+    config["vbm"]["dti_metrics"] = list(
+        set(config["vbm"]["dti_metrics"]).difference(["FA", "MD"])
+    )
+
+if config["use_template_parcellation"]:
+
+    # remove any metrics involving subj-specific parcellation (surface or volume):
+    config["surface_metrics"] = list(
+        set(config["surface_metrics"]).difference(["indepconn", "bundleFA", "bundleMD"])
+    )
+    config["volume_metrics"] = list(
+        set(config["volume_metrics"]).difference(["vol", "volmni"])
+    )
+
 
 # writes inputs_config.yml and updates config dict
 inputs = snakebids.generate_inputs(
