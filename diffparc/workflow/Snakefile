@@ -216,7 +216,7 @@ rule all_preprocdwi:
 
 def get_vol_subj_tables():
     csvs = []
-    if config["volume_metrics"] == None:
+    if len(config["volume_metrics"]) == 0:
         return []
     for seed in config["select_seeds"]:
         csvs.extend(
@@ -432,7 +432,7 @@ def get_subj_dti_vba():
 
 def get_subj_qc():
     qc_snaps = []
-    if config["volume_metrics"] == None or config["surface_metrics"] == None:
+    if len(config["volume_metrics"]) == 0 or len(config["surface_metrics"]) == 0:
         return []
     for seed in config["select_seeds"]:
         qc_snaps.extend(
