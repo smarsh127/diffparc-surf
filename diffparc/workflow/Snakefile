@@ -16,20 +16,31 @@ if config["anat_only"]:
     del config["pybids_inputs"]["dwi"]
 
     # remove any metrics involving FA or MD:
-    config["surface_metrics"] = list(
-        set(config["surface_metrics"]).difference(["surfFA", "surfMD"])
-    )
-    config["aux_metrics"] = list(set(config["aux_metrics"]).difference(["FA", "MD"]))
-    config["vbm"]["dti_metrics"] = list(
-        set(config["vbm"]["dti_metrics"]).difference(["FA", "MD"])
-    )
+    config["surface_metrics"] = [
+        metric
+        for metric in config["surface_metrics"]
+        if "FA" not in metric and "MD" not in metric
+    ]
+    config["aux_metrics"] = [
+        metric
+        for metric in config["aux_metrics"]
+        if "FA" not in metric and "MD" not in metric
+    ]
+    config["vbm"]["dti_metrics"] = [
+        metric
+        for metric in config["vbm"]["dti_metrics"]
+        if "FA" not in metric and "MD" not in metric
+    ]
+
 
 if config["use_template_parcellation"]:
 
     # remove any metrics involving subj-specific parcellation (surface or volume):
-    config["surface_metrics"] = list(
-        set(config["surface_metrics"]).difference(["indepconn", "bundleFA", "bundleMD"])
-    )
+    config["surface_metrics"] = [
+        metric
+        for metric in config["surface_metrics"]
+        if "indepconn" not in metric and "bundle" not in metric
+    ]
     config["volume_metrics"] = list(
         set(config["volume_metrics"]).difference(["vol", "volmni"])
     )
