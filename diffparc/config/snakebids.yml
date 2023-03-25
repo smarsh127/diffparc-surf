@@ -430,8 +430,6 @@ vbm:
   seg_method: 'synthseg'
   
 
-
-
 synthseg_labels:
   striatum:
     L:
@@ -468,13 +466,19 @@ surface_metrics:
   - surfarearatio
   - surfvol
   - surfvolmni
+  - bundleznormFA
+  - bundleznormMD
+  - surfznormFA
+  - surfznormMD
+
 
 aux_metrics:
   - vol
   - volmni
   - FA
   - MD
-
+  - znormFA
+  - znormMD
 
 
 methods:
