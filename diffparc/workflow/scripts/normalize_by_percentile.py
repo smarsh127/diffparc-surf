@@ -13,9 +13,9 @@ upper_perc = np.percentile(
     metric_vol[dseg_vol == snakemake.params.dseg_label], snakemake.params.upper_perc
 )
 
-metric_vol = metric_vol - lower_perc / (
-    upper_perc - lower_perc
-)  # rescale from lower-upper to 0-1
+# print(f'rescaling WM in {snakemake.input.metric} from {lower_perc}-{upper_perc} to 0-1')
+
+metric_vol = (metric_vol - lower_perc) / (upper_perc - lower_perc)
 
 
 out_nib = nib.Nifti1Image(
