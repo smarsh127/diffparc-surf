@@ -470,6 +470,10 @@ surface_metrics:
   - bundleznormMD
   - surfznormFA
   - surfznormMD
+  - bundlepnormFA
+  - bundlepnormMD
+  - surfpnormFA
+  - surfpnormMD
 
 
 aux_metrics:
@@ -479,6 +483,8 @@ aux_metrics:
   - MD
   - znormFA
   - znormMD
+  - pnormFA
+  - pnormMD
 
 
 methods:

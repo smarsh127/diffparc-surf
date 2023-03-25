@@ -4,11 +4,11 @@ import numpy as np
 nib_metric = nib.load(snakemake.input.metric)
 metric_vol = nib_metric.get_fdata()
 
-mask_vol = nib.load(snakemake.input.mask).get_fdata()
+dseg_vol = nib.load(snakemake.input.dseg).get_fdata()
 
 
-mean = np.mean(metric_vol[mask_vol == 1])
-std = np.std(metric_vol[mask_vol == 1])
+mean = np.mean(metric_vol[dseg_vol == snakemake.params.dseg_label])
+std = np.std(metric_vol[dseg_vol == snakemake.params.dseg_label])
 
 metric_vol = (metric_vol - mean) / std
 
