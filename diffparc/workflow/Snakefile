@@ -392,11 +392,12 @@ def get_subj_vbm():
         expand(
             bids(
                 root=root,
-                datatype="anat",
+                datatype="vbm",
                 space=config["template"],
-                desc="synthseg{tissue}",
+                method=config["vbm"]["seg_method"],
                 fwhm="{fwhm}",
-                suffix="density.nii.gz",
+                desc="{tissue}",
+                suffix="moddensity.nii.gz",
                 **subj_wildcards,
             ),
             tissue=config["vbm"]["tissue_lut"].keys(),
@@ -408,13 +409,13 @@ def get_subj_vbm():
     )
 
 
-def get_subj_dti_vba():
+def get_subj_dti_vbm():
 
     return expand(
         expand(
             bids(
                 root=root,
-                datatype="dwi",
+                datatype="vbm",
                 space=config["template"],
                 desc="dti",
                 fwhm="{fwhm}",
@@ -468,7 +469,7 @@ rule all:
         get_aux_dseg_subj_tables(),
         get_subj_qc(),
         get_subj_vbm(),
-        get_subj_dti_vba(),
+        get_subj_dti_vbm(),
     default_target: True
 
 

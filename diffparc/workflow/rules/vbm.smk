@@ -26,7 +26,8 @@ rule synthseg_to_tissue:
             root=root,
             datatype="anat",
             **subj_wildcards,
-            desc="synthsegtissue",
+            desc="tissue",
+            method="synthseg",
             suffix="dseg.nii.gz"
         ),
     group:
@@ -37,26 +38,28 @@ rule synthseg_to_tissue:
         "../scripts/seg_to_tissue.py"
 
 
-rule extract_tissue_probseg:
+rule extract_tissue_density:
     input:
         dseg=bids(
             root=root,
             datatype="anat",
             **subj_wildcards,
-            desc="synthsegtissue",
+            desc="tissue",
+            method="{method}",
             suffix="dseg.nii.gz"
         ),
     params:
         smoothing_fwhm="1x1x1mm",  #nominal amount of smoothing prior to warping+modulation (will be smoothed afterwards)
         label_num=lambda wildcards: config["vbm"]["tissue_lut"][wildcards.tissue],
     output:
-        probseg=temp(
+        density=temp(
             bids(
                 root=root,
-                datatype="anat",
+                datatype="vbm",
                 **subj_wildcards,
-                desc="synthseg{tissue}",
-                suffix="probseg.nii.gz"
+                method="{method}",
+                desc="{tissue}",
+                suffix="density.nii.gz"
             )
         ),
     group:
@@ -66,7 +69,7 @@ rule extract_tissue_probseg:
     shell:
         "c3d {input.dseg} -retain-labels {params.label_num} "
         " -binarize -smooth {params.smoothing_fwhm} "
-        " -o {output.probseg}"
+        " -o {output.density}"
 
 
 rule compose_warps_to_template:
@@ -111,38 +114,23 @@ rule compose_warps_to_template:
         "greedy -d 3 -threads {threads} -rf {input.ref} -rc {output.warp} -r {input.warp} {input.affine_xfm_ras}"
 
 
-rule warp_tissue_prob_to_template:
+rule warp_tissue_density_to_template:
     input:
-        probseg=bids(
-            root=root,
-            datatype="anat",
-            **subj_wildcards,
-            desc="synthseg{tissue}",
-            suffix="probseg.nii.gz"
-        ),
-        warp=bids(
-            root=root,
-            datatype="warps",
-            suffix="warp.nii.gz",
-            desc="composeaffine",
-            from_="subject",
-            to=config["template"],
-            **subj_wildcards
-        ),
+        density=rules.extract_tissue_density.output.density,
+        warp=rules.compose_warps_to_template.output.warp,
         ref=get_template_prefix(
             root=root, subj_wildcards=subj_wildcards, template=config["template"]
         )
         + "_desc-masked_T1w.nii.gz",
     output:
-        probseg=temp(
-            bids(
-                root=root,
-                datatype="anat",
-                **subj_wildcards,
-                space=config["template"],
-                desc="synthseg{tissue}",
-                suffix="probseg.nii.gz"
-            )
+        density=bids(
+            root=root,
+            datatype="vbm",
+            **subj_wildcards,
+            space=config["template"],
+            method="{method}",
+            desc="{tissue}",
+            suffix="density.nii.gz"
         ),
     threads: 8
     container:
@@ -150,20 +138,12 @@ rule warp_tissue_prob_to_template:
     group:
         "subj"
     shell:
-        "greedy -d 3 -threads {threads} -rf {input.ref} -rm {input.probseg} {output.probseg} -r {input.warp}"
+        "greedy -d 3 -threads {threads} -rf {input.ref} -rm {input.density} {output.density} -r {input.warp}"
 
 
 rule calc_warp_det_jac:
     input:
-        warp=bids(
-            root=root,
-            datatype="warps",
-            suffix="warp.nii.gz",
-            desc="composeaffine",
-            from_="subject",
-            to=config["template"],
-            **subj_wildcards
-        ),
+        warp=rules.compose_warps_to_template.output.warp,
     output:
         detjac=bids(
             root=root,
@@ -184,33 +164,17 @@ rule calc_warp_det_jac:
 
 rule modulate_tissue_density:
     input:
-        probseg=bids(
+        density=rules.warp_tissue_density_to_template.output.density,
+        detjac=rules.calc_warp_det_jac.output.detjac,
+    output:
+        density=bids(
             root=root,
-            datatype="anat",
+            datatype="vbm",
             **subj_wildcards,
             space=config["template"],
-            desc="synthseg{tissue}",
-            suffix="probseg.nii.gz"
-        ),
-        detjac=bids(
-            root=root,
-            datatype="warps",
-            suffix="detjac.nii.gz",
-            desc="composeaffine",
-            from_="subject",
-            to=config["template"],
-            **subj_wildcards
-        ),
-    output:
-        probseg=temp(
-            bids(
-                root=root,
-                datatype="anat",
-                **subj_wildcards,
-                space=config["template"],
-                desc="synthseg{tissue}",
-                suffix="density.nii.gz"
-            )
+            method="{method}",
+            desc="{tissue}",
+            suffix="moddensity.nii.gz"
         ),
     container:
         config["singularity"]["itksnap"]
@@ -218,30 +182,24 @@ rule modulate_tissue_density:
         "subj"
     shell:
         #note: order of images for divide seems to be different from c3d docs
-        "c3d  {input.detjac} {input.probseg} -divide -o {output.probseg}"
+        "c3d  {input.detjac} {input.density} -divide -o {output.density}"
 
 
 rule smooth_density_map:
     input:
-        density=bids(
-            root=root,
-            datatype="anat",
-            **subj_wildcards,
-            space=config["template"],
-            desc="synthseg{tissue}",
-            suffix="density.nii.gz"
-        ),
+        density=rules.modulate_tissue_density.output.density,
     params:
         smoothing_fwhm="{fwhm}x{fwhm}x{fwhm}mm",
     output:
         density=bids(
             root=root,
-            datatype="anat",
+            datatype="vbm",
             **subj_wildcards,
             space=config["template"],
-            desc="synthseg{tissue}",
+            method="{method}",
             fwhm="{fwhm}mm",
-            suffix="density.nii.gz"
+            desc="{tissue}",
+            suffix="moddensity.nii.gz"
         ),
     group:
         "subj"
@@ -277,7 +235,7 @@ rule transform_dti_metric_to_template:
     output:
         metric=bids(
             root=root,
-            datatype="dwi",
+            datatype="vbm",
             space=config["template"],
             desc="dti",
             suffix="{metric}.nii.gz",
@@ -296,7 +254,7 @@ rule smooth_dti_metric:
     input:
         metric=bids(
             root=root,
-            datatype="dwi",
+            datatype="vbm",
             space=config["template"],
             desc="dti",
             suffix="{metric}.nii.gz",
@@ -307,7 +265,7 @@ rule smooth_dti_metric:
     output:
         metric=bids(
             root=root,
-            datatype="dwi",
+            datatype="vbm",
             space=config["template"],
             desc="dti",
             fwhm="{fwhm}mm",

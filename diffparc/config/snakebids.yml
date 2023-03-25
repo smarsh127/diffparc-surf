@@ -425,6 +425,9 @@ vbm:
     - MD
   fwhm:
     - 2mm
+    - 6mm
+    - 10mm
+  seg_method: 'synthseg'
   
 
 
