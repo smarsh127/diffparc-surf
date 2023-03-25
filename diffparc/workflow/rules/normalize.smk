@@ -18,7 +18,7 @@ rule zscore_norm:
             suffix="dseg.nii.gz"
         ),
     params:
-        mask_label=config["vbm"]["tissue_lut"]["WM"],
+        dseg_label=config["vbm"]["tissue_lut"]["WM"],
     output:
         metric=bids(
             root=root, datatype="dwi", suffix="znorm{metric}.nii.gz", **subj_wildcards
@@ -45,7 +45,7 @@ rule perc_norm:
             suffix="dseg.nii.gz"
         ),
     params:
-        mask_label=config["vbm"]["tissue_lut"]["WM"],
+        dseg_label=config["vbm"]["tissue_lut"]["WM"],
         lower_perc=0.02,
         upper_perc=0.98,
     output:
