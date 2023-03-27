@@ -181,8 +181,7 @@ rule modulate_tissue_density:
     group:
         "subj"
     shell:
-        #note: order of images for divide seems to be different from c3d docs
-        "c3d  {input.detjac} {input.density} -divide -o {output.density}"
+        "c3d  {input.detjac} {input.density} -multiply -o {output.density}"
 
 
 rule smooth_density_map:
