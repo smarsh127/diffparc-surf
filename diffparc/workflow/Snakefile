@@ -7,6 +7,45 @@ from snakebids import bids
 configfile: "config/snakebids.yml"
 
 
+if config["anat_only"]:
+
+    # force use of template parcellation
+    config["use_template_parcellation"] = True
+
+    # remove dwi from bids inputs:
+    del config["pybids_inputs"]["dwi"]
+
+    # remove any metrics involving FA or MD:
+    config["surface_metrics"] = [
+        metric
+        for metric in config["surface_metrics"]
+        if "FA" not in metric and "MD" not in metric
+    ]
+    config["aux_metrics"] = [
+        metric
+        for metric in config["aux_metrics"]
+        if "FA" not in metric and "MD" not in metric
+    ]
+    config["vbm"]["dti_metrics"] = [
+        metric
+        for metric in config["vbm"]["dti_metrics"]
+        if "FA" not in metric and "MD" not in metric
+    ]
+
+
+if config["use_template_parcellation"]:
+
+    # remove any metrics involving subj-specific parcellation (surface or volume):
+    config["surface_metrics"] = [
+        metric
+        for metric in config["surface_metrics"]
+        if "indepconn" not in metric and "bundle" not in metric
+    ]
+    config["volume_metrics"] = list(
+        set(config["volume_metrics"]).difference(["vol", "volmni"])
+    )
+
+
 # writes inputs_config.yml and updates config dict
 inputs = snakebids.generate_inputs(
     bids_dir=config["bids_dir"],
@@ -83,6 +122,7 @@ else:
     subj_zip_list = {"subject": list(subj_set_intersection)}
 
 # ------------------------------------------------------------------------------
+
 
 # set the default bids root for output files
 root = config["root"]
@@ -187,7 +227,7 @@ rule all_preprocdwi:
 
 def get_vol_subj_tables():
     csvs = []
-    if config["volume_metrics"] == None:
+    if len(config["volume_metrics"]) == 0:
         return []
     for seed in config["select_seeds"]:
         csvs.extend(
@@ -357,9 +397,54 @@ def get_aux_dseg_subj_tables():
         )
 
 
+def get_subj_vbm():
+
+    return expand(
+        expand(
+            bids(
+                root=root,
+                datatype="vbm",
+                space=config["template"],
+                method=config["vbm"]["seg_method"],
+                fwhm="{fwhm}",
+                desc="{tissue}",
+                suffix="moddensity.nii.gz",
+                **subj_wildcards,
+            ),
+            tissue=config["vbm"]["tissue_lut"].keys(),
+            fwhm=config["vbm"]["fwhm"],
+            allow_missing=True,
+        ),
+        zip,
+        **subj_zip_list,
+    )
+
+
+def get_subj_dti_vbm():
+
+    return expand(
+        expand(
+            bids(
+                root=root,
+                datatype="vbm",
+                space=config["template"],
+                desc="dti",
+                fwhm="{fwhm}",
+                suffix="{metric}.nii.gz",
+                **subj_wildcards,
+            ),
+            metric=config["vbm"]["dti_metrics"],
+            fwhm=config["vbm"]["fwhm"],
+            allow_missing=True,
+        ),
+        zip,
+        **subj_zip_list,
+    )
+
+
 def get_subj_qc():
     qc_snaps = []
-    if config["volume_metrics"] == None or config["surface_metrics"] == None:
+    if len(config["volume_metrics"]) == 0 or len(config["surface_metrics"]) == 0:
         return []
     for seed in config["select_seeds"]:
         qc_snaps.extend(
@@ -394,31 +479,39 @@ rule all:
         get_vol_subj_tables(),
         get_aux_dseg_subj_tables(),
         get_subj_qc(),
+        get_subj_vbm(),
+        get_subj_dti_vbm(),
     default_target: True
 
 
 include: "rules/common.smk"
-include: "rules/preproc_dwi.smk"
-include: "rules/motioncorr.smk"
 include: "rules/preproc_t1.smk"
-include: "rules/masking_bet_from-b0.smk"
-include: "rules/masking_b0_to_template.smk"
-include: "rules/reg_dwi_to_t1.smk"
 include: "rules/reg_t1_to_template.smk"
-include: "rules/mrtrix.smk"
-include: "rules/bedpost.smk"
 include: "rules/synthseg.smk"
-include: "rules/prop_seeds_targets.smk"
 include: "rules/surfgen.smk"
+include: "rules/prop_seeds_targets.smk"
 include: "rules/surfdisp.smk"
 include: "rules/surfarea.smk"
-include: "rules/mrtrix_vol.smk"
-include: "rules/mrtrix_surf.smk"
-include: "rules/probtrack_surf.smk"
-include: "rules/probtrack_vol.smk"
 include: "rules/postproc_surf.smk"
 include: "rules/postproc_vol.smk"
-include: "rules/parcbundles.smk"
 include: "rules/cifti.smk"
 include: "rules/tables.smk"
 include: "rules/visqc.smk"
+include: "rules/normalize.smk"
+include: "rules/vbm.smk"
+
+
+if not config["anat_only"]:
+
+    include: "rules/preproc_dwi.smk"
+    include: "rules/motioncorr.smk"
+    include: "rules/masking_bet_from-b0.smk"
+    include: "rules/masking_b0_to_template.smk"
+    include: "rules/reg_dwi_to_t1.smk"
+    include: "rules/mrtrix.smk"
+    include: "rules/bedpost.smk"
+    include: "rules/mrtrix_vol.smk"
+    include: "rules/mrtrix_surf.smk"
+    include: "rules/probtrack_surf.smk"
+    include: "rules/probtrack_vol.smk"
+    include: "rules/parcbundles.smk"

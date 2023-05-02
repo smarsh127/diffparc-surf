@@ -8,7 +8,9 @@ def get_dscalar_nii(wildcards):
             suffix="{metric}.dscalar.nii",
             **subj_wildcards,
         )
-    elif metric == "bundleFA" or metric == "bundleMD":
+    elif (
+        metric[:6] == "bundle"
+    ):  # bundleFA, bundleMD, bundle...FA (normalized versions)
         dscalar = bids(
             root=root,
             datatype="surf",
@@ -19,7 +21,9 @@ def get_dscalar_nii(wildcards):
             suffix="{metric}.dscalar.nii",
             **subj_wildcards,
         )
-    elif metric == "surfFA" or metric == "surfMD":
+    elif (
+        metric[:4] == "surf"
+    ):  # this captures surfFA, surfMD, surf...FA (normalized versions) ...
         dscalar = bids(
             root=root,
             datatype="surf",
@@ -31,13 +35,22 @@ def get_dscalar_nii(wildcards):
     return dscalar.format(**wildcards)
 
 
-rule write_surf_metrics_csv:
-    """ for backwards compatiblity with old diffparc - 
-    separate file for each metric, using identical column names (parcels), 
-    and index column as "subj", formatted as sub-{subject}_ses-{session} """
-    input:
-        dscalar=get_dscalar_nii,
-        dlabel=bids(
+def get_dlabel_nii(wildcards):
+    if config["use_template_parcellation"]:
+        return bids(
+            root=os.path.join(workflow.basedir, "..", "resources", "tpl-ctrlavg"),
+            prefix="tpl-ctrlavg",
+            datatype="surf",
+            desc="{targets}",
+            label="{seed}",
+            seedspervertex="{seedspervertex}",
+            method="{method}",
+            reduce="median",
+            suffix="maxprob.dlabel.nii",
+        ).format(**wildcards)
+
+    else:
+        return bids(
             root=root,
             datatype="surf",
             desc="{targets}",
@@ -46,7 +59,16 @@ rule write_surf_metrics_csv:
             method="{method}",
             suffix="maxprob.dlabel.nii",
             **subj_wildcards,
-        ),
+        ).format(**wildcards)
+
+
+rule write_surf_metrics_csv:
+    """ for backwards compatiblity with old diffparc - 
+    separate file for each metric, using identical column names (parcels), 
+    and index column as "subj", formatted as sub-{subject}_ses-{session} """
+    input:
+        dscalar=get_dscalar_nii,
+        dlabel=get_dlabel_nii,
     params:
         index_col_value=bids(
             **subj_wildcards, include_subject_dir=False, include_session_dir=False
@@ -191,7 +213,7 @@ rule write_dseg_dti_metrics_csv:
             root=root,
             datatype="tabular",
             method="{dseg_method}",
-            suffix="{metric,FA|MD}.csv",
+            suffix="{metric}.csv",
             **subj_wildcards,
         ),
     container:
