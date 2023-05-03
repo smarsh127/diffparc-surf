@@ -204,6 +204,11 @@ parse_args:
     action: 'store_true'
     default: False
 
+  --use_vbm:
+    help: 'Enable output of voxel-based morphometry and voxel-based DTI metric maps. (default: %(default)s)'
+    action: 'store_true'
+    default: False
+
 
 
 #---- to update below this
@@ -223,6 +228,7 @@ singularity:
   pythondeps: 'docker://ghcr.io/khanlab/pythondeps-diffparc-app:v0.1.1'
   pyvista: 'docker://ghcr.io/pyvista/pyvista:latest-slim'
   synthsr: 'docker://ghcr.io/akhanf/synthsr:main'
+  diffparc: 'docker://kaitj/diffparc:dev'
 
 # Options for resampling dwi in T1w space
 #  1. can resample as T1w resolution
@@ -525,4 +531,4 @@ show_parallel_eta: False
 
 anat_only: False
 use_template_parcellation: False
-
+use_vbm: False
