@@ -175,7 +175,7 @@ else:
                 **subj_wildcards
             ),
         container:
-            config["singularity"]["ants"]
+            config["singularity"]["diffparc"]
         resources:
             mem_mb=32000,  #-- this is going to be dependent on size of image.. 
         group:
@@ -218,7 +218,7 @@ else:
                 **subj_wildcards
             ),
         container:
-            config["singularity"]["ants"]
+            config["singularity"]["diffparc"]
         resources:
             mem_mb=32000,  #-- this is going to be dependent on size of image.. 
         group:
@@ -273,7 +273,7 @@ else:
                 **subj_wildcards
             ),
         container:
-            config["singularity"]["prepdwi"]  #fsl
+            config["singularity"]["diffparc"]  #fsl
         group:
             "subj"
         shell:
@@ -320,7 +320,7 @@ rule reg_dwi_to_t1:
             **subj_wildcards
         ),
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     log:
@@ -362,7 +362,7 @@ rule qc_reg_dwi_t1:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/vis_regqc.py"
 
@@ -389,7 +389,7 @@ rule convert_xfm_ras2itk:
             **subj_wildcards
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -432,7 +432,7 @@ rule convert_xfm_ras2fsl:
             **subj_wildcards
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -462,7 +462,7 @@ rule create_cropped_ref:
             **subj_wildcards
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -478,7 +478,7 @@ rule write_nii_resolution_to_txt:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/write_nii_resolution_to_txt.py"
 
@@ -542,7 +542,7 @@ rule create_cropped_ref_dwi_resolution:
             **subj_wildcards
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -577,7 +577,7 @@ rule create_cropped_ref_custom_resolution:
             **subj_wildcards
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -654,7 +654,7 @@ rule dtifit_resampled_t1w:
             "dti_FA.nii.gz",
         ),
     container:
-        config["singularity"]["prepdwi"]  #fsl
+        config["singularity"]["diffparc"]  #fsl
     group:
         "subj"
     shell:

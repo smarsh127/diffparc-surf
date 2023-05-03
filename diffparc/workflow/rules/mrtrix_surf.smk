@@ -20,7 +20,7 @@ rule create_surf_seed_csv:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/surf_to_seed_csv.py"
 
@@ -176,6 +176,6 @@ rule gen_vertex_conn_csv:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/gather_csv_files.py"

@@ -51,7 +51,7 @@ rule moco_dwi:
     shadow:
         "minimal"
     container:
-        config["singularity"]["prepdwi"]  #-- this rule needs niftyreg, c3d and mrtrix
+        config["singularity"]["diffparc"]  #-- this rule needs niftyreg, c3d and mrtrix
     group:
         "subj"
     shell:
@@ -89,7 +89,7 @@ rule rotate_bvecs_moco:
     params:
         script=os.path.join(workflow.basedir, "scripts/rotate_bvecs_multi.sh"),
     container:
-        config["singularity"]["prepdwi"]  #fsl
+        config["singularity"]["diffparc"]  #fsl
     group:
         "subj"
     shell:

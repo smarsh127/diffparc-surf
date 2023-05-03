@@ -44,7 +44,7 @@ rule nlin_transform_conn_to_template:
             **subj_wildcards,
         ),
     container:
-        config["singularity"]["ants"]
+        config["singularity"]["diffparc"]
     threads: 8
     resources:
         mem_mb=8000,
@@ -105,7 +105,7 @@ rule linear_transform_conn_to_template:
             **subj_wildcards,
         ),
     container:
-        config["singularity"]["ants"]
+        config["singularity"]["diffparc"]
     threads: 8
     resources:
         mem_mb=8000,
@@ -156,7 +156,7 @@ rule maxprob_conn_native:
             **subj_wildcards,
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -195,7 +195,7 @@ rule maxprob_conn_linMNI:
             **subj_wildcards,
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:

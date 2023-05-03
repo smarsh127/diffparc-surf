@@ -54,7 +54,7 @@ rule rigid_shape_reg:
             suffix="probseg.nii.gz"
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     threads: 8
@@ -106,7 +106,7 @@ rule fluid_shape_reg:
         mem_mb=16000,  # right now these are on the high-end -- could implement benchmark rules to do this at some point..
         time=60,  # 1 hrs
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -140,7 +140,7 @@ rule convert_warpfield:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -convert-warpfield -from-itk {input} -to-world {output}"
 
@@ -170,7 +170,7 @@ rule deform_surface:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -surface-apply-warpfield {input.surf_gii} {input.warp} {output.surf_warped}"
 
@@ -210,7 +210,7 @@ rule compute_displacement_metrics:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command  -surface-to-surface-3d-distance {input.comp_surf} {input.ref_surf} {output.scalar} -vectors {output.vector}"
 
@@ -226,7 +226,7 @@ rule calc_template_surf_normals:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -surface-normals {input} {output}"
 
@@ -257,7 +257,7 @@ rule smooth_displacement_vectors:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -metric-smoothing {input.ref_surf} {input.vector} {params.fwhm} {output.vector} -fwhm"
 
@@ -296,7 +296,7 @@ rule normalize_displacement_by_smoothed:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -metric-math 'vec - vecsmooth' {output.normalized}"
         " -var vec {input.vector} "
@@ -328,7 +328,7 @@ rule calc_inout_displacement:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -metric-math '(v1*n1)+(v2*n2)+(v3*n3)' {output.inout}"
         " -var v1 {input.vec} -column 1  "

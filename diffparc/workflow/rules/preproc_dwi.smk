@@ -67,7 +67,7 @@ rule dwidenoise:
             ".json",
         ),
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc"]
     log:
         bids(root="logs", suffix="denoise.log", **input_wildcards["dwi"]),
     group:
@@ -115,7 +115,7 @@ rule mrdegibbs:
             ".json",
         ),
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc"]
     #    log: bids(root='logs',suffix='degibbs.log',**config['input_wildcards']['dwi'])
     group:
         "subj"
@@ -155,7 +155,7 @@ rule get_phase_encode_txt:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/get_phase_encode_txt.py"
 
@@ -223,7 +223,7 @@ rule concat_bzeros:
             **subj_wildcards
         ),
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc"]
     log:
         bids(root="logs", suffix="concat_bzeros.log", **subj_wildcards),
     group:
@@ -277,7 +277,7 @@ rule run_topup:
             root=root, suffix="topup_movpar.txt", datatype="dwi", **subj_wildcards
         ),
     container:
-        config["singularity"]["prepdwi"]  #fsl
+        config["singularity"]["diffparc"]  #fsl
     log:
         bids(root="logs", suffix="topup.log", **subj_wildcards),
     group:
@@ -336,7 +336,7 @@ rule apply_topup_lsr:
             **subj_wildcards
         ),
     container:
-        config["singularity"]["prepdwi"]  #fsl
+        config["singularity"]["diffparc"]  #fsl
     shadow:
         "minimal"
     group:
@@ -407,7 +407,7 @@ rule apply_topup_jac:
             **input_wildcards["dwi"]
         ),
     container:
-        config["singularity"]["prepdwi"]  #fsl
+        config["singularity"]["diffparc"]  #fsl
     shadow:
         "minimal"
     group:
@@ -493,7 +493,7 @@ rule concat_dwi_topup_jac:
             **subj_wildcards
         ),
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -524,7 +524,7 @@ rule get_eddy_index_txt:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/get_eddy_index_txt.py"
 
@@ -553,7 +553,7 @@ rule concat_degibbs_dwi:
             **subj_wildcards
         ),
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc"]
     log:
         bids(root="logs", suffix="concat_degibbs_dwi.log", **subj_wildcards),
     group:
@@ -587,7 +587,7 @@ rule concat_input_dwi:
             **subj_wildcards
         ),
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc"]
     log:
         bids(root="logs", suffix="concat_input_dwi.log", **subj_wildcards),
     group:
@@ -620,7 +620,7 @@ rule concat_runs_bvec:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/concat_bv.py"
 
@@ -649,7 +649,7 @@ rule concat_runs_bval:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/concat_bv.py"
 
@@ -693,7 +693,7 @@ rule get_shells_from_bvals:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/get_shells_from_bvals.py"
 
@@ -708,7 +708,7 @@ rule get_shell_avgs:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/get_shell_avgs.py"
 
@@ -725,7 +725,7 @@ rule get_shell_avg:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/get_shell_avg.py"
 
@@ -770,7 +770,7 @@ rule qc_brainmask_for_eddy:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/vis_qc_dseg.py"
 
@@ -802,7 +802,7 @@ if not config["slspec_txt"]:
         group:
             "subj"
         container:
-            config["singularity"]["pythondeps"]
+            config["singularity"]["diffparc"]
         script:
             "../scripts/get_slspec_txt.py"
 
@@ -1126,7 +1126,7 @@ rule eddy_quad:
             root=root, suffix="eddy.qc/qc.pdf", datatype="dwi", **subj_wildcards
         ),
     container:
-        config["singularity"]["prepdwi"]  #fsl
+        config["singularity"]["diffparc"]  #fsl
     group:
         "subj"
     shell:
@@ -1158,7 +1158,7 @@ rule split_eddy_qc_report:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/split_pdf.py"
 
@@ -1220,7 +1220,7 @@ rule eddymotion:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/eddymotion.py"
 

@@ -33,7 +33,7 @@ rule synthseg_to_tissue:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/seg_to_tissue.py"
 
@@ -65,7 +65,7 @@ rule extract_tissue_density:
     group:
         "subj"
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     shell:
         "c3d {input.dseg} -retain-labels {params.label_num} "
         " -binarize -smooth {params.smoothing_fwhm} "
@@ -107,7 +107,7 @@ rule compose_warps_to_template:
         ),
     threads: 8
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -134,7 +134,7 @@ rule warp_tissue_density_to_template:
         ),
     threads: 8
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -157,7 +157,7 @@ rule calc_warp_det_jac:
     group:
         "subj"
     container:
-        config["singularity"]["ants"]
+        config["singularity"]["diffparc"]
     shell:
         "CreateJacobianDeterminantImage 3 {input.warp} {output.detjac}"
 
@@ -177,7 +177,7 @@ rule modulate_tissue_density:
             suffix="moddensity.nii.gz"
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -203,7 +203,7 @@ rule smooth_density_map:
     group:
         "subj"
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     shell:
         "c3d {input.density} "
         " -smooth {params.smoothing_fwhm} "
@@ -242,7 +242,7 @@ rule transform_dti_metric_to_template:
         ),
     threads: 8
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -274,7 +274,7 @@ rule smooth_dti_metric:
     group:
         "subj"
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     shell:
         "c3d {input} "
         " -smooth {params.smoothing_fwhm} "

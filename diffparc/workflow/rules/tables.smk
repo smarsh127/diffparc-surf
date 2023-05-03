@@ -86,7 +86,7 @@ rule write_surf_metrics_csv:
             **subj_wildcards,
         ),
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     script:
@@ -174,7 +174,7 @@ rule write_dseg_vol_metrics_csv:
             **subj_wildcards,
         ),
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     script:
@@ -217,7 +217,7 @@ rule write_dseg_dti_metrics_csv:
             **subj_wildcards,
         ),
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     script:
@@ -248,7 +248,7 @@ rule write_vol_metrics_csv:
             **subj_wildcards,
         ),
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     script:
@@ -301,7 +301,7 @@ rule write_indepconn_metric_csv:
             **subj_wildcards,
         ),
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     script:
@@ -342,7 +342,7 @@ rule write_surf_volumes_csv:
             **subj_wildcards,
         ),
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     script:
@@ -386,7 +386,7 @@ rule write_surf_volumes_mni_csv:
             **subj_wildcards,
         ),
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     script:
@@ -421,7 +421,7 @@ rule concat_subj_csv:
             suffix="{suffix}.csv",
         ),
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     group:
         "agg"
     script:

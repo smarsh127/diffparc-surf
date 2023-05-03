@@ -69,7 +69,7 @@ rule create_parc_tcklist:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/create_parc_tcklist.py"
 
@@ -257,7 +257,7 @@ rule sampledti_to_metric:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/tcksample_parcs_to_gifti_metric.py"
 
@@ -298,7 +298,7 @@ rule set_structure_sampledti_metric:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "cp {input} {output} && "
         "wb_command -set-structure {output} {params.structure}"
@@ -362,7 +362,7 @@ rule create_cifti_sampledti_dscalar:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -cifti-create-dense-scalar {output} -left-metric {input.left_metric} -right-metric {input.right_metric}"
 
@@ -458,7 +458,7 @@ rule threshold_tdi:
     group:
         "subj"
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     shell:
         "if [ -s {input.bundle} ]; "
         "then "
@@ -527,7 +527,7 @@ rule sample_dti_at_mesh:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -volume-to-surface-mapping {input.dti_vol} {input.surf} {output.metric} -trilinear"
 
@@ -563,6 +563,6 @@ rule create_cifti_surfdti_dscalar:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -cifti-create-dense-scalar {output} -left-metric {input.left_metric} -right-metric {input.right_metric}"

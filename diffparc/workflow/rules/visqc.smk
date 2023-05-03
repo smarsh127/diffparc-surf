@@ -34,7 +34,7 @@ rule qc_reg:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/vis_regqc.py"
 
@@ -63,7 +63,7 @@ rule qc_probseg:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/vis_qc_probseg.py"
 
@@ -102,7 +102,7 @@ rule qc_dseg:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/vis_qc_dseg.py"
 
@@ -176,7 +176,7 @@ rule qc_structure:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/vis_qc_seg.py"
 
@@ -213,6 +213,6 @@ rule qc_synthseg:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/vis_qc_synthseg.py"

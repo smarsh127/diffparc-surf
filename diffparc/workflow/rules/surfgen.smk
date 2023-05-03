@@ -15,7 +15,7 @@ rule upsample_template_probseg:
     group:
         "subj"
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     shell:
         "c3d {input}  -resample {params.resample} -o {output}"
 
@@ -41,7 +41,7 @@ rule gen_template_surface:
     group:
         "subj"
     container:
-        config["singularity"]["pyvista"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/gen_isosurface.py"
 
@@ -62,7 +62,7 @@ rule set_surface_structure:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "cp {input} {output} && "
         "wb_command -set-structure {output} {params.structure} -surface-type ANATOMICAL"
@@ -77,7 +77,7 @@ rule convert_surf_gii_to_vtk_polydata:
     group:
         "subj"
     container:
-        config["singularity"]["pyvista"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/convert_surf_gii_to_vtk.py"
 
@@ -91,7 +91,7 @@ rule calc_surf_volume:
     group:
         "subj"
     container:
-        config["singularity"]["pyvista"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/calculate_surf_volume_vtk.py"
 
@@ -120,7 +120,7 @@ rule convert_affine_to_world:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -convert-affine -from-itk {input} -to-world {output} -inverse"
 
@@ -158,7 +158,7 @@ rule linear_transform_surf_to_template:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -surface-apply-affine {input.surf} {input.xfm_world} {output.surf}"
 
@@ -193,7 +193,7 @@ rule convert_rigid_to_world:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -convert-affine -from-itk {input} -to-world {output} -inverse"
 
@@ -232,6 +232,6 @@ rule transform_template_surf_to_t1:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -surface-apply-affine {input.surf_gii} {input.rigid_world} {output.surf_warped}"

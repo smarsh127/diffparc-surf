@@ -18,7 +18,7 @@ rule calc_surface_area_metric:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -surface-vertex-areas {input} {output}"
 
@@ -52,7 +52,7 @@ rule calc_surface_area_ratio_metric:
     shadow:
         "minimal"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -surface-vertex-areas {input.template_surf} template_surfarea.shape.gii && "
         "wb_command -surface-vertex-areas {input.subject_surf} subject_surfarea.shape.gii && "

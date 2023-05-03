@@ -18,7 +18,7 @@ rule run_synthseg:
             )
         ),
     container:
-        config["singularity"]["synthseg"]
+        config["singularity"]["diffparc"]
     threads: 8
     group:
         "subj"
@@ -46,7 +46,7 @@ rule run_synthseg_withcortparc:
             )
         ),
     container:
-        config["singularity"]["synthseg"]
+        config["singularity"]["diffparc"]
     threads: 8
     group:
         "subj"
@@ -79,7 +79,7 @@ rule reslice_synthseg_to_t1:
             suffix="dseg.nii.gz"
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -95,7 +95,7 @@ rule run_synthseg_template:
         )
         + "_desc-synthseg_dseg.nii.gz",
     container:
-        config["singularity"]["synthseg"]
+        config["singularity"]["diffparc"]
     threads: 8
     group:
         "subj"
@@ -130,7 +130,7 @@ rule extract_synthseg_label:
             )
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -196,7 +196,7 @@ rule template_shape_injection:
         mem_mb=16000,  # right now these are on the high-end -- could implement benchmark rules to do this at some point..
         time=60,  # 1 hrs
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     log:
@@ -271,7 +271,7 @@ rule linear_transform_aux_dseg_to_template:
             suffix="dseg.nii.gz"
         ),
     container:
-        config["singularity"]["ants"]
+        config["singularity"]["diffparc"]
     threads: 8
     resources:
         mem_mb=8000,

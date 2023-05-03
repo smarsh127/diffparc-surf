@@ -59,7 +59,7 @@ rule nii2mif:
     group:
         "subj"
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc"]
     shell:
         "mrconvert {input.dwi} {output.dwi} -fslgrad {input.bvec} {input.bval} -nthreads {threads} && "
         "mrconvert {input.mask} {output.mask} -nthreads {threads}"
@@ -71,7 +71,7 @@ rule dseg_nii2mif:
     output:
         temp("{file}_dseg.mif"),
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -114,7 +114,7 @@ rule dwi2response_msmt:
     group:
         "subj"
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc"]
     shell:
         "dwi2response dhollander {input.dwi} {output.wm_rf} {output.gm_rf} {output.csf_rf}  -nthreads {threads} -mask {input.mask}"
 
@@ -158,7 +158,7 @@ rule dwi2fod_msmt:
     group:
         "subj"
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc"]
     shell:
         "dwi2fod -nthreads {threads} -mask {input.mask} msmt_csd {input.dwi} {input.wm_rf} {output.wm_fod} {input.gm_rf} {output.gm_fod} {input.csf_rf} {output.csf_fod} "
 
@@ -202,7 +202,7 @@ rule mtnormalise:
     group:
         "subj"
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc"]
     shell:
         "mtnormalise -nthreads {threads} -mask {input.mask} {input.wm_fod} {output.wm_fod} {input.gm_fod} {output.gm_fod} {input.csf_fod} {output.csf_fod}"
 
@@ -226,7 +226,7 @@ rule dwi2response_csd:
     group:
         "subj"
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc"]
     shell:
         "dwi2response fa {input.dwi} {output.wm_rf} -nthreads {threads} -mask {input.mask}"
 
@@ -251,7 +251,7 @@ rule dwi2fod_csd:
     group:
         "subj"
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc"]
     shell:
         "dwi2fod -nthreads {threads} -mask {input.mask} csd {input.dwi} {input.wm_rf} {output.wm_fod}  "
 
@@ -272,7 +272,7 @@ rule dwi2tensor:
     resources:
         mem_mb=32000,
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc"]
     shell:
         "dwi2tensor {input} {output}"
 
@@ -294,7 +294,7 @@ rule dwi_to_tensor:
     group:
         "subj"
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc"]
     shell:
         "dwi2tensor -mask {input.mask} {input.dwi} {output.tensor} -nthreads {threads}"
 
@@ -322,7 +322,7 @@ rule tensor_to_metrics:
     group:
         "subj"
     container:
-        config["singularity"]["mrtrix"]
+        config["singularity"]["diffparc"]
     shell:
         "tensor2metric -mask {input.mask} -fa {output.fa} -adc {output.md} {input.tensor}"
 
@@ -378,6 +378,6 @@ rule resample_metric_to_aux_dseg:
     group:
         "subj"
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     shell:
         "c3d {input.dseg} {input.metric} -reslice-identity -o {output.metric}"

@@ -80,7 +80,7 @@ rule ants_b0_to_template:
         mem_mb=16000,  # right now these are on the high-end -- could implement benchmark rules to do this at some point..
         time=60,  # 1 hrs
     container:
-        config["singularity"]["ants"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -121,7 +121,7 @@ rule warp_brainmask_from_template_reg_b0:
             desc="brain",
         ),
     container:
-        config["singularity"]["ants"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     threads: 1

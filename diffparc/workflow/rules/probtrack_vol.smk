@@ -14,7 +14,7 @@ rule binarize_upsampled_subject_seed:
             **subj_wildcards
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -48,7 +48,7 @@ rule fix_sform_seed:
     group:
         "subj"
     container:
-        config["singularity"]["fsl"]
+        config["singularity"]["diffparc"]
     shell:
         "cp {input} {output} && "
         "QFORM=`fslorient -getqform {output}` && "
@@ -83,7 +83,7 @@ rule create_seed_bg:
     group:
         "subj"
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     shell:
         "c3d {input} -replace 1 0 0 1 -o {output}"
 
@@ -192,7 +192,7 @@ rule run_probtrack_volume:
             **subj_wildcards,
         )
     container:
-        config["singularity"]["fsl"]
+        config["singularity"]["diffparc"]
     shell:
         "probtrackx2 "
         " -x {input.seed_nii} "
@@ -265,6 +265,6 @@ rule merge_seed_conn_files:
     group:
         "subj"
     container:
-        config["singularity"]["fsl"]
+        config["singularity"]["diffparc"]
     shell:
         "fslmerge -t {output} {input.seed_bg} {params.seed_conn_files}"

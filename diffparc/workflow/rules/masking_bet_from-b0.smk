@@ -28,7 +28,7 @@ rule n4_avg_b0:
     output:
         bids(root=root, suffix="b0.nii.gz", desc="n4", datatype="dwi", **subj_wildcards),
     container:
-        config["singularity"]["ants"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -48,7 +48,7 @@ rule rescale_avg_b0:
             **subj_wildcards
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -71,7 +71,7 @@ rule bet_avg_b0:
             root=root, suffix="b0.nii.gz", desc="bet", datatype="dwi", **subj_wildcards
         ),
     container:
-        config["singularity"]["prepdwi"]  #fsl
+        config["singularity"]["diffparc"]  #fsl
     group:
         "subj"
     shell:
@@ -93,7 +93,7 @@ rule binarize_avg_b0:
             **subj_wildcards
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
