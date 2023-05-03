@@ -33,7 +33,7 @@ rule synthstrip_t1:
         config["singularity"]["synthstrip"]
     threads: 8
     shell:
-        "python3 /freesurfer/mri_synthstrip -i {input.t1} -m {output.mask} --no-csf"
+        "python3 /opt/freesurfer/mri_synthstrip -i {input.t1} -m {output.mask} --no-csf"
 
 
 rule fixheader_synthstrip:

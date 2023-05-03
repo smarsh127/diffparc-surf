@@ -23,7 +23,7 @@ rule run_synthseg:
     group:
         "subj"
     shell:
-        "python /SynthSeg/scripts/commands/SynthSeg_predict.py --i {input} --o {output} --cpu --threads {threads}"
+        "python /opt/SynthSeg/scripts/commands/SynthSeg_predict.py --i {input} --o {output} --cpu --threads {threads}"
 
 
 rule run_synthseg_withcortparc:
@@ -51,7 +51,7 @@ rule run_synthseg_withcortparc:
     group:
         "subj"
     shell:
-        "python /SynthSeg/scripts/commands/SynthSeg_predict.py --i {input} --o {output} --cpu --threads {threads} --parc"
+        "python /opt/SynthSeg/scripts/commands/SynthSeg_predict.py --i {input} --o {output} --cpu --threads {threads} --parc"
 
 
 rule reslice_synthseg_to_t1:
@@ -100,7 +100,7 @@ rule run_synthseg_template:
     group:
         "subj"
     shell:
-        "python /SynthSeg/scripts/commands/SynthSeg_predict.py --i {input} --o {output} --cpu --threads {threads}"
+        "python /opt/SynthSeg/scripts/commands/SynthSeg_predict.py --i {input} --o {output} --cpu --threads {threads}"
 
 
 rule extract_synthseg_label:
