@@ -27,7 +27,7 @@ rule extract_target_mask:
             )
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -57,7 +57,7 @@ rule fix_sform_mask:
             **subj_wildcards
         ),
     container:
-        config["singularity"]["fsl"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -87,7 +87,7 @@ rule fix_sform_target:
             suffix="mask.nii.gz"
         ),
     container:
-        config["singularity"]["fsl"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -216,7 +216,7 @@ rule run_probtrack_surface:
     group:
         "subj"
     container:
-        config["singularity"]["fsl"]
+        config["singularity"]["diffparc"]
     threads: 1
     resources:
         mem_mb=8000,
@@ -278,6 +278,6 @@ rule create_conn_csv_probtrack:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/probtrack_matrix_to_csv.py"

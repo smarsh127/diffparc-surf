@@ -30,10 +30,10 @@ rule synthstrip_t1:
     group:
         "subj"
     container:
-        config["singularity"]["synthstrip"]
+        config["singularity"]["diffparc"]
     threads: 8
     shell:
-        "python3 /freesurfer/mri_synthstrip -i {input.t1} -m {output.mask} --no-csf"
+        "python3 /opt/freesurfer/mri_synthstrip -i {input.t1} -m {output.mask} --no-csf"
 
 
 rule fixheader_synthstrip:
@@ -57,7 +57,7 @@ rule fixheader_synthstrip:
     group:
         "subj"
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     shell:
         "c3d {input.t1} {input.mask} -copy-transform -o {output.mask}"
 
@@ -82,7 +82,7 @@ rule n4_t1_withmask:
         ),
     threads: 8
     container:
-        config["singularity"]["ants"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -115,7 +115,7 @@ rule mask_subject_t1w:
             desc="masked"
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:

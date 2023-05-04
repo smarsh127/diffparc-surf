@@ -36,7 +36,7 @@ rule resample_tissue_dseg_to_dwi:
     group:
         "subj"
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     shell:
         "c3d -int 0 {input.ref} {input.dseg} -reslice-identity -o {output.dseg}"
 
@@ -64,7 +64,7 @@ rule zscore_norm:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/normalize_by_zscore.py"
 
@@ -94,6 +94,6 @@ rule perc_norm:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/normalize_by_percentile.py"

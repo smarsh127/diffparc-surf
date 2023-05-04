@@ -35,7 +35,7 @@ rule create_upsampled_cropped_seed_ref:
             **subj_wildcards
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -85,7 +85,7 @@ rule transform_seed_to_subject:
     envmodules:
         "ants",
     container:
-        config["singularity"]["ants"]
+        config["singularity"]["diffparc"]
     log:
         bids(
             root="logs",
@@ -145,7 +145,7 @@ rule transform_targets_to_subject:
     envmodules:
         "ants",
     container:
-        config["singularity"]["ants"]
+        config["singularity"]["diffparc"]
     log:
         bids(
             root="logs",
@@ -193,7 +193,7 @@ rule reslice_shapeinject_to_ref:
             )
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:

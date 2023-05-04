@@ -46,7 +46,7 @@ rule tissue_seg_kmeans_init:
     shadow:
         "minimal"
     container:
-        config["singularity"]["prepdwi"]  #-- this uses ants (atropos) and fsl (replace fslmerge with something else)
+        config["singularity"]["diffparc"]  #-- this uses ants (atropos) and fsl (replace fslmerge with something else)
     group:
         "subj"
     shell:
@@ -100,7 +100,7 @@ rule map_channels_to_tissue:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/map_channels_to_tissue.py"
 
@@ -130,7 +130,7 @@ rule tissue_seg_to_4d:
     group:
         "subj"
     container:
-        config["singularity"]["prepdwi"]  #fsl
+        config["singularity"]["diffparc"]  #fsl
     shell:
         "fslmerge -t {output} {input}"
 
@@ -156,7 +156,7 @@ rule brainmask_from_tissue:
             desc="brain"
         ),
     container:
-        config["singularity"]["prepdwi"]  #fsl
+        config["singularity"]["diffparc"]  #fsl
     group:
         "subj"
     shell:

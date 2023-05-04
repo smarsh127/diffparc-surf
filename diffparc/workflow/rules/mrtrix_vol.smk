@@ -22,7 +22,7 @@ rule binarize_trim_subject_seed:
             suffix="binarizetrimsubjectseed.log"
         ),
     container:
-        config["singularity"]["itksnap"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:
@@ -56,7 +56,7 @@ rule create_voxel_seed_images:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/create_voxel_seed_images.py"
 
@@ -217,7 +217,7 @@ rule gen_conn_csv:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/gather_csv_files.py"
 
@@ -258,6 +258,6 @@ rule conn_csv_to_image:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/conn_csv_to_image.py"

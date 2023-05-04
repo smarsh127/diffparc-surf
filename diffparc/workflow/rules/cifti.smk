@@ -28,7 +28,7 @@ rule create_cifti_metric_dscalar:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -cifti-create-dense-scalar {output} -left-metric {input.left_metric} -right-metric {input.right_metric}"
 
@@ -60,7 +60,7 @@ rule merge_dscalar_metrics_over_subjects:
             suffix="{metric}.dscalar.nii",
         ),
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     group:
         "group"
     shell:
@@ -277,7 +277,7 @@ rule create_spec:
             root=root, datatype="surf", suffix="{seed}.spec", **subj_wildcards
         ),
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     group:
         "subj"
     shell:

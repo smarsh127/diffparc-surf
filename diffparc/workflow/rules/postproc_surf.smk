@@ -32,7 +32,7 @@ rule conn_csv_to_metric:
     group:
         "subj"
     container:
-        config["singularity"]["pythondeps"]
+        config["singularity"]["diffparc"]
     script:
         "../scripts/conn_csv_to_gifti_metric.py"
 
@@ -67,7 +67,7 @@ rule set_structure_conn_metric:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "cp {input} {output} && "
         "wb_command -set-structure {output} {params.structure}"
@@ -111,7 +111,7 @@ rule smooth_conn_metric:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -metric-smoothing {input.surf} {input.metric} {wildcards.fwhm} {output.metric} -fwhm"
 
@@ -156,7 +156,7 @@ rule create_cifti_conn_dscalar:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -cifti-create-dense-scalar {output} -left-metric {input.left_metric} -right-metric {input.right_metric}"
 
@@ -187,7 +187,7 @@ rule create_cifti_conn_dscalar_maxprob:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -cifti-reduce {input} INDEXMAX {output}"
 
@@ -219,7 +219,7 @@ rule create_cifti_sumconn_dscalar:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -cifti-reduce {input} SUM {output}"
 
@@ -266,7 +266,7 @@ rule mask_maxprob_by_sumconn_threshold:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -cifti-math '(SUMCONN > {params.threshold}) * MAXPROB' {output.masked} -var SUMCONN {input.sumconn} -var MAXPROB {input.maxprob}"
 
@@ -302,7 +302,7 @@ rule create_cifti_maxprob_dlabel:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -cifti-label-import {input.cifti_dscalar} {input.label_list_txt} {output.cifti_dlabel}"
 
@@ -346,7 +346,7 @@ rule split_cifti_maxprob_dlabel:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -cifti-separate {input.cifti_dlabel} COLUMN "
         " -label CORTEX_LEFT {output.left_label_gii} "
@@ -387,7 +387,7 @@ rule parcellate_cifti_metric:
     group:
         "subj"
     container:
-        config["singularity"]["autotop"]
+        config["singularity"]["diffparc"]
     shell:
         "wb_command -cifti-parcellate {input.cifti_dscalar} {input.cifti_dlabel} COLUMN "
         " {output}"
