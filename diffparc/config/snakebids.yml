@@ -228,7 +228,7 @@ singularity:
   pythondeps: 'docker://ghcr.io/khanlab/pythondeps-diffparc-app:v0.1.1'
   pyvista: 'docker://ghcr.io/pyvista/pyvista:latest-slim'
   synthsr: 'docker://ghcr.io/akhanf/synthsr:main'
-  diffparc: 'docker://kaitj/diffparc:dev'
+  diffparc: 'docker://khanlab/diffparc-deps:v0.1.0'  # <-- this container is used for all rules now
 
 # Options for resampling dwi in T1w space
 #  1. can resample as T1w resolution
