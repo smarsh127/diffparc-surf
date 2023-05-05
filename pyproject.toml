@@ -23,7 +23,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 diffparc = "diffparc.run:main"
-
+predict_subj = "predict_subj.run:main"
 
 [tool.poe.tasks]
 quality_check = { shell = "isort diffparc/*.py -c && black diffparc --check && snakefmt diffparc --check" }
