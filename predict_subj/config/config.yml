@@ -1,5 +1,15 @@
+in_archive: '/localscratch/MacDonald_VDSC_20171124_VTASN_3T_PD08_1.5F196650.tar'
+in_model: '/localscratch/PPMI_classifier/ppmi_classifier/results/classify-pdvsctrl^all/featset-templateparc/photonai/estim-RandomForestClassifier_featsel-None_resampler-None_cv-10fold_optim-quick'
+out_csv: 'subject_predictions.csv'
+
+age: 50
+sex: 'M'
+
+
 singularity:
-  diffparc_deps: '/cifs/macdonald/shared/snakemake_containers/diffparc_20230502.sif'
+  diffparc_deps: 'docker://khanlab/diffparc-deps:v0.1.0-fix'
+  tabular_deps: 'docker://khanlab/pythondeps-ppmiclassifier:master'
+  dcm2niix: 'docker://brainlife/dcm2niix:v1.0.20211006'
 
 tabular: #this is for parsing the data in diffparc csv files
   extract_ids:
@@ -8,10 +18,13 @@ tabular: #this is for parsing the data in diffparc csv files
     patterns:
       subject: (sub-[a-zA-Z0-9]+)
 
-featsets:
-  - templateparc
+    
+# this defines what set of total set of features to use
+# note: can be full set before feature selection, as feature selection 
+# is currently built into the photonai pipeline 
+feature_set: templateparc 
 
-
+# below is identical to config/features.yml from ppmi_classifier (TODO: source this from a common location)
 feature_csv_globs:
   vtasnc_surfFA: '**/tabular/*_label-vtasnc_desc-harvardoxford4_seedspervertex-250_method-mrtrix_surfFA.csv'
   vtasnc_surfMD: '**/tabular/*_label-vtasnc_desc-harvardoxford4_seedspervertex-250_method-mrtrix_surfMD.csv'

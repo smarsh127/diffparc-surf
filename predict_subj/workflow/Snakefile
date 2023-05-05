@@ -6,7 +6,7 @@ configfile: 'config/config.yml'
 
 rule all:
     input:
-        expand('tabular/sub-01_featset-{featset}_predictions.csv',featset=config['featsets'])
+        config['out_csv']
 
 
 rule extract_archive:
@@ -25,7 +25,7 @@ checkpoint to_nifti:
     output:
         nifti_dir=temp(directory('niftis'))
     container:
-        'docker://brainlife/dcm2niix:v1.0.20211006'
+        config['singularity']['dcm2niix']
     shell:
         'mkdir -p {output} && dcm2niix -i y -o {output}  {input} '
 
@@ -78,14 +78,15 @@ rule run_diffparc:
     input:
         t1='bids/sub-01/anat/sub-01_T1w.nii.gz',
         dwi='bids/sub-01/dwi',
-        dd='bids/dataset_description.json'
-    params:
-        container=config['singularity']['diffparc_deps']
+        dd='bids/dataset_description.json',
+        diffparc_wf='diffparc-wf'
+    container: config['singularity']['diffparc_deps']
     output:
         directory('diffparc')
+    shadow: 'minimal'
     threads: 32
     shell: 
-        'singularity exec -e {params.container} ../../diffparc-surf/diffparc/run.py bids diffparc participant --use-template-parcellation -c {threads}'
+        'SNAKEMAKE_PROFILE="" {input.diffparc_wf}/run.py bids diffparc participant --use-template-parcellation -c {threads} '
 
 
 
@@ -99,6 +100,7 @@ rule concat_subj_csv:
         ],
     output:
         csv="tabular/raw_features/sub-01_kind-{kind}_desc-raw_feats.csv",  # wide-form csv has column for each feature+roi
+    container: config['singularity']['tabular_deps']
     script:
         "scripts/concat_globbed_csvs.py"
 
@@ -108,6 +110,7 @@ rule rename_feature_columns:
         csv="tabular/raw_features/sub-01_kind-{kind}_desc-raw_feats.csv",
     output:
         csv="tabular/renamed_features/sub-01_kind-{kind}_desc-raw_feats.csv",
+    container: config['singularity']['tabular_deps']
     script:
         "scripts/rename_feature_columns.py"
 
@@ -126,6 +129,7 @@ rule merge_features:
         bad_subjects=[]
     output:
         csv="tabular/wide_features/{feature_set}/sub-01_desc-raw_feats.csv",
+    container: config['singularity']['tabular_deps']
     script:
         "scripts/merge_features.py"
 
@@ -135,11 +139,8 @@ rule get_all_feature_names:
         csv="tabular/wide_features/{feature_set}/sub-01_desc-raw_feats.csv",
     output:
         features=directory("tabular/feature_names/{feature_set}"),
-    run:
-        shell("mkdir -p {output.features}/touch")
-        df = pd.read_csv(input.csv)
-        for feat in df.columns[1:-2]:  # leave out first col, and last 2 cols
-            shell("touch {output.features}/touch/{feat}")
+    container: config['singularity']['tabular_deps']
+    script: 'scripts/get_all_feature_names.py'
 
 rule feature_select:
     """just creates csv with all features"""
@@ -147,6 +148,7 @@ rule feature_select:
         features="tabular/feature_names/{feature_set}",
     output:
         selected_features="tabular/feature_names/{feature_set}.csv"
+    container: config['singularity']['tabular_deps']
     script:
         "scripts/feature_select.py"
 
@@ -156,9 +158,10 @@ rule add_metadata_to_csv:
     input:
         csv="tabular/wide_features/{feature_set}/sub-01_desc-raw_feats.csv",
     params:
-        metadata={'age': 50, 'sex': 'M'}
+        metadata={'age': config['age'], 'sex': config['sex']}
     output:
         csv="tabular/demog_features/{feature_set}/sub-01_desc-demog_feats.csv",
+    container: config['singularity']['tabular_deps']
     script:
         "scripts/add_subj_metadata_to_csv.py"
 
@@ -169,7 +172,11 @@ rule predict_photonai:
         features="tabular/feature_names/{feature_set}.csv"
     output:
         predictions_csv="tabular/sub-01_featset-{feature_set}_predictions.csv",
+    container: config['singularity']['tabular_deps']
     script:
         "scripts/predict_photonai.py"
 
-
+rule copy_final:
+    input: "tabular/sub-01_featset-{feature_set}_predictions.csv".format(feature_set=config['feature_set'])
+    output: config['out_csv']
+    shell: 'cp {input} {output}'
