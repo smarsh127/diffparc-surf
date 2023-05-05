@@ -40,6 +40,8 @@ rule gen_template_surface:
         ),
     group:
         "subj"
+    shadow:
+        "minimal"
     container:
         config["singularity"]["diffparc"]
     script:
