@@ -122,7 +122,7 @@ rule create_parc_bundle:
     group:
         "subj"
     container:
-        config["singularity"]["diffparc_deps"]
+        config["singularity"]["diffparc"]
     shell:
         "if [ `cat {input.tcklist} | wc -l` == 0 ]; "
         "then "
@@ -176,7 +176,7 @@ rule sample_dti_from_parcbundle:
     group:
         "subj"
     container:
-        config["singularity"]["diffparc_deps"]
+        config["singularity"]["diffparc"]
     shell:
         "if [ -s {input.bundle} ]; then "
         "  tcksample -nthreads 0 -quiet {input.bundle} "
@@ -405,7 +405,7 @@ rule create_parc_tdi:
     group:
         "subj"
     container:
-        config["singularity"]["diffparc_deps"]
+        config["singularity"]["diffparc"]
     shell:
         "if [ -s {input.bundle} ]; "
         "then "
@@ -494,7 +494,7 @@ rule concat_all_streamlines:
     group:
         "subj"
     container:
-        config["singularity"]["diffparc_deps"]
+        config["singularity"]["diffparc"]
     shell:
         "tckedit `ls {input}/*.tck` {output.bundle}"
 

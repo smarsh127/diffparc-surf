@@ -52,7 +52,7 @@ rule tcksample_from_vertices:
     group:
         "subj"
     container:
-        config["singularity"]["diffparc_deps"]
+        config["singularity"]["diffparc"]
     shell:
         "mkdir -p {output.sampledti_dir} && "
         "parallel {params.show_eta} --jobs {threads} "

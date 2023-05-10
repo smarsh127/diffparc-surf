@@ -222,7 +222,6 @@ singularity:
   autotop: 'docker://khanlab/autotop_deps:v0.4.1'
   itksnap:  'docker://pyushkevich/itksnap:v3.8.2'
   mrtrix: 'docker://mrtrix3/mrtrix3:3.0.3'
-  diffparc_deps: 'docker://akhanf/diffparc-deps:main' #this currently has mrtrix 3.0.3 and GNU parallel
   synthseg: 'docker://ghcr.io/akhanf/synthseg:master'
   synthstrip: 'docker://freesurfer/synthstrip:1.3'
   pythondeps: 'docker://ghcr.io/khanlab/pythondeps-diffparc-app:v0.1.1'

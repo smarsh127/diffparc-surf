@@ -75,7 +75,7 @@ rule track_from_vertices:
     group:
         "subj"
     container:
-        config["singularity"]["diffparc_deps"]
+        config["singularity"]["diffparc"]
     benchmark:
         bids(
             root="benchmarks",
@@ -137,7 +137,7 @@ rule connectivity_from_vertices:
     group:
         "subj"
     container:
-        config["singularity"]["diffparc_deps"]
+        config["singularity"]["diffparc"]
     shell:
         "mkdir -p {output.conn_dir} && "
         "parallel {params.show_eta} --jobs {threads} "
