@@ -1,8 +1,6 @@
-diffparc
-============
+# diffparc-surf
 
-.. image:: https://readthedocs.org/projects/diffparc/badge/?version=latest
- :target: https://diffparc.readthedocs.io/en/latest/?badge=latest
- :alt: Documentation Status
+Snakebids app for diffusion-based parcellation
 
-diffparc - Snakebids app for diffusion-based parcellation
+
+
