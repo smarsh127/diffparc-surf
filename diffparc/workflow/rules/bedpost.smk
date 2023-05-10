@@ -180,7 +180,7 @@ else:
     def get_bedpost_cmd(wildcards):
         if config.get("use_gpu_bedpost_container", False):
             return (
-                f"singularity exec --nv -e {config['singularity']['fsl_604']} bedpostx_gpu"
+                f"singularity exec --nv -e {config['singularity']['diffparc']} bedpostx_gpu"
             )
         else:
             return os.path.join(workflow.basedir, f"scripts/bedpostx-parallel")
