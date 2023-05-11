@@ -122,7 +122,7 @@ rule track_from_voxels:
             **subj_wildcards,
         )
     container:
-        config["singularity"]["diffparc_deps"]
+        config["singularity"]["diffparc"]
     shell:
         "mkdir -p {output.tck_dir} && "
         "parallel {params.show_eta} --jobs {threads} "
@@ -177,7 +177,7 @@ rule connectivity_from_voxels:
     group:
         "subj"
     container:
-        config["singularity"]["diffparc_deps"]
+        config["singularity"]["diffparc"]
     shell:
         "mkdir -p {output.conn_dir} && "
         "parallel {params.show_eta} --jobs {threads} "

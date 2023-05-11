@@ -946,7 +946,7 @@ def get_eddy_slspec_opt(wildcards, input):
 def get_eddy_cmd(wildcards):
     if config.get("use_gpu_eddy_container", False):
         return (
-            f"singularity exec --nv -e {config['singularity']['fsl_603']} eddy_cuda9.1"
+            f"singularity exec --nv -e {config['singularity']['diffparc']} eddy_cuda9.1"
         )
     else:
         return "eddy_openmp"
@@ -1001,7 +1001,7 @@ rule run_eddy:
                 if value == True
             ]
         ),
-        container=config["singularity"]["fsl_603"],
+        container=config["singularity"]["diffparc"],
         topup_opt=get_eddy_topup_opt,
         s2v_opts=get_eddy_s2v_opts,
         slspec_opt=get_eddy_slspec_opt,
