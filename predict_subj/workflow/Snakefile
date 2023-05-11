@@ -3,9 +3,24 @@ from glob import glob
 
 configfile: 'config/config.yml'
 
+from snakemake.remote.S3 import RemoteProvider as S3RemoteProvider
+S3 = S3RemoteProvider()
+
+envvars:
+    'AWS_ACCESS_KEY_ID',
+    'AWS_SECRET_ACCESS_KEY'
+
 rule all:
     input:
         config['out_csv']
+
+rule unzip_model:
+    input:
+        S3.remote(config['s3_model_zip'])
+    output:
+        model_dir=directory('model')
+    shell:
+        'mkdir -p {output.model_dir} && unzip -d {output} {input}'
 
 
 rule extract_archive:
@@ -166,7 +181,7 @@ rule add_metadata_to_csv:
 
 rule predict_photonai:
     input:
-        project_folder=config['in_model'],
+        project_folder="model",
         test_csv="tabular/demog_features/{feature_set}/sub-01_desc-demog_feats.csv",
         features="tabular/feature_names/{feature_set}.csv"
     output:
