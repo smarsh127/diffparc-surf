@@ -16,7 +16,7 @@ rule all:
 
 rule unzip_model:
     input:
-        S3.remote(config['s3_model_zip'])
+        S3.remote(os.path.join(config['s3_bucket_models'],config['s3_model_zip']))
     output:
         model_dir=directory('model')
     shell:

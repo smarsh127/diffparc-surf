@@ -1,5 +1,6 @@
 in_archive: 'sub-3105_dataset-PPMI_group-PD_sex-M_age-73_visit10_dicoms.zip'
-s3_model_zip: 'khanlab-diffparc-classify-models/classify-pdvsctrl^all/featset-templateparc/photonai/estim-RandomForestClassifier_featsel-LassoFeatureSelection_resampler-None_cv-10fold_optim-quick.zip'
+s3_bucket_models: 'diffparc-models'
+s3_model_zip: 'classify-pdvsctrl^all/featset-templateparc/photonai/estim-RandomForestClassifier_featsel-LassoFeatureSelection_resampler-None_cv-10fold_optim-quick.zip'
 out_csv: 'subject_predictions.csv'
 
 age: 73
