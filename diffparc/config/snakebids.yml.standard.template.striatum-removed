@@ -1,0 +1,490 @@
+bids_dir: 'test_data/bids_AP_PA'
+output_dir: 'test_output'
+
+#enable printing debug statements during parsing -- disable if generating dag visualization
+debug: False
+
+root: 'results'
+tmp_dir: '/tmp'
+
+# boilerplate above
+
+derivatives: False
+
+#mappings from analysis_level to set of target rules or files
+analysis_levels: &analysis_levels
+ - participant
+ - group
+ 
+eddy_no_s2v: False
+eddy_no_quad: False
+no_bedpost: False
+
+targets_by_analysis_level:
+  participant:
+    - ''  # if '', then the first rule is run
+  group:
+    - 'all_legacy_csv'
+
+pybids_inputs:
+  dwi:
+    filters:
+      suffix: 'dwi'
+      extension: '.nii.gz'
+      scope: 'all' #raw, derivatives (or can be pipeline name too!)
+      invalid_filters: 'allow'
+      datatype: 'dwi'
+    wildcards:
+      - subject
+      - session
+      - acquisition
+      - run
+      - direction
+
+  T1w:
+    filters:
+      suffix: 'T1w'
+      extension: '.nii.gz'
+      scope: 'all' #raw, derivatives (or can be pipeline name too!)
+      datatype: 'anat'
+      invalid_filters: 'allow'
+      space: null
+    wildcards:
+      - subject
+      - session
+      - acquisition
+      - run
+
+   
+
+#these are the command-line parameters
+parse_args:
+
+  bids_dir:
+    help: The directory with the input dataset formatted according 
+          to the BIDS standard.
+
+  output_dir:
+    help: The directory where the output files 
+          should be stored. If you are running group level analysis
+          this folder should be prepopulated with the results of the
+          participant level analysis.
+
+  analysis_level: 
+    help: Level of the analysis that will be performed. 
+    choices: *analysis_levels
+
+  --participant_label:
+    help: The label(s) of the participant(s) that should be analyzed. The label 
+          corresponds to sub-<participant_label> from the BIDS spec 
+          (so it does not include "sub-"). If this parameter is not 
+          provided all subjects should be analyzed. Multiple 
+          participants can be specified with a space separated list.
+    nargs: '+'
+
+  --exclude_participant_label:
+    help: The label(s) of the participant(s) that should be excluded. The label 
+          corresponds to sub-<participant_label> from the BIDS spec 
+          (so it does not include "sub-"). If this parameter is not 
+          provided all subjects should be analyzed. Multiple 
+          participants can be specified with a space separated list.
+    nargs: '+'
+
+
+  --in_prepdwi_dir:
+    help: 'Skip dwi pre-processing and use preprocessing dwi, brainmask, and bedpost, from prepdwi instead. Specify the prepdwi directory that contains the work and prepdwi sub-directories. (default: %(default)s)'
+    default: False
+    type: Path
+
+  --in_snakedwi_dir:
+    help: 'Skip dwi pre-processing and use preprocessing dwi, brainmask, and bedpost, from snakedwi instead. Specify the snakedwi directory that contains the sub-* directories. (default: %(default)s)'
+    default: False
+    type: Path
+
+
+
+  --use_eddy:
+    help: 'Enable eddy  (default: %(default)s)'
+    action: 'store_true'
+    default: False
+
+
+  --use_topup:
+    help: 'Enable topup  (default: %(default)s)'
+    action: 'store_true'
+    default: False
+
+  --no_bedpost:
+    help: 'Disable bedpost  (default: %(default)s)'
+    action: 'store_true'
+    default: False
+
+   
+  --eddy_no_s2v:
+    help: 'Disables slice-to-volume in eddy. This option must be used
+          if your dwi json does not include SliceTiming (default: %(default)s)'
+    action: 'store_true'
+    default: False
+
+  --eddy_no_quad:
+    help: 'Disables eddy_quad QC report (default: %(default)s)'
+    action: 'store_true'
+    default: False
+
+  --masking_method:
+    help: 'Brain masking method to use (default: %(default)s)'
+    nargs: '?'
+    choices: 
+      - 'b0_BET'
+      - 'b0_SyN'
+    default: 'b0_BET'
+
+  --b0_bet_frac:
+    help: 'BET fractional intensity threshold for b0 masking (default: %(default)s)'
+    default: 0.5
+
+  --slspec_txt:
+    help: 'Path to custom slspec txt file for use with eddy. Must use this if SliceTiming does not exist in the JSON (default: %(default)s)'
+    default: False
+    type: Path
+
+
+  --use_gpu_eddy_container:
+    help: 'Use GPU-based eddy container'
+    action: 'store_true'
+    default: False
+
+
+  --use_gpu_bedpost_container:
+    help: 'Use GPU-based bedpost container'
+    action: 'store_true'
+    default: False
+
+  --fod_algorithm:
+    help: 'Mrtrix FOD algorithm to use (default: %(default)s)'
+    nargs: '?'
+    choices: 
+      - 'csd'
+      - 'msmt_csd'
+    default: 'csd'
+
+  --stat_along_tcks:
+    help: 'Statistic to use aggregating DTI metrics along each streamline (default: %(default)s)'
+    nargs: '?'
+    choices:
+      - 'mean'
+      - 'median'
+      - 'min'
+      - 'max'
+    default: 'mean'
+
+  --stat_across_tcks:
+    help: 'Statistic to use aggregating DTI metrics across streamlines at a vertex (default: %(default)s)'
+    nargs: '?'
+    choices:
+      - 'mean'
+      - 'median'
+      - 'min'
+      - 'max'
+    default: 'mean'
+
+  --show_parallel_eta:
+    help: 'Show progress and eta for rules using GNU parallel (warning: using this option in a non-interactive session will generate very large log files) (default: %(default)s)'
+    action: 'store_true'
+    default: False
+
+  --anat_only:
+    help: 'Run variant of the workflow that only relies on anatomical (T1w) data. This will automatically set the --use_template_parcellation flag, and does not produce volumetric parcellations, or any connectivity or DTI metric features. Note: if you want to use DTI metrics but avoid subject-specific connectivity parcellation, use the --use_template_parcellation option instead. (default: %(default)s)'
+    action: 'store_true'
+    default: False
+
+
+  --use_template_parcellation: 
+    help: 'Uses a pre-computed parcellation for surface-based connectivity parcellation. Note: this will still make use of DTI metrics sampled with the parcellation, use the --anat_only` option instead to completely disable the use of dwi data. (default: %(default)s)'
+    action: 'store_true'
+    default: False
+
+  --use_vbm:
+    help: 'Enable output of voxel-based morphometry and voxel-based DTI metric maps. (default: %(default)s)'
+    action: 'store_true'
+    default: False
+
+
+
+#---- to update below this
+
+singularity:
+  diffparc: 'docker://khanlab/diffparc-deps:v0.1.0-fix'  
+
+# Options for resampling dwi in T1w space
+#  1. can resample as T1w resolution
+#  2. can resample as original dwi resolution 
+#  3. can resample as specified resolution
+
+resample_dwi:
+  resample_scheme: 'orig' # should be one of: ['T1w', 'orig', 'custom']
+  custom_resolution: #only needed if the 'custom' 
+  resample_mm: 
+    - 1.0
+    - 1.0
+    - 1.0
+
+
+#masking options, provides customization at a per subject level.. 
+masking:
+  default_method: 'bet_from-b0_frac-1' #b0SyN_from-MNI152NLin2009cSym' #default method to use for brainmasking
+  methods: # list of methods (for QC report)
+    - 'bet_from-b0'
+    - 'bet_from-b0_frac-4'
+    - 'b0SyN_from-MNI152NLin2009cSym'
+  import_path: #only required if the import_mask - not implemented yet..
+    - '/path/to/mask_to_import/sub-{subject}_mask.nii.gz'
+  custom: #use this to set a custom method for a particular subject
+    #'0015': 'bet_from-b0_frac-4'
+    '0015': 'b0SyN_from-MNI152NLin2009cSym'
+
+template: MNI152NLin2009cAsym
+
+
+template_t1w: resources/tpl-MNI152NLin2009cAsym/tpl-MNI152NLin2009cAsym_res-01_T1w.nii.gz
+template_mask: resources/tpl-MNI152NLin2009cAsym/tpl-MNI152NLin2009cAsym_res-01_desc-brain_mask.nii.gz 
+
+        
+#avg bshell images are used for registration for brainmasking dwi
+template_b0: resources/tpl-MNI152NLin2009cAsym/tpl-MNI152NLin2009cAsym_res-dwi_desc-fromhcp_b0.nii.gz
+
+template_atlas_dseg_nii: resources/tpl-MNI152NLin2009cAsym/tpl-MNI152NLin2009cAsym_res-1_atlas-{atlas}_dseg.nii.gz
+template_atlas_dseg_tsv: resources/tpl-MNI152NLin2009cAsym/tpl-MNI152NLin2009cAsym_atlas-{atlas}_dseg.tsv
+
+template_tissue_probseg: resources/tpl-MNI152NLin2009cAsym/tpl-MNI152NLin2009cAsym_res-01_label-{tissue}_probseg.nii.gz
+
+#number of times to dilate  (each time 3x3x3 mode dilation)
+n_atlas_dilate: 3
+n_init_mask_dilate: 1 
+
+default_k_tissue_classes: 4 #use higher than 3 to capture contrast-enhanced regions too
+
+#--- NOT SURE WHAT TO DO WITH THIS:
+#use this to specify custom values for subjects, e.g. here sub-P001 will have k=4 tissue classes for Atropos initialization
+subject_k_tissue_classes:
+    P001: 4
+
+
+
+
+tissue_labels:
+  - GM
+  - WM
+  - CSF
+
+atlases:
+  - CerebrA
+
+
+ants:
+  dim: 3
+  random_seed: 42 #requires ants version at least 2.3.1 (includes --random-seed option)
+  intensity_opts: '-u 1 -w [0.01,0.99] -z 1'
+  linear:
+    reg_iterations: '1000x500x250x0'
+    shrink_factors: '6x4x2x1'
+    smoothing_factors: '4x2x1x0'
+  deform:
+    shrink_factors: '12x6x4x2x1'  # default in antsMVTC2: 6x4x2x1 
+    smoothing_factors: '6x3x2x1x0vox' # default in antsMVTC2: 3x2x1x0 
+    reg_iterations: '100x100x70x50x10' # default in antsMVTC2: 100x100x70x20 
+    transform_model: 'SyN[0.1,3,0]'
+    sim_metric: CC
+  shape_update:
+  gradient_step: 0.25
+
+#we convert flags and opts automatically 
+#so feel free to prescribe options that are not included here 
+#as long as they are passed to eddy using --name_of_flag or --name_of_opts=value
+eddy:
+  flags:
+    verbose: True
+    repol: True
+    cnr_maps: True
+    residuals: True
+    data_is_shelled: True
+  with_s2v:
+    mporder: 6
+    s2v_niter: 5
+    s2v_lambda: 1
+    s2v_interp: trilinear
+    ol_type: 'both'  #can be sw, gw, or both (use sw if no multi-band)
+  without_s2v:
+    ol_type: 'sw'  #can be sw, gw, or both (use sw if no multi-band)
+
+
+#diffparc
+
+template_use_dseg: False
+
+targets:
+  harvardoxford7:
+    template_dseg: resources/tpl-MNI152NLin2009cAsym/HarvardOxford/CorticalTargets.harvardoxford7.nii.gz
+    labels:
+      - Limbic
+      - Executive
+      - Rostral_motor
+      - Caudal_motor
+      - Parietal
+      - Occipital
+      - Temporal
+    label_list_txt: resources/tpl-MNI152NLin2009cAsym/HarvardOxford/label_list_harvardoxford7.txt
+  harvardoxford6:
+    template_dseg: resources/tpl-MNI152NLin2009cAsym/HarvardOxford/CorticalTargets.harvardoxford6.nii.gz
+    labels:
+      - Limbic
+      - Executive
+      - Rostral_motor
+      - Caudal_motor
+      - Parietal
+      - Occipital
+    label_list_txt: resources/tpl-MNI152NLin2009cAsym/HarvardOxford/label_list_harvardoxford6.txt
+  harvardoxford3:
+    template_dseg: resources/tpl-MNI152NLin2009cAsym/HarvardOxford/CorticalTargets.harvardoxford3.nii.gz
+    labels:
+      - Executive
+      - Rostral_motor
+      - Caudal_motor
+    label_list_txt: resources/tpl-MNI152NLin2009cAsym/HarvardOxford/label_list_harvardoxford3.txt
+  harvardoxford4:
+    template_dseg: resources/tpl-MNI152NLin2009cAsym/HarvardOxford/CorticalTargets.harvardoxford4.nii.gz
+    labels:
+      - Limbic
+      - Executive
+      - Rostral_motor
+      - Caudal_motor
+    label_list_txt: resources/tpl-MNI152NLin2009cAsym/HarvardOxford/label_list_harvardoxford4.txt
+
+
+select_seeds:
+  - vtasnc
+
+seeds:
+  vtasnc:
+    template_probseg: resources/tpl-MNI152NLin2009cAsym/CIT168_prob/vtasnc_hemi-{hemi}_probseg.nii.gz
+    probseg_threshold: 0.3
+    probseg_resample: '200%'
+    surface_decimate_percent: 0
+    use_synthseg: False
+    targets: 
+      - harvardoxford3
+      - harvardoxford4
+      - harvardoxford6
+      - harvardoxford7
+    fwhm_conn: 2mm
+    streamline_threshold_percent: 4
+    seeds_per_vertex:
+      - 250
+    seeds_per_voxel:
+      - 2000
+    normalize_percentile: 95 #normalize connectivity to each target before maxprob
+
+aux_dseg:
+  synthseg:
+    label_tsv: 'resources/synthseg_simple_labels.tsv'
+  synthsegcortparc:
+    label_tsv: 'resources/synthseg_cortparc_labels.tsv'
+
+vbm:
+  tissue_lut: 
+    CSF: 1
+    GM: 2
+    WM: 3
+  dti_metrics:
+    - FA
+    - MD
+  fwhm:
+    - 2mm
+    - 6mm
+    - 10mm
+  seg_method: 'synthseg'
+  
+hemispheres:
+  - 'L'
+  - 'R'
+
+hemi_to_structure:
+  L: CORTEX_LEFT
+  R: CORTEX_RIGHT
+  LR: CORTEX
+
+volume_metrics:
+  - vol
+  - volmni
+  
+surface_metrics:
+  - inout
+  - surfarea
+  - indepconn
+  - bundleFA
+  - bundleMD
+  - surfFA
+  - surfMD
+  - surfarearatio
+  - surfvol
+  - surfvolmni
+  - bundleznormFA
+  - bundleznormMD
+  - surfznormFA
+  - surfznormMD
+  - bundlepnormFA
+  - bundlepnormMD
+  - surfpnormFA
+  - surfpnormMD
+
+
+aux_metrics:
+  - vol
+  - volmni
+  - FA
+  - MD
+  - znormFA
+  - znormMD
+  - pnormFA
+  - pnormMD
+
+
+methods:
+  - mrtrix
+
+
+#tractography parameters
+fod_algorithm: csd #msmt_csd
+
+mrtrix_rng_seed: 42 #random number generator seed for reproducible results
+
+resample_seed_res: '1x1x1mm' #for resampling seeds/targets
+
+#voxel-based-seeding tractography (can move these to structure-specific config later..)
+
+surfdisp_normalization_fwhm_mm: 8
+
+#for test data
+participant_label: 
+exclude_participant_label:
+masking_method: b0_BET
+b0_bet_frac: 0.5
+slspec_txt: False
+eddy_no_s2v: True
+
+use_eddy: False
+use_topup: False
+skip_dwi_preproc: False
+
+
+stat_along_tcks: 'mean'  
+stat_across_tcks: 'mean'
+
+in_prepdwi_dir: False
+in_snakedwi_dir: False
+
+show_parallel_eta: False
+
+anat_only: False
+use_template_parcellation: False
+use_vbm: False

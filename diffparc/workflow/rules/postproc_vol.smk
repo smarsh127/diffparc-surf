@@ -45,9 +45,9 @@ rule nlin_transform_conn_to_template:
         ),
     container:
         config["singularity"]["diffparc"]
-    threads: 8
+    threads: 4
     resources:
-        mem_mb=8000,
+        mem_mb=32000,
     log:
         bids(
             root="logs",
@@ -106,9 +106,9 @@ rule linear_transform_conn_to_template:
         ),
     container:
         config["singularity"]["diffparc"]
-    threads: 8
+    threads: 4
     resources:
-        mem_mb=8000,
+        mem_mb=32000,
     log:
         bids(
             root="logs",
